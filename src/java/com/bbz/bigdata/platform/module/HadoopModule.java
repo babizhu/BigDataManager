@@ -57,7 +57,7 @@ public class HadoopModule{
             result += "}";
 
             return result;
-        } catch( IOException e ) {
+        } catch( Exception e ) {
             e.printStackTrace();
             response.setStatus( 500 );
             return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
