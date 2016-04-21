@@ -1,16 +1,27 @@
 <%@ page language="java"
     contentType="application/json; charset=utf-8"
-    pageEncoding="utf-8"%>
+    pageEncoding="utf-8"
+
+    %>
 
 <%
 response.addHeader( "Access-Control-Allow-Origin", "*" );
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
+//        request.getContextPath()
+//request.getServletPath()
 
-    String url = request.getScheme()+"://"+ request.getServerName()+request.getRequestURI()+"?"+request.getQueryString();
-
-
+    String url = request.getScheme()+"://"+ request.getServerName()+request.getAttribute("javax.servlet.error.message").toString()+"?"+request.getQueryString();
+    String a = request.getAttribute("javax.servlet.error.message").toString();
 
 %>
+<%--<%=request.getAttribute("javax.servlet.error.message")%>--%>
+
+
+<%--<%=exception%>--%>
+
+<%--<%--%>
+<%--exception.printStackTrace(response.getWriter());--%>
+<%--%>--%>
 
 <%--<%--%>
 <%--//    Response lastResponse =(Response) request.getAttribute("lastResponse");--%>
