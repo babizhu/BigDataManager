@@ -13,9 +13,7 @@ import org.nutz.mvc.annotation.Param;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
  * Created by liu_k on 2016/4/15.
@@ -25,6 +23,8 @@ import java.io.InputStreamReader;
 @Ok("json")
 @Fail("http:500")
 public class HadoopModule{
+    public static final int BLOCK_SIZE = 1000;
+
     @At
     @Ok("raw")
     public Object count( HttpServletRequest req, HttpServletResponse response ){
@@ -36,7 +36,11 @@ public class HadoopModule{
 
     @At
     @Ok("raw")
-    public Object getFilesData( @Param("path") String path, HttpServletRequest req, HttpServletResponse response ){
+    public Object getFilesData( @Param("path") String path,
+                                @Param("readAsText") boolean readAsText,
+                                @Param("block") long block,
+                                HttpServletRequest req,
+                                HttpServletResponse response ){
         response.addHeader( "Access-Control-Allow-Origin", "*" );
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         response.addHeader( "Content-Type", "application/json" );
@@ -49,7 +53,7 @@ public class HadoopModule{
             result += isFile + ",";
             result += "\"data\":";
             if( isFile ) {
-                result += buildFileJson( fs, path );
+                result += buildFileJson( fs, path, readAsText, block );
             } else {
                 result += buildDirectoryJson( fs, path );
             }
@@ -65,27 +69,88 @@ public class HadoopModule{
 
     }
 
-    private String buildFileJson( FileSystem fs, String path ) throws IOException{
-
-        fs = FileSystem.get( new Configuration() );
-        FSDataInputStream fin = fs.open( new Path( path ) );
-        BufferedReader in = null;
-        String line;
-        String json = "{\"FileContent\":{\"content\":\"";
+    /**
+     * @param fs            fs
+     * @param path          要读取文件的路径
+     * @param readAsText    读取模式：true：文本模式 false：二进制模式
+     * @param block         读取文件的块（以4096字节为一块）,从0开始计数
+     * @return              文件的json字符串
+     * @throws IOException
+     */
+    private String buildFileJson( FileSystem fs, String path, boolean readAsText, long block ) throws Exception{
+        FSDataInputStream in = null;
+        String json = "{\"fileContent\":{\"content\":\"";
         try {
-            in = new BufferedReader( new InputStreamReader( fin, "UTF-8" ) );
-            while( (line = in.readLine()) != null ) {
-                System.out.println( line );
-                json += line.replace( "\"","\\\"" );
+
+            FileStatus status = fs.getFileStatus( new Path( path ) );
+            in = fs.open( new Path( path ) );
+
+            long fileBlock = status.getLen() / BLOCK_SIZE;//文件的总块数
+            if( block > fileBlock ) {
+                block = fileBlock;
             }
+
+            int realLen;
+            if( block < fileBlock ) {
+                realLen = BLOCK_SIZE;
+            } else {
+                realLen = (int) (status.getLen() - block * BLOCK_SIZE);//可以放心的转，不会超过BLOCK_SIZE
+            }
+
+            byte[] contents = new byte[realLen];//一次最多仅允许读BLOCK_SIZE字节
+
+            long fileOffset = block * BLOCK_SIZE;
+
+            in.readFully( fileOffset, contents );
+//            IOUtils.readFully(in, contents, 0, realLen );
+
+            json += buildFileContent( readAsText, contents );
+            json += "\"},\"fileStatus\":";
+            json += StrUtil.removeLastChar( buildFileStatusJson( status ) );
+
         } finally {
             if( in != null ) {
                 in.close();
             }
         }
 
-        json += "\"}}";
+
+        json += "}";
         return json;
+    }
+
+    private String bytesToHexString(byte[] src){
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+        for( byte aSrc : src ) {
+            int v = aSrc & 0xFF;
+            String hv = Integer.toHexString( v );
+            if( hv.length() < 2 ) {
+                stringBuilder.append( 0 );
+            }
+            stringBuilder.append( hv );
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
+     * 以文本方式或者二进制方式获取文件内容
+     * @param readAsText    读取模式：true：文本模式 false：二进制模式
+     * @param contents      文件内容数组
+     * @return              文件内容字符串
+     */
+    private String buildFileContent( boolean readAsText, byte[] contents ){
+        if( readAsText) {
+            String json = new String( contents ).replace( "\"", "\\\"" );//处理文件里面的"
+            json = json.replace( "\n", "\\n" );
+            json = json.replace( "\r", "\\r" );
+            json = json.replace( "\t", "\\t" );
+            return json;
+        }else{
+            return bytesToHexString(contents);
+        }
     }
 
     private String buildDirectoryJson( FileSystem fs, String path ) throws IOException{
@@ -94,7 +159,7 @@ public class HadoopModule{
         String json = "{\"FileStatus\":[";
         String content = "";
         for( FileStatus file : status ) {
-            content += this.buildFileListJson( file );
+            content += this.buildFileStatusJson( file );
         }
         if( !content.isEmpty() ) {
             content = StrUtil.removeLastChar( content );
@@ -106,7 +171,7 @@ public class HadoopModule{
         return json;
     }
 
-    String buildFileListJson( FileStatus file ){
+    String buildFileStatusJson( FileStatus file ){
         String name = file.getPath().getName();
         return "{\"accessTime\":" + file.getAccessTime() + "," +
                 "\"blockSize\":" + file.getBlockSize() + "," +
