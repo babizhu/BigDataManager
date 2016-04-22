@@ -6,10 +6,9 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.nutz.mvc.annotation.At;
-import org.nutz.mvc.annotation.Fail;
-import org.nutz.mvc.annotation.Ok;
-import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.annotation.*;
+import org.nutz.mvc.upload.TempFile;
+import org.nutz.mvc.upload.UploadAdaptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,7 @@ import java.io.IOException;
 @Ok("json")
 @Fail("http:500")
 public class HadoopModule{
-    public static final int BLOCK_SIZE = 1000;
+    public static final int BLOCK_SIZE = 4096;
 
     @At
     @Ok("raw")
@@ -33,10 +32,28 @@ public class HadoopModule{
         return "{'count':'100'}";
     }
 
+    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
+//    @POST
+//    @Ok(">>:/user/profile")
+    @Ok("raw")
+    @At
+//    @At("upload")
+    public String  upload(@Param("file")TempFile tf,
+//                             @Attr(scope= Scope.SESSION, value="me")int userId,
+//                             AdaptorErrorContext err,
+                          HttpServletRequest req,
+                          HttpServletResponse response) throws IOException{
+        response.addHeader( "Access-Control-Allow-Origin", "*" );
+        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
+        response.addHeader( "Content-Type", "application/json" );
+
+         tf.write("d:\\1.png" );
+        return "{\"msg\":\"success\"}";
+    }
 
     @At
     @Ok("raw")
-    public Object getFilesData( @Param("path") String path,
+    public String getFilesData( @Param("path") String path,
                                 @Param("readAsText") boolean readAsText,
                                 @Param("block") long block,
                                 HttpServletRequest req,
@@ -61,7 +78,10 @@ public class HadoopModule{
             result += "}";
 
             return result;
-        } catch( Exception e ) {
+        } catch(org.apache.hadoop.security.AccessControlException e){
+            response.setStatus( 500 );
+            return "{\"errId\":501,\"args\":\"" + path + "\"}";
+        }catch( Exception e ) {
             e.printStackTrace();
             response.setStatus( 500 );
             return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
