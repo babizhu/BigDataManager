@@ -10,7 +10,7 @@ response.addHeader( "Access-Control-Allow-Origin", "*" );
 //        request.getContextPath()
 //request.getServletPath()
 
-    String url = request.getScheme()+"://"+ request.getServerName()+request.getAttribute("javax.servlet.error.message").toString();
+    String url = request.getScheme() +"://"+ request.getServerName()+":" + request.getLocalPort() +request.getAttribute("javax.servlet.error.message").toString();
     String qs = request.getQueryString();
     if( qs != null ){
         url += "?"+qs;
