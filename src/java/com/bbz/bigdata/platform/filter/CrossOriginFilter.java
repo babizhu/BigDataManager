@@ -1,5 +1,6 @@
 package com.bbz.bigdata.platform.filter;
 
+import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.ActionContext;
@@ -37,12 +38,26 @@ public class CrossOriginFilter implements ActionFilter{
             }
 
             HttpServletResponse resp = ac.getResponse();
-            resp.addHeader( "Access-Control-Allow-Origin", "*" );
-            resp.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
+            if(!Strings.isBlank(this.origin)) {
+                resp.addHeader("Access-Control-Allow-Origin", this.origin);
+            }
+
+            if(!Strings.isBlank(this.methods)) {
+                resp.addHeader("Access-Control-Allow-Methods", this.methods);
+            }
+
+            if(!Strings.isBlank(this.headers)) {
+                resp.addHeader("Access-Control-Allow-Headers", this.headers);
+            }
+
+            if(!Strings.isBlank(this.credentials)) {
+                resp.addHeader("Access-Control-Allow-Credentials", this.credentials);
+            }
+
             resp.addHeader( "Content-Type", "application/json" );
 
 
-            return new VoidView();
+            return null;
         } else {
             return null;
         }
