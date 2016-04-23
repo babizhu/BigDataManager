@@ -1,4 +1,4 @@
-package com.bbz.bigdata.platform.module;
+package com.bbz.bigdata.platform.module.api;
 
 import com.bbz.tool.common.StrUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -7,6 +7,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.nutz.mvc.annotation.*;
+import org.nutz.mvc.filter.CrossOriginFilter;
 import org.nutz.mvc.upload.TempFile;
 import org.nutz.mvc.upload.UploadAdaptor;
 
@@ -18,7 +19,7 @@ import java.io.IOException;
  * Created by liu_k on 2016/4/15.
  * 处理hadoop相关请求
  */
-@At("/hadoop")
+@At("api/hadoop")
 @Ok("json")
 @Fail("http:500")
 public class HadoopModule{
@@ -27,17 +28,20 @@ public class HadoopModule{
     @At
     @Ok("raw")
     public Object count( HttpServletRequest req, HttpServletResponse response ){
-        response.addHeader( "Access-Control-Allow-Origin", "*" );
-        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
+//        response.addHeader( "Access-Control-Allow-Origin", "*" );
+//        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         return "{'count':'100'}";
     }
 
-    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
+//    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
 //    @POST
 //    @Ok(">>:/user/profile")
     @Ok("raw")
     @At
 //    @At("upload")
+    @Filters({@By(type = CrossOriginFilter.class,args={"*", "get, post, put, delete, options", " X-Requested-With,origin, content-type, accept", "true"})})
+    @AdaptBy(type = UploadAdaptor.class, args = { "${app.root}/WEB-INF/tmp" })
+
     public String  upload(@Param("file")TempFile tf,
 //                             @Attr(scope= Scope.SESSION, value="me")int userId,
 //                             AdaptorErrorContext err,
@@ -47,7 +51,8 @@ public class HadoopModule{
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         response.addHeader( "Content-Type", "application/json" );
 
-         tf.write("d:\\1.png" );
+         tf.write("/Users/liukun/work/" + tf.getSubmittedFileName() );
+        System.out.println( "upload");
         return "{\"msg\":\"success\"}";
     }
 
@@ -58,38 +63,53 @@ public class HadoopModule{
                                 @Param("block") long block,
                                 HttpServletRequest req,
                                 HttpServletResponse response ){
-        response.addHeader( "Access-Control-Allow-Origin", "*" );
-        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
-        response.addHeader( "Content-Type", "application/json" );
-
-        FileSystem fs;
-        try {
-            fs = FileSystem.get( new Configuration() );
-            Boolean isFile = fs.isFile( new Path( path ) );
-            String result = "{\"currentPathIsFile\": ";
-            result += isFile + ",";
+//        response.addHeader( "Access-Control-Allow-Origin", "*" );
+//        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
+//        response.addHeader( "Content-Type", "application/json" );
+        String result = "{\"currentPathIsFile\": ";
+            result += false + ",";
             result += "\"data\":";
-            if( isFile ) {
-                result += buildFileJson( fs, path, readAsText, block );
-            } else {
-                result += buildDirectoryJson( fs, path );
-            }
-
-            result += "}";
-
+        String ret = "{\"FileStatus\":[\n" +
+                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":6,\"fileId\":16392,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1458543698158,\"owner\":\"hadoop\",\"pathSuffix\":\"input\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
+                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":8,\"fileId\":16412,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1457593033695,\"owner\":\"hadoop\",\"pathSuffix\":\"output\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
+                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":2,\"fileId\":16386,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1453911076738,\"owner\":\"hadoop\",\"pathSuffix\":\"tmp\",\"permission\":\"770\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
+                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":1,\"fileId\":16889,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1456197544321,\"owner\":\"hadoop\",\"pathSuffix\":\"user\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"}\n" +
+                "]}";
+        result += ret;
+        result += "}";
+//
             return result;
-        } catch(org.apache.hadoop.security.AccessControlException e){
-            response.setStatus( 500 );
-            return "{\"errId\":501,\"args\":\"" + path + "\"}";
-        }catch( Exception e ) {
-            e.printStackTrace();
-            response.setStatus( 500 );
-            return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
-        }
+//            return res.getContent();
+//        return ret;
+//        FileSystem fs;
+//        try {
+//            fs = FileSystem.get( new Configuration() );
+//            Boolean isFile = fs.isFile( new Path( path ) );
+//            String result = "{\"currentPathIsFile\": ";
+//            result += isFile + ",";
+//            result += "\"data\":";
+//            if( isFile ) {
+//                result += buildFileJson( fs, path, readAsText, block );
+//            } else {
+//                result += buildDirectoryJson( fs, path );
+//            }
+//
+//            result += "}";
+//
+//            return result;
+//        } catch(org.apache.hadoop.security.AccessControlException e){
+//            response.setStatus( 500 );
+//            return "{\"errId\":501,\"args\":\"" + path + "\"}";
+//        }catch( Exception e ) {
+//            e.printStackTrace();
+//            response.setStatus( 500 );
+//            return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
+//        }
 
     }
 
     /**
+     * 构建文查看件内容相关的json
      * @param fs            fs
      * @param path          要读取文件的路径
      * @param readAsText    读取模式：true：文本模式 false：二进制模式
