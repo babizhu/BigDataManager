@@ -34,7 +34,7 @@ public class CrossOriginFilter implements ActionFilter{
     public View match( ActionContext ac ){
         String requestURL = ac.getRequest().getRequestURI();
 
-        if( requestURL.indexOf( "api" ) != -1 ){
+        if( requestURL.indexOf( "api" ) != -1 && requestURL.indexOf( "upload" ) == -1 ){
             if( log.isDebugEnabled() ){
                 log.debugf( "Feedback -- [%s] [%s] [%s] [%s]", new Object[]{this.origin, this.methods, this.headers, this.credentials} );
             }

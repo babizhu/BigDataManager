@@ -19,56 +19,73 @@ import java.io.IOException;
  * Created by liu_k on 2016/4/15.
  * 处理hadoop相关请求
  */
-@At("api/hadoop")
-@Ok("json")
-@Fail("http:500")
+@At( "api/hadoop" )
+@Ok( "json" )
+@Fail( "http:500" )
 public class HadoopModule{
     public static final int BLOCK_SIZE = 4096;
 
     @At
-    @Ok("raw")
+    @Ok( "raw" )
     public Object count( HttpServletRequest req, HttpServletResponse response ){
 //        response.addHeader( "Access-Control-Allow-Origin", "*" );
 //        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         return "{'count':'100'}";
     }
 
-//    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
+    //    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
 //    @POST
 //    @Ok(">>:/user/profile")
-    @Ok("raw")
+    @Ok( "raw" )
     @At
 //    @At("upload")
-    @Filters({@By(type = CrossOriginFilter.class,args={"*", "get, post, put, delete, options", " X-Requested-With,origin, content-type, accept", "true"})})
-    @AdaptBy(type = UploadAdaptor.class, args = { "${app.root}/WEB-INF/tmp" })
+    @Filters( {@By( type = CrossOriginFilter.class, args = {"*", "get, post, put, delete, options", " X-Requested-With,origin, content-type, accept", "true"} )} )
+    @AdaptBy( type = UploadAdaptor.class, args = {"${app.root}/WEB-INF/tmp"} )
 
-    public String  upload(@Param("file")TempFile tf,
+    public String upload( @Param( "file" ) TempFile tf,
+                          @Param( "path" ) String path,
 //                             @Attr(scope= Scope.SESSION, value="me")int userId,
 //                             AdaptorErrorContext err,
                           HttpServletRequest req,
-                          HttpServletResponse response) throws IOException{
+                          HttpServletResponse response ) throws IOException{
         response.addHeader( "Access-Control-Allow-Origin", "*" );
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         response.addHeader( "Content-Type", "application/json" );
 
-         tf.write("/Users/liukun/work/" + tf.getSubmittedFileName() );
-        System.out.println( "upload");
-        return "{\"msg\":\"success\"}";
+        tf.write( "/Users/liukun/work/temp/" + tf.getSubmittedFileName() );
+
+        return buildUploadResult( tf.getSubmittedFileName() );
+    }
+
+    private String buildUploadResult(String fileName){
+//        String result = "{" +
+//                "  \"file\": {" +
+//                "  \"uid\": \"uid\",      " +
+//                "  \"name\": \""+fileName+"\",   " +
+//                "  \"status\": \"done\",  " +
+//                "  \"response\": '{\"status\":\"success\"}'" +
+//                "}," +
+//                "  fileList: []," +
+//                "  event: { }" +
+//                "}";
+        String result = "{\"response\":{\"status\":\"success\"}}";
+
+        return result;
     }
 
     @At
-    @Ok("raw")
-    public String getFilesData( @Param("path") String path,
-                                @Param("readAsText") boolean readAsText,
-                                @Param("block") long block,
+    @Ok( "raw" )
+    public String getFilesData( @Param( "path" ) String path,
+                                @Param( "readAsText" ) boolean readAsText,
+                                @Param( "block" ) long block,
                                 HttpServletRequest req,
                                 HttpServletResponse response ){
 //        response.addHeader( "Access-Control-Allow-Origin", "*" );
 //        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
 //        response.addHeader( "Content-Type", "application/json" );
         String result = "{\"currentPathIsFile\": ";
-            result += false + ",";
-            result += "\"data\":";
+        result += false + ",";
+        result += "\"data\":";
         String ret = "{\"FileStatus\":[\n" +
                 "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":6,\"fileId\":16392,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1458543698158,\"owner\":\"hadoop\",\"pathSuffix\":\"input\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
                 "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":8,\"fileId\":16412,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1457593033695,\"owner\":\"hadoop\",\"pathSuffix\":\"output\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
@@ -78,7 +95,7 @@ public class HadoopModule{
         result += ret;
         result += "}";
 //
-            return result;
+        return result;
 //            return res.getContent();
 //        return ret;
 //        FileSystem fs;
@@ -110,30 +127,31 @@ public class HadoopModule{
 
     /**
      * 构建文查看件内容相关的json
-     * @param fs            fs
-     * @param path          要读取文件的路径
-     * @param readAsText    读取模式：true：文本模式 false：二进制模式
-     * @param block         读取文件的块（以4096字节为一块）,从0开始计数
-     * @return              文件的json字符串
+     *
+     * @param fs         fs
+     * @param path       要读取文件的路径
+     * @param readAsText 读取模式：true：文本模式 false：二进制模式
+     * @param block      读取文件的块（以4096字节为一块）,从0开始计数
+     * @return 文件的json字符串
      * @throws IOException
      */
     private String buildFileJson( FileSystem fs, String path, boolean readAsText, long block ) throws Exception{
         FSDataInputStream in = null;
         String json = "{\"fileContent\":{\"content\":\"";
-        try {
+        try{
 
             FileStatus status = fs.getFileStatus( new Path( path ) );
             in = fs.open( new Path( path ) );
 
             long fileBlock = status.getLen() / BLOCK_SIZE;//文件的总块数
-            if( block > fileBlock ) {
+            if( block > fileBlock ){
                 block = fileBlock;
             }
 
             int realLen;
-            if( block < fileBlock ) {
+            if( block < fileBlock ){
                 realLen = BLOCK_SIZE;
-            } else {
+            }else{
                 realLen = (int) (status.getLen() - block * BLOCK_SIZE);//可以放心的转，不会超过BLOCK_SIZE
             }
 
@@ -148,8 +166,8 @@ public class HadoopModule{
             json += "\"},\"fileStatus\":";
             json += StrUtil.removeLastChar( buildFileStatusJson( status ) );
 
-        } finally {
-            if( in != null ) {
+        }finally{
+            if( in != null ){
                 in.close();
             }
         }
@@ -159,15 +177,15 @@ public class HadoopModule{
         return json;
     }
 
-    private String bytesToHexString(byte[] src){
-        StringBuilder stringBuilder = new StringBuilder("");
-        if (src == null || src.length <= 0) {
+    private String bytesToHexString( byte[] src ){
+        StringBuilder stringBuilder = new StringBuilder( "" );
+        if( src == null || src.length <= 0 ){
             return null;
         }
-        for( byte aSrc : src ) {
+        for( byte aSrc : src ){
             int v = aSrc & 0xFF;
             String hv = Integer.toHexString( v );
-            if( hv.length() < 2 ) {
+            if( hv.length() < 2 ){
                 stringBuilder.append( 0 );
             }
             stringBuilder.append( hv );
@@ -177,19 +195,20 @@ public class HadoopModule{
 
     /**
      * 以文本方式或者二进制方式获取文件内容
-     * @param readAsText    读取模式：true：文本模式 false：二进制模式
-     * @param contents      文件内容数组
-     * @return              文件内容字符串
+     *
+     * @param readAsText 读取模式：true：文本模式 false：二进制模式
+     * @param contents   文件内容数组
+     * @return 文件内容字符串
      */
     private String buildFileContent( boolean readAsText, byte[] contents ){
-        if( readAsText) {
+        if( readAsText ){
             String json = new String( contents ).replace( "\"", "\\\"" );//处理文件里面的"
             json = json.replace( "\n", "\\n" );
             json = json.replace( "\r", "\\r" );
             json = json.replace( "\t", "\\t" );
             return json;
         }else{
-            return bytesToHexString(contents);
+            return bytesToHexString( contents );
         }
     }
 
@@ -198,10 +217,10 @@ public class HadoopModule{
 
         String json = "{\"FileStatus\":[";
         String content = "";
-        for( FileStatus file : status ) {
+        for( FileStatus file : status ){
             content += this.buildFileStatusJson( file );
         }
-        if( !content.isEmpty() ) {
+        if( !content.isEmpty() ){
             content = StrUtil.removeLastChar( content );
             json += content;
         }
