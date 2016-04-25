@@ -1,11 +1,10 @@
 package com.bbz.bigdata.platform.module.api;
 
 import com.bbz.tool.common.StrUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.IOUtils;
 import org.nutz.mvc.annotation.*;
 import org.nutz.mvc.filter.CrossOriginFilter;
 import org.nutz.mvc.upload.TempFile;
@@ -52,7 +51,30 @@ public class HadoopModule{
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         response.addHeader( "Content-Type", "application/json" );
 
-        tf.write( "/Users/liukun/work/temp/" + tf.getSubmittedFileName() );
+//        tf.write( "d:\\" + tf.getSubmittedFileName() );
+        FileSystem fs = null;
+        FSDataOutputStream fsd = null ;
+        try {
+            Configuration conf = new Configuration();
+//            conf.set("hadoop.job.user", "hadoop");
+            fs = FileSystem.get( conf );
+            fsd = fs.create(new Path("/user/hadoop/" + tf.getSubmittedFileName()));
+            IOUtils.copyBytes(tf.getInputStream(), fsd.getWrappedStream(), tf.getSize(),false);
+        }catch( Exception e ){
+            e.printStackTrace();
+        } finally{
+            if( fs != null ){
+                fsd.close();
+            }
+            if( fsd != null ){
+                fsd.close();
+            }
+        }
+
+//        byte[] witeByte = "Hello world , you know".getBytes();
+//        fsd.write(witeByte, 0, witeByte.length);
+
+
 
         return buildUploadResult( tf.getSubmittedFileName() );
     }
@@ -79,49 +101,51 @@ public class HadoopModule{
                                 @Param( "readAsText" ) boolean readAsText,
                                 @Param( "block" ) long block,
                                 HttpServletRequest req,
-                                HttpServletResponse response ){
-//        response.addHeader( "Access-Control-Allow-Origin", "*" );
-//        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
-//        response.addHeader( "Content-Type", "application/json" );
-        String result = "{\"currentPathIsFile\": ";
-        result += false + ",";
-        result += "\"data\":";
-        String ret = "{\"FileStatus\":[\n" +
-                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":6,\"fileId\":16392,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1458543698158,\"owner\":\"hadoop\",\"pathSuffix\":\"input\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
-                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":8,\"fileId\":16412,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1457593033695,\"owner\":\"hadoop\",\"pathSuffix\":\"output\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
-                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":2,\"fileId\":16386,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1453911076738,\"owner\":\"hadoop\",\"pathSuffix\":\"tmp\",\"permission\":\"770\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
-                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":1,\"fileId\":16889,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1456197544321,\"owner\":\"hadoop\",\"pathSuffix\":\"user\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"}\n" +
-                "]}";
-        result += ret;
-        result += "}";
-//
-        return result;
+                                HttpServletResponse response ) throws IOException{
+
+//        String result = "{\"currentPathIsFile\": ";
+//        result += false + ",";
+//        result += "\"data\":";
+//        String ret = "{\"FileStatus\":[\n" +
+//                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":6,\"fileId\":16392,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1458543698158,\"owner\":\"hadoop\",\"pathSuffix\":\"input\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
+//                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":8,\"fileId\":16412,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1457593033695,\"owner\":\"hadoop\",\"pathSuffix\":\"output\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
+//                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":2,\"fileId\":16386,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1453911076738,\"owner\":\"hadoop\",\"pathSuffix\":\"tmp\",\"permission\":\"770\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"},\n" +
+//                "{\"accessTime\":0,\"blockSize\":0,\"childrenNum\":1,\"fileId\":16889,\"group\":\"supergroup\",\"length\":0,\"modificationTime\":1456197544321,\"owner\":\"hadoop\",\"pathSuffix\":\"user\",\"permission\":\"755\",\"replication\":0,\"storagePolicy\":0,\"type\":\"DIRECTORY\"}\n" +
+//                "]}";
+//        result += ret;
+//        result += "}";
+////
+//        return result;
 //            return res.getContent();
 //        return ret;
-//        FileSystem fs;
-//        try {
-//            fs = FileSystem.get( new Configuration() );
-//            Boolean isFile = fs.isFile( new Path( path ) );
-//            String result = "{\"currentPathIsFile\": ";
-//            result += isFile + ",";
-//            result += "\"data\":";
-//            if( isFile ) {
-//                result += buildFileJson( fs, path, readAsText, block );
-//            } else {
-//                result += buildDirectoryJson( fs, path );
-//            }
-//
-//            result += "}";
-//
-//            return result;
-//        } catch(org.apache.hadoop.security.AccessControlException e){
-//            response.setStatus( 500 );
-//            return "{\"errId\":501,\"args\":\"" + path + "\"}";
-//        }catch( Exception e ) {
-//            e.printStackTrace();
-//            response.setStatus( 500 );
-//            return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
-//        }
+        FileSystem fs = null;
+        try {
+            fs = FileSystem.get( new Configuration() );
+            Boolean isFile = fs.isFile( new Path( path ) );
+            String result = "{\"currentPathIsFile\": ";
+            result += isFile + ",";
+            result += "\"data\":";
+            if( isFile ) {
+                result += buildFileJson( fs, path, readAsText, block );
+            } else {
+                result += buildDirectoryJson( fs, path );
+            }
+
+            result += "}";
+
+            return result;
+        } catch(org.apache.hadoop.security.AccessControlException e){
+            response.setStatus( 500 );
+            return "{\"errId\":501,\"args\":\"" + path + "\"}";
+        }catch( Exception e ) {
+            e.printStackTrace();
+            response.setStatus( 500 );
+            return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
+        }finally {
+            if( fs != null ){
+                fs.close();
+            }
+        }
 
     }
 
@@ -202,7 +226,13 @@ public class HadoopModule{
      */
     private String buildFileContent( boolean readAsText, byte[] contents ){
         if( readAsText ){
-            String json = new String( contents ).replace( "\"", "\\\"" );//处理文件里面的"
+//            String json = new String( contents ).replace( "\"", "\\\"" );//处理文件里面的"
+//            json = json.replace( "\n", "\\n" );
+//            json = json.replace( "\r", "\\r" );
+//            json = json.replace( "\t", "\\t" );
+//
+
+            String json = Base64.encodeBase64String( contents );
             json = json.replace( "\n", "\\n" );
             json = json.replace( "\r", "\\r" );
             json = json.replace( "\t", "\\t" );

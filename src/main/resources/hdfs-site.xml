@@ -34,4 +34,8 @@
         <name>dfs.datanode.data.dir</name>
         <value>file:/usr/local/hadoop/tmp/dfs/data</value>
     </property>
+    <property>
+        <name>dfs.permissions.enabled</name>
+        <value>false</value>
+    </property>
 </configuration>
