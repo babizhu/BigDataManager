@@ -6,4 +6,7 @@
 *.iml
 out
 gen
+*.xml
+src/main/resources/*
+
 # Created by .ignore support plugin (hsz.mobi)
