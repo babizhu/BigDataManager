@@ -51,14 +51,13 @@ public class HadoopModule{
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
         response.addHeader( "Content-Type", "application/json" );
 
-//        tf.write( "d:\\" + tf.getSubmittedFileName() );
         FileSystem fs = null;
         FSDataOutputStream fsd = null ;
         try {
             Configuration conf = new Configuration();
 //            conf.set("hadoop.job.user", "hadoop");
             fs = FileSystem.get( conf );
-            fsd = fs.create(new Path("/user/hadoop/" + tf.getSubmittedFileName()));
+            fsd = fs.create(new Path("/input/" + tf.getSubmittedFileName()));
             IOUtils.copyBytes(tf.getInputStream(), fsd.getWrappedStream(), tf.getSize(),false);
         }catch( Exception e ){
             e.printStackTrace();
