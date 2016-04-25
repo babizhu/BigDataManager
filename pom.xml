@@ -87,6 +87,6 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>bigdatamanager</finalName>
+        <finalName>ROOT</finalName>
     </build>
 </project>
