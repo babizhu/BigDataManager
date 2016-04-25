@@ -33,11 +33,9 @@ public class HadoopModule{
     }
 
     //    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
-//    @POST
-//    @Ok(">>:/user/profile")
+    @POST
     @Ok( "raw" )
     @At
-//    @At("upload")
     @Filters( {@By( type = CrossOriginFilter.class, args = {"*", "get, post, put, delete, options", " X-Requested-With,origin, content-type, accept", "true"} )} )
     @AdaptBy( type = UploadAdaptor.class, args = {"${app.root}/WEB-INF/tmp"} )
 
@@ -52,16 +50,16 @@ public class HadoopModule{
         response.addHeader( "Content-Type", "application/json" );
 
         FileSystem fs = null;
-        FSDataOutputStream fsd = null ;
-        try {
+        FSDataOutputStream fsd = null;
+        try{
             Configuration conf = new Configuration();
 //            conf.set("hadoop.job.user", "hadoop");
             fs = FileSystem.get( conf );
-            fsd = fs.create(new Path("/input/" + tf.getSubmittedFileName()));
-            IOUtils.copyBytes(tf.getInputStream(), fsd.getWrappedStream(), tf.getSize(),false);
+            fsd = fs.create( new Path( "/input/" + tf.getSubmittedFileName() ) );
+            IOUtils.copyBytes( tf.getInputStream(), fsd.getWrappedStream(), tf.getSize(), false );
         }catch( Exception e ){
             e.printStackTrace();
-        } finally{
+        }finally{
             if( fs != null ){
                 fsd.close();
             }
@@ -74,11 +72,10 @@ public class HadoopModule{
 //        fsd.write(witeByte, 0, witeByte.length);
 
 
-
         return buildUploadResult( tf.getSubmittedFileName() );
     }
 
-    private String buildUploadResult(String fileName){
+    private String buildUploadResult( String fileName ){
 //        String result = "{" +
 //                "  \"file\": {" +
 //                "  \"uid\": \"uid\",      " +
@@ -118,29 +115,29 @@ public class HadoopModule{
 //            return res.getContent();
 //        return ret;
         FileSystem fs = null;
-        try {
+        try{
             fs = FileSystem.get( new Configuration() );
             Boolean isFile = fs.isFile( new Path( path ) );
             String result = "{\"currentPathIsFile\": ";
             result += isFile + ",";
             result += "\"data\":";
-            if( isFile ) {
+            if( isFile ){
                 result += buildFileJson( fs, path, readAsText, block );
-            } else {
+            }else{
                 result += buildDirectoryJson( fs, path );
             }
 
             result += "}";
 
             return result;
-        } catch(org.apache.hadoop.security.AccessControlException e){
+        }catch( org.apache.hadoop.security.AccessControlException e ){
             response.setStatus( 500 );
             return "{\"errId\":501,\"args\":\"" + path + "\"}";
-        }catch( Exception e ) {
+        }catch( Exception e ){
             e.printStackTrace();
             response.setStatus( 500 );
             return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
-        }finally {
+        }finally{
             if( fs != null ){
                 fs.close();
             }
