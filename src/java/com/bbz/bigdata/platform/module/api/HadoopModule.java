@@ -1,5 +1,6 @@
 package com.bbz.bigdata.platform.module.api;
 
+import com.bbz.bigdata.util.Util;
 import com.bbz.tool.common.StrUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
@@ -18,14 +19,14 @@ import java.io.IOException;
  * Created by liu_k on 2016/4/15.
  * 处理hadoop相关请求
  */
-@At( "api/hadoop" )
-@Ok( "json" )
-@Fail( "http:500" )
+@At("api/hadoop")
+@Ok("json")
+@Fail("http:500")
 public class HadoopModule{
     public static final int BLOCK_SIZE = 4096;
 
     @At
-    @Ok( "raw" )
+    @Ok("raw")
     public Object count( HttpServletRequest req, HttpServletResponse response ){
 //        response.addHeader( "Access-Control-Allow-Origin", "*" );
 //        response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
@@ -33,16 +34,14 @@ public class HadoopModule{
     }
 
     //    @AdaptBy(type=UploadAdaptor.class, args={"${app.root}/WEB-INF/tmp/user_avatar", "8192", "utf-8", "20000", "102400"})
-    @POST
-    @Ok( "raw" )
+//    @POST
+    @Ok("raw")
     @At
-    @Filters( {@By( type = CrossOriginFilter.class, args = {"*", "get, post, put, delete, options", " X-Requested-With,origin, content-type, accept", "true"} )} )
-    @AdaptBy( type = UploadAdaptor.class, args = {"${app.root}/WEB-INF/tmp"} )
+    @Filters({@By(type = CrossOriginFilter.class, args = {"*", "get, post, put, delete, options", " X-Requested-With,origin, content-type, accept", "true"})})
+    @AdaptBy(type = UploadAdaptor.class, args = {"${app.root}/WEB-INF/tmp"})
 
-    public String upload( @Param( "file" ) TempFile tf,
-                          @Param( "path" ) String path,
-//                             @Attr(scope= Scope.SESSION, value="me")int userId,
-//                             AdaptorErrorContext err,
+    public String upload( @Param("file") TempFile tf,
+                          @Param("path") String path,
                           HttpServletRequest req,
                           HttpServletResponse response ) throws IOException{
         response.addHeader( "Access-Control-Allow-Origin", "*" );
@@ -51,51 +50,93 @@ public class HadoopModule{
 
         FileSystem fs = null;
         FSDataOutputStream fsd = null;
-        try{
+        try {
             Configuration conf = new Configuration();
-//            conf.set("hadoop.job.user", "hadoop");
             fs = FileSystem.get( conf );
-            fsd = fs.create( new Path( "/input/" + tf.getSubmittedFileName() ) );
-            IOUtils.copyBytes( tf.getInputStream(), fsd.getWrappedStream(), tf.getSize(), false );
-        }catch( Exception e ){
-            e.printStackTrace();
-        }finally{
-            if( fs != null ){
-                fsd.close();
+
+            Path uploadFilePath = getRealUploadPath( fs, path, tf.getSubmittedFileName() );
+
+            int errId;
+            if( (errId = check( fs, uploadFilePath )) != 0 ) {
+//                sendErrorResponse( response, errId, uploadFilePath.toString() );
+                return buildUploadResult( errId, uploadFilePath.toString() );
             }
-            if( fsd != null ){
+
+            fsd = fs.create( uploadFilePath );
+            IOUtils.copyBytes( tf.getInputStream(), fsd.getWrappedStream(), tf.getSize(), false );
+
+        } catch( Exception e ) {
+            e.printStackTrace();
+            return buildUploadResult( 500, e.getMessage() );
+
+
+        } finally {
+            if( fs != null ) {
+                fs.close();
+            }
+            if( fsd != null ) {
                 fsd.close();
             }
         }
-
-//        byte[] witeByte = "Hello world , you know".getBytes();
-//        fsd.write(witeByte, 0, witeByte.length);
-
-
-        return buildUploadResult( tf.getSubmittedFileName() );
+        return buildUploadResult( 0, null );
     }
 
-    private String buildUploadResult( String fileName ){
-//        String result = "{" +
-//                "  \"file\": {" +
-//                "  \"uid\": \"uid\",      " +
-//                "  \"name\": \""+fileName+"\",   " +
-//                "  \"status\": \"done\",  " +
-//                "  \"response\": '{\"status\":\"success\"}'" +
-//                "}," +
-//                "  fileList: []," +
-//                "  event: { }" +
-//                "}";
-        String result = "{\"response\":{\"status\":\"success\"}}";
 
-        return result;
+    /**
+     * 计算上传文件的真实目录，有可能客户端上传的currentPath其实是一个文件，这样就要获取此文件所在的目录作为上传目录
+     *
+     * @param fs             fs
+     * @param currentPath    path
+     * @param uploadFileName 上传的文件名
+     * @return 真实目录的path
+     */
+    private Path getRealUploadPath( FileSystem fs, String currentPath, String uploadFileName ) throws IOException{
+        Boolean isFile = fs.isFile( new Path( currentPath ) );
+        String directory = currentPath;
+        if( isFile ) {
+            directory = directory.substring( 0, directory.lastIndexOf( "/" ) );
+        }
+        return new Path( directory + "/" + uploadFileName );
+    }
+
+    /**
+     * 检测上传的文件是否合法，比如
+     * 文件重名
+     *
+     * @param fs             fs
+     * @param uploadFilePath 要上传的文件路径
+     * @return 错误id，0代表成功
+     */
+    private int check( FileSystem fs, Path uploadFilePath ) throws IOException{
+
+        if( fs.exists( uploadFilePath ) ) {
+            return 202;
+        }
+
+        return 0;
+    }
+
+    /**
+     * 上传组件的专用提示函数
+     *
+     * @param errId 错误代码 =0 表示成功
+     * @param args  参数
+     * @return
+     */
+    private String buildUploadResult( int errId, String args ){
+
+        if( errId != 0 ) {
+            return "{\"error\":{\"errorId\":" + errId + ",\"args\":\"" + args + "\"}}";
+
+        }
+        return "{\"response\":{\"status\":\"success\"}}";
     }
 
     @At
-    @Ok( "raw" )
-    public String getFilesData( @Param( "path" ) String path,
-                                @Param( "readAsText" ) boolean readAsText,
-                                @Param( "block" ) long block,
+    @Ok("raw")
+    public String getFilesData( @Param("path") String path,
+                                @Param("readAsText") boolean readAsText,
+                                @Param("block") long block,
                                 HttpServletRequest req,
                                 HttpServletResponse response ) throws IOException{
 
@@ -115,30 +156,30 @@ public class HadoopModule{
 //            return res.getContent();
 //        return ret;
         FileSystem fs = null;
-        try{
+        try {
             fs = FileSystem.get( new Configuration() );
             Boolean isFile = fs.isFile( new Path( path ) );
             String result = "{\"currentPathIsFile\": ";
             result += isFile + ",";
             result += "\"data\":";
-            if( isFile ){
+            if( isFile ) {
                 result += buildFileJson( fs, path, readAsText, block );
-            }else{
+            } else {
                 result += buildDirectoryJson( fs, path );
             }
 
             result += "}";
 
             return result;
-        }catch( org.apache.hadoop.security.AccessControlException e ){
+        } catch( org.apache.hadoop.security.AccessControlException e ) {
             response.setStatus( 500 );
             return "{\"errId\":501,\"args\":\"" + path + "\"}";
-        }catch( Exception e ){
+        } catch( Exception e ) {
             e.printStackTrace();
             response.setStatus( 500 );
             return "{\"errId\":500,\"args\":\"" + e.getMessage() + "\"}";
-        }finally{
-            if( fs != null ){
+        } finally {
+            if( fs != null ) {
                 fs.close();
             }
         }
@@ -158,20 +199,20 @@ public class HadoopModule{
     private String buildFileJson( FileSystem fs, String path, boolean readAsText, long block ) throws Exception{
         FSDataInputStream in = null;
         String json = "{\"fileContent\":{\"content\":\"";
-        try{
+        try {
 
             FileStatus status = fs.getFileStatus( new Path( path ) );
             in = fs.open( new Path( path ) );
 
             long fileBlock = status.getLen() / BLOCK_SIZE;//文件的总块数
-            if( block > fileBlock ){
+            if( block > fileBlock ) {
                 block = fileBlock;
             }
 
             int realLen;
-            if( block < fileBlock ){
+            if( block < fileBlock ) {
                 realLen = BLOCK_SIZE;
-            }else{
+            } else {
                 realLen = (int) (status.getLen() - block * BLOCK_SIZE);//可以放心的转，不会超过BLOCK_SIZE
             }
 
@@ -186,8 +227,8 @@ public class HadoopModule{
             json += "\"},\"fileStatus\":";
             json += StrUtil.removeLastChar( buildFileStatusJson( status ) );
 
-        }finally{
-            if( in != null ){
+        } finally {
+            if( in != null ) {
                 in.close();
             }
         }
@@ -199,13 +240,13 @@ public class HadoopModule{
 
     private String bytesToHexString( byte[] src ){
         StringBuilder stringBuilder = new StringBuilder( "" );
-        if( src == null || src.length <= 0 ){
+        if( src == null || src.length <= 0 ) {
             return null;
         }
-        for( byte aSrc : src ){
+        for( byte aSrc : src ) {
             int v = aSrc & 0xFF;
             String hv = Integer.toHexString( v );
-            if( hv.length() < 2 ){
+            if( hv.length() < 2 ) {
                 stringBuilder.append( 0 );
             }
             stringBuilder.append( hv );
@@ -221,7 +262,7 @@ public class HadoopModule{
      * @return 文件内容字符串
      */
     private String buildFileContent( boolean readAsText, byte[] contents ){
-        if( readAsText ){
+        if( readAsText ) {
 //            String json = new String( contents ).replace( "\"", "\\\"" );//处理文件里面的"
 //            json = json.replace( "\n", "\\n" );
 //            json = json.replace( "\r", "\\r" );
@@ -229,11 +270,11 @@ public class HadoopModule{
 //
 
             String json = Base64.encodeBase64String( contents );
-            json = json.replace( "\n", "\\n" );
-            json = json.replace( "\r", "\\r" );
-            json = json.replace( "\t", "\\t" );
+            json = json.replace( "\n", "" );
+            json = json.replace( "\r", "" );
+            json = json.replace( "\t", "" );
             return json;
-        }else{
+        } else {
             return bytesToHexString( contents );
         }
     }
@@ -243,10 +284,10 @@ public class HadoopModule{
 
         String json = "{\"FileStatus\":[";
         String content = "";
-        for( FileStatus file : status ){
+        for( FileStatus file : status ) {
             content += this.buildFileStatusJson( file );
         }
-        if( !content.isEmpty() ){
+        if( !content.isEmpty() ) {
             content = StrUtil.removeLastChar( content );
             json += content;
         }
@@ -271,5 +312,18 @@ public class HadoopModule{
                 ",\"replication\":" + file.getReplication() + "," +
 //                "\"storagePolicy\":"+file.isFile()+"," +
                 "\"isFile\":" + file.isFile() + "},";
+    }
+
+    /**
+     * 统一返回错误信息
+     *
+     * @param response response
+     * @param errId    errid
+     * @param args     错误参数
+     * @return 格式化好的json错误提示
+     */
+    private String sendErrorResponse( HttpServletResponse response, int errId, String args ){
+        response.setStatus( 500 );
+        return Util.INSTANCE.buildErrorMsg( errId, args );
     }
 }
