@@ -17,7 +17,11 @@ import java.io.IOException;
 
 /**
  * Created by liu_k on 2016/4/15.
- * 处理hadoop相关请求
+ * 处理hadoop相关请求，关于权限部分，最简单的方案似乎是在hdfs-site.xml中增加
+ * <property>
+ *      <name>dfs.permissions.enabled</name>
+ *      <value>false</value>
+ * </property>
  */
 @At("api/hadoop")
 @Ok("json")
@@ -58,7 +62,7 @@ public class HadoopModule{
 
             int errId;
             if( (errId = check( fs, uploadFilePath )) != 0 ) {
-//                sendErrorResponse( response, errId, uploadFilePath.toString() );
+//                buildErrorResponse( response, errId, uploadFilePath.toString() );
                 return buildUploadResult( errId, uploadFilePath.toString() );
             }
 
@@ -81,6 +85,22 @@ public class HadoopModule{
         return buildUploadResult( 0, null );
     }
 
+    /**
+     * 把客户端上传的currentPath转换为实际的目录，
+     * 有可能客户端上传的currentPath其实是一个文件，这样就要获取此文件所在的目录作为要操作的真实目录
+     *
+     * @param fs
+     * @param currentPath
+     * @return 目录名末尾自动加上"/"
+     */
+    private String getRealDirectory( FileSystem fs, String currentPath ) throws IOException{
+        Boolean isFile = fs.isFile( new Path( currentPath ) );
+        String directory = currentPath;
+        if( isFile ) {
+            directory = directory.substring( 0, directory.lastIndexOf( "/" ) );
+        }
+        return directory.endsWith( "/" ) ? directory : directory + "/";
+    }
 
     /**
      * 计算上传文件的真实目录，有可能客户端上传的currentPath其实是一个文件，这样就要获取此文件所在的目录作为上传目录
@@ -91,12 +111,7 @@ public class HadoopModule{
      * @return 真实目录的path
      */
     private Path getRealUploadPath( FileSystem fs, String currentPath, String uploadFileName ) throws IOException{
-        Boolean isFile = fs.isFile( new Path( currentPath ) );
-        String directory = currentPath;
-        if( isFile ) {
-            directory = directory.substring( 0, directory.lastIndexOf( "/" ) );
-        }
-        return new Path( directory + "/" + uploadFileName );
+        return new Path( getRealDirectory( fs, currentPath ) + uploadFileName );
     }
 
     /**
@@ -130,6 +145,47 @@ public class HadoopModule{
 
         }
         return "{\"response\":{\"status\":\"success\"}}";
+    }
+
+    @At
+    @Ok("raw")
+    public String operation( @Param("path") String path,
+                             @Param("op") int op,
+                             @Param("args") String args,
+                             HttpServletRequest req,
+                             HttpServletResponse response ){
+
+        FileSystem fs = null;
+        try {
+            fs = FileSystem.get( new Configuration() );
+            switch( op ) {
+                case 3://添加文件夹
+                    String realDirector = this.getRealDirectory( fs, path );
+                    Path dst = new Path( realDirector + args );
+                    return addDirectory( fs, dst, response );
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
+        } finally {
+            if( fs != null ) {
+                try {
+                    fs.close();
+                } catch( IOException e ) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return "";
+
+    }
+
+    private String addDirectory( FileSystem fs, Path dst, HttpServletResponse response ) throws IOException{
+        if( fs.exists( dst ) ) {
+            return buildErrorResponse( response, 202, dst.toString() );
+        }
+        fs.mkdirs( dst );
+        return buildSuccessResponse();
     }
 
     @At
@@ -297,7 +353,7 @@ public class HadoopModule{
         return json;
     }
 
-    String buildFileStatusJson( FileStatus file ){
+    private String buildFileStatusJson( FileStatus file ){
         String name = file.getPath().getName();
         return "{\"accessTime\":" + file.getAccessTime() + "," +
                 "\"blockSize\":" + file.getBlockSize() + "," +
@@ -322,8 +378,13 @@ public class HadoopModule{
      * @param args     错误参数
      * @return 格式化好的json错误提示
      */
-    private String sendErrorResponse( HttpServletResponse response, int errId, String args ){
+    private String buildErrorResponse( HttpServletResponse response, int errId, String args ){
         response.setStatus( 500 );
         return Util.INSTANCE.buildErrorMsg( errId, args );
+    }
+
+
+    private String buildSuccessResponse(){
+        return "{\"success\":true}";
     }
 }
