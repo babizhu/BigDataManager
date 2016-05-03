@@ -19,8 +19,8 @@ import java.io.IOException;
  * Created by liu_k on 2016/4/15.
  * 处理hadoop相关请求，关于权限部分，最简单的方案似乎是在hdfs-site.xml中增加
  * <property>
- *      <name>dfs.permissions.enabled</name>
- *      <value>false</value>
+ * <name>dfs.permissions.enabled</name>
+ * <value>false</value>
  * </property>
  */
 @At("api/hadoop")
@@ -127,12 +127,11 @@ public class HadoopModule{
         if( fs.exists( uploadFilePath ) ) {
             return 202;
         }
-
         return 0;
     }
 
     /**
-     * 上传组件的专用提示函数
+     * 上传组件的专用返回结果函数
      *
      * @param errId 错误代码 =0 表示成功
      * @param args  参数
@@ -147,6 +146,19 @@ public class HadoopModule{
         return "{\"response\":{\"status\":\"success\"}}";
     }
 
+    /**
+     * 统一入口处理
+     * 1、修改文件（夹）名称
+     * 2、删除文件（夹）
+     * 3、添加文件夹
+     *
+     * @param path          要修改的路径
+     * @param op            操作id，见上
+     * @param args          操作参数
+     * @param req           req
+     * @param response      response
+     * @return              返回的json
+     */
     @At
     @Ok("raw")
     public String operation( @Param("path") String path,
@@ -156,16 +168,28 @@ public class HadoopModule{
                              HttpServletResponse response ){
 
         FileSystem fs = null;
+        int errId = 0;
         try {
             fs = FileSystem.get( new Configuration() );
+            String realDirector = this.getRealDirectory( fs, path );
             switch( op ) {
                 case 3://添加文件夹
-                    String realDirector = this.getRealDirectory( fs, path );
+
                     Path dst = new Path( realDirector + args );
-                    return addDirectory( fs, dst, response );
+                    errId = addDirectory( fs, dst );
+                case 2://删除文件（夹）
+                    boolean recursiveDelete = Boolean.parseBoolean( args );
+                    errId = deleteFile( fs,path,recursiveDelete );
+            }
+
+            if( errId == 0 ){
+                return buildSuccessResponse();
+            }else {
+                return buildErrorResponse( response,errId,"" );
             }
         } catch( Exception e ) {
             e.printStackTrace();
+
         } finally {
             if( fs != null ) {
                 try {
@@ -176,16 +200,40 @@ public class HadoopModule{
             }
         }
 
-        return "";
+        return buildSuccessResponse();
 
     }
 
-    private String addDirectory( FileSystem fs, Path dst, HttpServletResponse response ) throws IOException{
+    /**
+     * 删除文件（夹）
+     * @param fs                fs
+     * @param path              要删除的文件路径
+     * @param recursiveDelete   如果是文件夹，那么是否递归删除子目录
+     * @return                  错误id，0为执行成功
+     */
+    private int deleteFile( FileSystem fs, String path, boolean recursiveDelete ){
+        try {
+            fs.delete( new Path( path ), recursiveDelete );//false 为是否递归删除
+        }catch( Exception e ){
+            return 203;
+        }
+        return 0;
+
+    }
+
+    private String rename( FileSystem fs, String fromFile, String toFile ) throws IOException{
+        fs.rename( new Path( fromFile ), new Path( toFile ) );
+        return buildSuccessResponse();
+
+    }
+
+    private int addDirectory( FileSystem fs, Path dst) throws IOException{
         if( fs.exists( dst ) ) {
-            return buildErrorResponse( response, 202, dst.toString() );
+//            return buildErrorResponse( response, 202, dst.toString() );
+            return 202;
         }
         fs.mkdirs( dst );
-        return buildSuccessResponse();
+        return 0;
     }
 
     @At
