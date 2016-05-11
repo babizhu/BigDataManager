@@ -1,10 +1,8 @@
 package com.bbz.bigdata.platform;
 
 import com.bbz.bigdata.platform.filter.CrossOriginFilter;
-import org.nutz.mvc.annotation.By;
-import org.nutz.mvc.annotation.Filters;
-import org.nutz.mvc.annotation.Modules;
-import org.nutz.mvc.annotation.SetupBy;
+import org.nutz.mvc.annotation.*;
+import org.nutz.mvc.ioc.provider.ComboIocProvider;
 
 /**
  * Created by liu_k on 2016/4/15.
@@ -12,6 +10,9 @@ import org.nutz.mvc.annotation.SetupBy;
 
 @Modules(scanPackage = true)
 @SetupBy(value = MainSetup.class)
+@IocBy(type = ComboIocProvider.class, args = {"*js", "ioc/",
+        "*anno", "net.wendal.nutzbook",
+        "*tx"})
 //@Filters(#  CrossOrginFilter)
 @Filters({@By(type = CrossOriginFilter.class)})
 public class MainModule{

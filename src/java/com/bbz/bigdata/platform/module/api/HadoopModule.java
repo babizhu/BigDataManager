@@ -177,9 +177,14 @@ public class HadoopModule{
 
                     Path dst = new Path( realDirector + args );
                     errId = addDirectory( fs, dst );
+                    break;
                 case 2://删除文件（夹）
                     boolean recursiveDelete = Boolean.parseBoolean( args );
                     errId = deleteFile( fs,path,recursiveDelete );
+                    break;
+                case 1://重命名
+                    errId = rename( fs,path,args );
+                    break;
             }
 
             if( errId == 0 ){
@@ -221,9 +226,9 @@ public class HadoopModule{
 
     }
 
-    private String rename( FileSystem fs, String fromFile, String toFile ) throws IOException{
+    private int rename( FileSystem fs, String fromFile, String toFile ) throws IOException{
         fs.rename( new Path( fromFile ), new Path( toFile ) );
-        return buildSuccessResponse();
+        return 0;
 
     }
 
