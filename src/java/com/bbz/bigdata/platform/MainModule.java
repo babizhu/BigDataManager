@@ -11,7 +11,7 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
 @Modules(scanPackage = true)
 @SetupBy(value = MainSetup.class)
 @IocBy(type = ComboIocProvider.class, args = {"*js", "ioc/",
-        "*anno", "net.wendal.nutzbook",
+        "*anno", "com.bbz.bigdata",
         "*tx"})
 //@Filters(#  CrossOrginFilter)
 @Filters({@By(type = CrossOriginFilter.class)})

@@ -11,6 +11,7 @@ import java.util.Date;
 
 /**
  * Created by liu_k on 2016/4/15.
+ *
  */
 public class MainSetup implements Setup{
     public void init( NutConfig conf ){
