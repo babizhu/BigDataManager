@@ -41,7 +41,7 @@ public class ClusterModule{
     /**
      * 群数据操作（增删改）统一到这里处理
      *
-     * @param op      操作类型1:增 2:、删除 3:改
+     * @param op      操作类型1:增 改（通过id是否等于-1区分） 2:、删除
      * @param cluster 当前要操作的集群
      */
     @At
@@ -51,14 +51,17 @@ public class ClusterModule{
         try {
             switch( op ) {
                 case 1:
-                    result = add( cluster );
+                    if( cluster.getId() == -1 ){
+                        result = add( cluster );
+                    }
+                    else{
+                        result = update( cluster );
+                    }
                     break;
                 case 2:
                     result = delete( cluster );
                     break;
-                case 3:
-                    result = update( cluster );
-                    break;
+
                 default:
                     throw new IllegalAccessException( "operation 不存在:" + op );
             }
@@ -88,13 +91,14 @@ public class ClusterModule{
         cluster.setName( null );// 不允许更新名
         cluster.setCreateTime( null );//也不允许更新创建时间
         dao.updateIgnoreNull( cluster );// 真正更新的其实只有description and ip
-        return re.setv( "ok", true );
+        return re.setv( "ok", true ).setv( "data", cluster );
     }
 
     private Object delete( Cluster cluster ){
 
         dao.delete( Cluster.class, cluster.getId() ); // 再严谨一些的话,需要判断是否为>0
-        return new NutMap().setv( "ok", true );
+        NutMap re = new NutMap();
+        return re.setv( "ok", true ).setv( "data", cluster );
     }
 
     @At
