@@ -7,6 +7,6 @@
 out
 gen
 *.xml
-src/main/resources/*
+#src/main/resources/*.xml
 
 # Created by .ignore support plugin (hsz.mobi)
