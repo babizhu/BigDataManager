@@ -1,9 +1,6 @@
 package com.bbz.bigdata.platform.bean;
 
-import org.nutz.dao.entity.annotation.Column;
-import org.nutz.dao.entity.annotation.Id;
-import org.nutz.dao.entity.annotation.Name;
-import org.nutz.dao.entity.annotation.Table;
+import org.nutz.dao.entity.annotation.*;
 
 import java.util.Date;
 
@@ -24,6 +21,11 @@ public class Cluster{
     private String description;
     @Column
     private Date createTime;
+
+
+    @Comment("集群中运行的服务，用逗号分割")
+    @Column
+    private String service;//集群内运行的所有服务，用逗号分隔
 
     public int getId(){
         return id;
@@ -63,5 +65,13 @@ public class Cluster{
 
     public void setCreateTime( Date createTime ){
         this.createTime = createTime;
+    }
+
+    public String getService(){
+        return service;
+    }
+
+    public void setService( String service ){
+        this.service = service;
     }
 }

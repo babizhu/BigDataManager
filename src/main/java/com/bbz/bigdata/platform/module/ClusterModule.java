@@ -45,7 +45,7 @@ public class ClusterModule{
      * @param cluster 当前要操作的集群
      */
     @At
-    public Object operation( @Param("op") int op, @Param("..") Cluster cluster,
+    public Object operation( @Param("op") int op, @Param("src/main") Cluster cluster,
                              HttpServletResponse response ) throws IllegalAccessException{
         Object result = null;
         try {
@@ -102,7 +102,7 @@ public class ClusterModule{
     }
 
     @At
-    public Object query( @Param("name") String name, @Param("..") Pager pager ){
+    public Object query( @Param("name") String name, @Param("src/main") Pager pager ){
         Cnd cnd = Strings.isBlank( name ) ? null : Cnd.where( "name", "like", "%" + name + "%" );
         QueryResult qr = new QueryResult();
         qr.setList( dao.query( Cluster.class, cnd, pager ) );
