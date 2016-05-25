@@ -11,7 +11,9 @@ var ioc = {
             password : "ces",
             testWhileIdle : true,
             validationQuery : "select 1" ,
-            maxActive : 100
+            maxActive : 100,
+            filters : "mergeStat",
+            connectionProperties : "druid.stat.slowSqlMillis=2000"
         }
     },
     dao : {

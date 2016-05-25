@@ -1,9 +1,9 @@
 package com.bbz.bigdata.platform.module;
 
 import com.bbz.bigdata.platform.bean.Cluster;
+import com.bbz.bigdata.platform.service.ClusterService;
 import com.bbz.bigdata.util.Util;
 import org.nutz.dao.Cnd;
-import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
 import org.nutz.dao.pager.Pager;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 /**
- * Created by liu_k on 2016/5/11.
+ * Created by liu_k on 2.
  * 集群相关操作
  */
 
@@ -29,13 +29,11 @@ import java.util.Date;
 @Fail("http:500")
 public class ClusterModule{
     @Inject
-    protected Dao dao;
+    protected ClusterService clusterService;
 
     @At
     public int count(){
-        System.out.println( dao.count( Cluster.class ) );
-        return dao.count( Cluster.class );
-//        return 10;
+        return clusterService.count();
     }
 
     /**
@@ -45,7 +43,7 @@ public class ClusterModule{
      * @param cluster 当前要操作的集群
      */
     @At
-    public Object operation( @Param("op") int op, @Param("src/main") Cluster cluster,
+    public Object operation( @Param("op") int op, @Param("..") Cluster cluster,
                              HttpServletResponse response ) throws IllegalAccessException{
         Object result = null;
         try {
@@ -68,6 +66,7 @@ public class ClusterModule{
             return result;
 
         } catch( Exception e ) {
+            e.printStackTrace();
             return Util.INSTANCE.buildErrorResponse( response, 500, e.getMessage() );
         }
 //        return result;
@@ -81,7 +80,8 @@ public class ClusterModule{
         }
         cluster.setCreateTime( new Date() );
 
-        cluster = dao.insert( cluster );
+
+        clusterService.add( cluster );
         return re.setv( "ok", true ).setv( "data", cluster );
     }
 
@@ -90,25 +90,22 @@ public class ClusterModule{
 
         cluster.setName( null );// 不允许更新名
         cluster.setCreateTime( null );//也不允许更新创建时间
-        dao.updateIgnoreNull( cluster );// 真正更新的其实只有description and ip
+
+        clusterService.updateIgnoreNull( cluster );// 真正更新的其实只有description and ip
         return re.setv( "ok", true ).setv( "data", cluster );
     }
 
     private Object delete( Cluster cluster ){
-
-        dao.delete( Cluster.class, cluster.getId() ); // 再严谨一些的话,需要判断是否为>0
+        clusterService.delete(cluster.getId());
+//        dao.delete( Cluster.class, cluster.getId() ); // 再严谨一些的话,需要判断是否为>0
         NutMap re = new NutMap();
         return re.setv( "ok", true ).setv( "data", cluster );
     }
 
     @At
-    public Object query( @Param("name") String name, @Param("src/main") Pager pager ){
+    public QueryResult query( @Param("name") String name, @Param("..") Pager pager ){
         Cnd cnd = Strings.isBlank( name ) ? null : Cnd.where( "name", "like", "%" + name + "%" );
-        QueryResult qr = new QueryResult();
-        qr.setList( dao.query( Cluster.class, cnd, pager ) );
-        pager.setRecordCount( dao.count( Cluster.class, cnd ) );
-        qr.setPager( pager );
-        return qr; //默认分页是第1页,每页20条
+        return clusterService.query( cnd, pager );
     }
 
     private String checkCluster( Cluster cluster ){
