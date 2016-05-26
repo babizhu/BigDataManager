@@ -2,14 +2,14 @@ package com.bbz.bigdata.platform.bean;
 
 import org.nutz.dao.entity.annotation.*;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * Created by liu_k on 2016/5/11.
  * Cluster数据库映射类
  */
 @Table("cluster")
-public class Cluster{
+public class Cluster extends BaseBean{
     @Id
     private int id;
     @Name
@@ -19,8 +19,17 @@ public class Cluster{
     private String ip;
     @Column
     private String description;
-    @Column
-    private Date createTime;
+
+    @Many(target = ClusterNode.class, field = "clusterId")
+    private List<ClusterNode> clusterNodes;
+
+    public List<ClusterNode> getClusterNode() {
+        return clusterNodes;
+    }
+
+    public void setClusterNodes(List<ClusterNode> pets) {
+        this.clusterNodes = pets;
+    }
 
 
     @Comment("集群中运行的服务，用逗号分割")
@@ -59,13 +68,7 @@ public class Cluster{
         this.description = description;
     }
 
-    public Date getCreateTime(){
-        return createTime;
-    }
 
-    public void setCreateTime( Date createTime ){
-        this.createTime = createTime;
-    }
 
     public String getService(){
         return service;

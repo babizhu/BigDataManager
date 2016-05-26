@@ -16,13 +16,18 @@ public class ClusterService extends IdNameEntityService<Cluster>{
 
     public QueryResult query( Cnd cnd, Pager pager ){
         QueryResult qr = new QueryResult();
-        qr.setList( dao().query( Cluster.class, cnd, pager ) );
+//        qr.setList( dao().query( Cluster.class, cnd, pager ) );
+
 
         pager.setRecordCount( dao().count( Cluster.class, cnd ) );
         qr.setPager( pager );
         return qr;
     }
 
+    public Cluster getClusterInfoWithNodes( int clusterId ){
+        Cluster cluster = dao().fetchLinks( dao().fetch( Cluster.class,clusterId ), null );
+        return cluster;
+    }
     public int count(){
         System.out.println( dao().count( Cluster.class ) );
         return dao().count( Cluster.class );

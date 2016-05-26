@@ -37,6 +37,17 @@ public class ClusterModule{
     }
 
     /**
+     * 获取某个集群的节点信息
+     *
+     * @param clusterId 要获取的节点id
+     * @return 集群及其子节点的信息
+     */
+    @At
+    public Cluster getClusterWithNodes( @Param("clusterId") int clusterId ){
+        return clusterService.getClusterWithNodes( clusterId );
+    }
+
+    /**
      * 群数据操作（增删改）统一到这里处理
      *
      * @param op      操作类型1:增 改（通过id是否等于-1区分） 2:、删除
@@ -45,14 +56,13 @@ public class ClusterModule{
     @At
     public Object operation( @Param("op") int op, @Param("..") Cluster cluster,
                              HttpServletResponse response ) throws IllegalAccessException{
-        Object result = null;
+        Object result;
         try {
             switch( op ) {
                 case 1:
-                    if( cluster.getId() == -1 ){
+                    if( cluster.getId() == -1 ) {
                         result = add( cluster );
-                    }
-                    else{
+                    } else {
                         result = update( cluster );
                     }
                     break;
@@ -74,16 +84,17 @@ public class ClusterModule{
 
     private Object add( Cluster cluster ){
         NutMap re = new NutMap();
-        String msg = checkCluster( cluster );
-        if( msg != null ) {
-            return re.setv( "ok", false ).setv( "msg", msg );
-        }
+
+//        if( msg != null ) {
+//            return re.setv( "ok", false ).setv( "msg", msg );
+//        }
         cluster.setCreateTime( new Date() );
 
 
         clusterService.add( cluster );
         return re.setv( "ok", true ).setv( "data", cluster );
     }
+
 
     private Object update( Cluster cluster ){
         NutMap re = new NutMap();
@@ -96,7 +107,7 @@ public class ClusterModule{
     }
 
     private Object delete( Cluster cluster ){
-        clusterService.delete(cluster.getId());
+        clusterService.delete( cluster.getId() );
 //        dao.delete( Cluster.class, cluster.getId() ); // 再严谨一些的话,需要判断是否为>0
         NutMap re = new NutMap();
         return re.setv( "ok", true ).setv( "data", cluster );
@@ -108,7 +119,8 @@ public class ClusterModule{
         return clusterService.query( cnd, pager );
     }
 
-    private String checkCluster( Cluster cluster ){
-        return null;
-    }
+//    private ErrorCode checkCluster( Cluster cluster ){
+//
+//        return cluster == null? ErrorCode.SUCCESS : ErrorCode.STUFF_NOT_ENOUGH;
+//    }
 }

@@ -17,7 +17,7 @@ public class MainSetup implements Setup{
     public void init( NutConfig conf ){
         Ioc ioc = conf.getIoc();
         Dao dao = ioc.get( Dao.class );
-        Daos.createTablesInPackage( dao, "com.bbz.bigdata.platform.module.api", false );
+        Daos.createTablesInPackage( dao, "com.bbz.bigdata.platform.bean", false );
 
         if( dao.count( Cluster.class ) == 0 ) {
             Cluster cluster = new Cluster();
