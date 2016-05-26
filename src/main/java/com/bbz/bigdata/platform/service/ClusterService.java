@@ -16,7 +16,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
 
     public QueryResult query( Cnd cnd, Pager pager ){
         QueryResult qr = new QueryResult();
-//        qr.setList( dao().query( Cluster.class, cnd, pager ) );
+       qr.setList( dao().query( Cluster.class, cnd, pager ) );
 
 
         pager.setRecordCount( dao().count( Cluster.class, cnd ) );

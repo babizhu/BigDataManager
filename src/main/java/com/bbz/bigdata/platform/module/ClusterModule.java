@@ -43,8 +43,8 @@ public class ClusterModule{
      * @return 集群及其子节点的信息
      */
     @At
-    public Cluster getClusterWithNodes( @Param("clusterId") int clusterId ){
-        return clusterService.getClusterWithNodes( clusterId );
+    public Cluster getClusterInfoWithNodes( @Param("clusterId") int clusterId ){
+        return clusterService.getClusterInfoWithNodes( clusterId );
     }
 
     /**
