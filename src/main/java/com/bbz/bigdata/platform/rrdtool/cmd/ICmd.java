@@ -3,7 +3,7 @@ package com.bbz.bigdata.platform.rrdtool.cmd;
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public interface ICmd {
 	/**
 	 * 获取cmd字符串
-	 * @return
 	 */
 	String getCmd();
 	/**
@@ -22,21 +21,20 @@ public interface ICmd {
 	 * @param seleteFullNames 要转换的detail全名
 	 * @throws BussException CAN_NOT_TO_PERCENT
 	 */
-	void handleToPercent( FullJsonModel jsonModel, Collection<String> seleteFullNames ) throws BussException;
+	void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames ) throws BussException;
 	/**
 	 * 结果是否可转换为百分比形式
-	 * @return
 	 */
 	boolean canChangeToPercent();
 	
 	/**
 	 * 较为通用的转百分比处理默认方法
-	 * @param jsonModel
-	 * @param seleteFullNames
-	 * @param totalDataFullName
+	 * @param jsonModel rrd数据模型
+	 * @param seleteFullNames 保留的数据名全称
+	 * @param totalDataFullName 分母或总量数据的全称
 	 * @throws BussException
 	 */
-	public static void handleToPercent( FullJsonModel jsonModel, Collection<String> seleteFullNames, String totalDataFullName ) throws BussException{
+	static void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames, String totalDataFullName ) throws BussException{
 		List<DataJsonModel> totaljsonModel = jsonModel.getList().stream().filter((djm)->{
 			return totalDataFullName.equals(djm.getName());
 		}).collect(Collectors.toList());

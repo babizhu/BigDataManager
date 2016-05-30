@@ -3,22 +3,23 @@ package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 
 import java.util.Collection;
 
 public class CPUSearchCmd implements ICmd{
 
-	public CPUSearchCmd(String hostName,String startTime,String endTime){
+	public CPUSearchCmd(String clusterName, String hostName,String startTime,String endTime){
+		String dataDir=Constant.rrdDataLocation+clusterName+"/"+hostName;
 		this.cmdStr=Constant.rrdToolLocation
 			+ " xport --start '"+startTime+"' --end '"+endTime
-			+ "' DEF:'num_nodes'='"+Constant.rrdDataLocation+hostName+"/cpu_user.rrd':'num':AVERAGE"
-			+ " DEF:'cpu_user'='"+Constant.rrdDataLocation+hostName+"/cpu_user.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_nice'='"+Constant.rrdDataLocation+hostName+"/cpu_nice.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_system'='"+Constant.rrdDataLocation+hostName+"/cpu_system.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_idle'='"+Constant.rrdDataLocation+hostName+"/cpu_idle.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_wio'='"+Constant.rrdDataLocation+hostName+"/cpu_wio.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_steal'='"+Constant.rrdDataLocation+hostName+"/cpu_steal.rrd':'sum':AVERAGE"
+			+ "' DEF:'num_nodes'='"+dataDir+"/cpu_user.rrd':'num':AVERAGE"
+			+ " DEF:'cpu_user'='"+dataDir+"/cpu_user.rrd':'sum':AVERAGE"
+			+ " DEF:'cpu_nice'='"+dataDir+"/cpu_nice.rrd':'sum':AVERAGE"
+			+ " DEF:'cpu_system'='"+dataDir+"/cpu_system.rrd':'sum':AVERAGE"
+			+ " DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE"
+			+ " DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE"
+			+ " DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE"
 			+ " CDEF:'ccpu_user'=cpu_user,num_nodes,/"
 			+ " CDEF:'ccpu_nice'=cpu_nice,num_nodes,/"
 			+ " CDEF:'ccpu_system'=cpu_system,num_nodes,/"
@@ -106,7 +107,7 @@ public class CPUSearchCmd implements ICmd{
 	}
 
 	@Override
-	public void handleToPercent(FullJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException {
+	public void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException {
 		// need do nothing
 	}
 

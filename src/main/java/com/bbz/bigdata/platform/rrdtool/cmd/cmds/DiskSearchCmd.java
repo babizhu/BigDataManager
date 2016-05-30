@@ -3,18 +3,19 @@ package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
-import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
 import java.util.Collection;
 
 public class DiskSearchCmd implements ICmd{
 
-	public DiskSearchCmd(String hostName,String startTime,String endTime){
+	public DiskSearchCmd(String clusterName, String hostName,String startTime,String endTime){
+		String dataDir=Constant.rrdDataLocation+clusterName+"/"+hostName;
 		this.cmdStr=Constant.rrdToolLocation
 				+ " xport --start '"+startTime+"' --end '"+endTime
-				+ "' DEF:'a0'='"+Constant.rrdDataLocation+hostName+"/disk_free.rrd':'sum':AVERAGE"
-				+ " DEF:'a1'='"+Constant.rrdDataLocation+hostName+"/disk_total.rrd':'sum':AVERAGE"
+				+ "' DEF:'a0'='"+dataDir+"/disk_free.rrd':'sum':AVERAGE"
+				+ " DEF:'a1'='"+dataDir+"/disk_total.rrd':'sum':AVERAGE"
 				+ " LINE2:'a0'#33cc33:'Free'"
 				+ " VDEF:a0_last=a0,LAST"
 				+ " VDEF:a0_min=a0,MINIMUM"
@@ -50,7 +51,7 @@ public class DiskSearchCmd implements ICmd{
 	}
 	
 	@Override
-	public void handleToPercent(FullJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
-		ICmd.handleToPercent(jsonModel, seleteFullNames, Measurement.Disk.Total.fullName());
+	public void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
+		ICmd.handleToPercent(jsonModel, seleteFullNames, Metrics.Disk.Total.fullName());
 	}
 }

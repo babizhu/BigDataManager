@@ -3,17 +3,18 @@ package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 
 import java.util.Collection;
 
 public class NetworkSearchCmd implements ICmd{
 
-	public NetworkSearchCmd(String hostName,String startTime,String endTime){
+	public NetworkSearchCmd(String clusterName, String hostName,String startTime,String endTime){
+		String dataDir=Constant.rrdDataLocation+clusterName+"/"+hostName;
 		this.cmdStr=Constant.rrdToolLocation
 				+ " xport --start '"+startTime+"' --end '"+endTime
-				+ "' DEF:'a0'='"+Constant.rrdDataLocation+hostName+"/bytes_in.rrd':'sum':AVERAGE"
-				+ " DEF:'a1'='"+Constant.rrdDataLocation+hostName+"/bytes_out.rrd':'sum':AVERAGE"
+				+ "' DEF:'a0'='"+dataDir+"/bytes_in.rrd':'sum':AVERAGE"
+				+ " DEF:'a1'='"+dataDir+"/bytes_out.rrd':'sum':AVERAGE"
 				+ " LINE2:'a0'#33cc33:'In '"
 				+ " VDEF:a0_last=a0,LAST"
 				+ " VDEF:a0_min=a0,MINIMUM"
@@ -49,7 +50,7 @@ public class NetworkSearchCmd implements ICmd{
 	}
 	
 	@Override
-	public void handleToPercent(FullJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
+	public void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
 		throw new BussException(BussException.CAN_NOT_TO_PERCENT);
 	}
 }

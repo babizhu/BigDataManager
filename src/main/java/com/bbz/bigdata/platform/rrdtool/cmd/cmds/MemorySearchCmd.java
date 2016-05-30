@@ -3,25 +3,26 @@ package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
-import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
 import java.util.Collection;
 
 public class MemorySearchCmd implements ICmd{
 
-	public MemorySearchCmd(String hostName,String startTime,String endTime){
+	public MemorySearchCmd(String clusterName, String hostName,String startTime,String endTime){
+		String dataDir=Constant.rrdDataLocation+clusterName+"/"+hostName;
 		this.cmdStr=Constant.rrdToolLocation
 			+" xport --start '"+startTime+"' --end '"+endTime
-			+"' DEF:'mem_total'='"+Constant.rrdDataLocation+hostName+"/mem_total.rrd':'sum':AVERAGE"
+			+"' DEF:'mem_total'='"+dataDir+"/mem_total.rrd':'sum':AVERAGE"
 			+" CDEF:'bmem_total'=mem_total,1024,*"
-		    +" DEF:'mem_shared'='"+Constant.rrdDataLocation+hostName+"/mem_shared.rrd':'sum':AVERAGE"
+		    +" DEF:'mem_shared'='"+dataDir+"/mem_shared.rrd':'sum':AVERAGE"
 			+" CDEF:'bmem_shared'=mem_shared,1024,*"
-			+" DEF:'mem_free'='"+Constant.rrdDataLocation+hostName+"/mem_free.rrd':'sum':AVERAGE"
+			+" DEF:'mem_free'='"+dataDir+"/mem_free.rrd':'sum':AVERAGE"
 			+" CDEF:'bmem_free'=mem_free,1024,*"
-			+" DEF:'mem_cached'='"+Constant.rrdDataLocation+hostName+"/mem_cached.rrd':'sum':AVERAGE"
+			+" DEF:'mem_cached'='"+dataDir+"/mem_cached.rrd':'sum':AVERAGE"
 			+" CDEF:'bmem_cached'=mem_cached,1024,*" 
-			+" DEF:'mem_buffers'='"+Constant.rrdDataLocation+hostName+"/mem_buffers.rrd':'sum':AVERAGE"
+			+" DEF:'mem_buffers'='"+dataDir+"/mem_buffers.rrd':'sum':AVERAGE"
 			+" CDEF:'bmem_buffers'=mem_buffers,1024,*"
 			+" CDEF:'bmem_used'='bmem_total','bmem_free',-,'bmem_cached',-,'bmem_shared',-,'bmem_buffers',-"
 			+" AREA:'bmem_used'#5555cc:'Use\\g'"
@@ -74,8 +75,8 @@ public class MemorySearchCmd implements ICmd{
 			+" GPRINT:'free_min':' Min\\:%6.1lf%s'"
 			+" GPRINT:'free_avg':'Avg\\:%6.1lf%s'"
 			+" GPRINT:'free_max':' Max\\:%6.1lf%s\\l'"
-			+" DEF:'swap_total'='"+Constant.rrdDataLocation+hostName+"/swap_total.rrd':'sum':AVERAGE"
-			+" DEF:'swap_free'='"+Constant.rrdDataLocation+hostName+"/swap_free.rrd':'sum':AVERAGE"
+			+" DEF:'swap_total'='"+dataDir+"/swap_total.rrd':'sum':AVERAGE"
+			+" DEF:'swap_free'='"+dataDir+"/swap_free.rrd':'sum':AVERAGE"
 			+" CDEF:'bmem_swapped'='swap_total','swap_free',-,1024,*"
 			+" STACK:'bmem_swapped'#9900CC:'Swap\\g'"
 			+" CDEF:swapped_pos=bmem_swapped,0,INF,LIMIT"
@@ -119,7 +120,7 @@ public class MemorySearchCmd implements ICmd{
 	}
 	
 	@Override
-	public void handleToPercent(FullJsonModel jsonModel,Collection<String> seleteFullNames) throws BussException{
-		ICmd.handleToPercent(jsonModel, seleteFullNames, Measurement.Memory.Total.fullName());
+	public void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
+		ICmd.handleToPercent(jsonModel, seleteFullNames, Metrics.Memory.Total.fullName());
 	}
 }

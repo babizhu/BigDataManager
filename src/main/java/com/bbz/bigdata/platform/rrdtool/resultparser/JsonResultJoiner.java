@@ -1,7 +1,7 @@
 package com.bbz.bigdata.platform.rrdtool.resultparser;
 
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 
 import java.util.ArrayList;
 
@@ -12,10 +12,9 @@ public class JsonResultJoiner {
 	 * @param primaryModel 主数据，数据合并到该数据对象中，不能为空
 	 * @param joiner 要合并的数据
 	 * @param checkYUnit 是否检查纵坐标单位是否相同
-	 * @return
 	 * @throws BussException 
 	 */
-	public static FullJsonModel join(FullJsonModel primaryModel,FullJsonModel joiner,boolean checkYUnit) throws BussException{
+	public static RRDJsonModel join(RRDJsonModel primaryModel, RRDJsonModel joiner, boolean checkYUnit) throws BussException{
 		if (joiner==null) {
 			return primaryModel;
 		}

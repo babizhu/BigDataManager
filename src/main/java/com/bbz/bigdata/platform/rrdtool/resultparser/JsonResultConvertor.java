@@ -6,7 +6,7 @@ import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.FullJsonModel;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.resultmodel.DataXMLModel;
 import com.bbz.bigdata.platform.rrdtool.resultmodel.FullXMLModel;
@@ -30,8 +30,8 @@ public class JsonResultConvertor {
 	 * @return json数据结果
 	 * @throws BussException
 	 */
-	public static FullJsonModel convert( FullXMLModel resultModel, ICmd cmd, Date startTime, List<Measurement.Detail> measurementDetails, Unit showUnit, boolean changeToPercent) throws BussException{
-		FullJsonModel jsonModel = new FullJsonModel();
+	public static RRDJsonModel convert(FullXMLModel resultModel, ICmd cmd, Date startTime, List<Measurement.Detail> measurementDetails, Unit showUnit, boolean changeToPercent) throws BussException{
+		RRDJsonModel jsonModel = new RRDJsonModel();
 		HashMap<String, Measurement.Detail> name_Detail_Map=new HashMap<>();
 		HashMap<String, Measurement.Detail> fullName_Detail_Map=new HashMap<>();
 		for (Measurement.Detail detail : measurementDetails) {
@@ -113,7 +113,7 @@ public class JsonResultConvertor {
 	/**
 	 *过滤用户所选detail 
 	 */
-	private static void filterUserSelect(FullJsonModel jsonModel,Collection<String> seletedFullName){
+	private static void filterUserSelect(RRDJsonModel jsonModel, Collection<String> seletedFullName){
 		jsonModel.setList(
 				jsonModel.getList().stream().filter((djm)->{
 						return seletedFullName.contains(djm.getName());

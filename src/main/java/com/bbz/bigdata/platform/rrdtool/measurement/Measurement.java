@@ -16,12 +16,12 @@ import java.util.Map;
 public abstract class Measurement {
 	/**
 	 * 测量结果的单位
-	 * @return
+	 *
 	 */
 	public abstract Unit getResultUnit();
 	/**
 	 * 测量名称
-	 * @return
+	 *
 	 */
 	public abstract String name();
 	
@@ -30,11 +30,6 @@ public abstract class Measurement {
 	 * @return key:detailName,value:Detail对象
 	 */
 	public abstract Map<String,Detail> allDetails();
-	
-	public static final CPU CPU=new CPU();
-	public static final Memory Memory=new Memory();
-	public static final Network Network=new Network();
-	public static final Disk Disk=new Disk();
 	
 	/**
 	 * 详细测量量 如CPU.User
