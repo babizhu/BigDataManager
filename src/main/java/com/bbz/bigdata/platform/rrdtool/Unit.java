@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class Unit {
 	
 	public enum Type{
-		UNIT_OF_STORAGE,
+		BINARY,
 		FRACTIONS,
 		TIME
 	}
@@ -37,13 +37,13 @@ public class Unit {
 	private BigDecimal weight;
 	private Unit denominator;
 
-	private static final BigDecimal M_1024=new BigDecimal(1024);
+	private static final BigDecimal NUM_1024 =new BigDecimal(1024);
 	
-	public static Unit Byte=new Unit("Byte",Type.UNIT_OF_STORAGE,BigDecimal.valueOf(1));
-	public static Unit KB=new Unit("KB",Type.UNIT_OF_STORAGE,M_1024);
-	public static Unit MB=new Unit("MB",Type.UNIT_OF_STORAGE,M_1024.multiply(M_1024));
-	public static Unit GB=new Unit("GB",Type.UNIT_OF_STORAGE,M_1024.multiply(M_1024).multiply(M_1024));
-	public static Unit TB=new Unit("TB",Type.UNIT_OF_STORAGE,M_1024.multiply(M_1024).multiply(M_1024).multiply(M_1024));
+	public static Unit Byte=new Unit("Byte",Type.BINARY,BigDecimal.valueOf(1));
+	public static Unit KB=new Unit("KB",Type.BINARY, NUM_1024);
+	public static Unit MB=new Unit("MB",Type.BINARY, NUM_1024.multiply(NUM_1024));
+	public static Unit GB=new Unit("GB",Type.BINARY, NUM_1024.multiply(NUM_1024).multiply(NUM_1024));
+	public static Unit TB=new Unit("TB",Type.BINARY, NUM_1024.multiply(NUM_1024).multiply(NUM_1024).multiply(NUM_1024));
 	
 	public static Unit Second=new Unit("sec", Type.TIME, BigDecimal.valueOf(1));
 	public static Unit Minute=new Unit("sec", Type.TIME, BigDecimal.valueOf(60));

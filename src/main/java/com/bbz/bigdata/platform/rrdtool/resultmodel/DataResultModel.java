@@ -1,7 +1,7 @@
 package com.bbz.bigdata.platform.rrdtool.resultmodel;
 
 /**
- * 查询rrd数据的一条数据表示类
+ * 查询rrd数据的一次结果数据表示类
  * @author weiran
  *
  */

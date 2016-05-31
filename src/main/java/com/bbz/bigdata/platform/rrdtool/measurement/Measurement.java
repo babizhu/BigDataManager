@@ -6,6 +6,7 @@ import com.bbz.bigdata.platform.rrdtool.measurement.impl.Disk;
 import com.bbz.bigdata.platform.rrdtool.measurement.impl.Memory;
 import com.bbz.bigdata.platform.rrdtool.measurement.impl.Network;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public abstract class Measurement {
 	 * @return key:detailName,value:Detail对象
 	 */
 	public abstract Map<String,Detail> allDetails();
-	
+
 	/**
 	 * 详细测量量 如CPU.User
 	 * @author weiran
@@ -58,5 +59,13 @@ public abstract class Measurement {
 			return this.measurement;
 		}
 	}
-	
+
+	public static boolean containsDetail(Collection<Measurement> measurements, String detailName){
+		for (Measurement measurement:measurements ) {
+			if (measurement.allDetails().containsKey(detailName)){
+				return true;
+			}
+		}
+		return false;
+	}
 }
