@@ -9,9 +9,12 @@ public class CmdExecutor {
 	/**
 	 * 执行linux命令方法
 	 * @param cmd 指令，比如ls
-	 * @return
+	 * @return 执行结果
 	 */
 	public static String execute(String cmd){
+		if (cmd==null){
+			throw new IllegalArgumentException("cmd can not be null");
+		}
 		Process process = null;
 		try {
 			String[] cmds={"/bin/sh","-c",cmd};
@@ -28,7 +31,7 @@ public class CmdExecutor {
 			ByteArrayOutputStream resultOutStream = new ByteArrayOutputStream();
 			InputStream errorInStream = new BufferedInputStream(process.getErrorStream());
 			InputStream processInStream = new BufferedInputStream(process.getInputStream());
-			int num = 0;
+			int num;
 			byte[] bs = new byte[1024];
 			while((num=errorInStream.read(bs))!=-1){
 				resultOutStream.write(bs,0,num);
