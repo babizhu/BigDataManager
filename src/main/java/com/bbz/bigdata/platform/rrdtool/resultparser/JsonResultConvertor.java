@@ -118,7 +118,7 @@ public class JsonResultConvertor {
 			Stream.of(measurementCreators).forEach((mc) -> {
 				DataJsonModel tempDjm = jsonModel.getList().stream().findFirst().get();
 				int dataLength = tempDjm.getData().length;
-				Double[] resData = createMeasureData(jsonModel, dataLength, mc, null, null);
+				Double[] resData = createMeasureData(jsonModel, dataLength, mc);
 				DataJsonModel djm = new DataJsonModel();
 				djm.setData(resData);
 				djm.setPointStart(tempDjm.getPointStart());
@@ -132,7 +132,7 @@ public class JsonResultConvertor {
 
 				for (Measurement.Detail md:
 						measurementDetailsForShow) {
-					if(md.fullName().equals(drm.getName())){
+					if(md!=null&&md.fullName().equals(drm.getName())){
 						return true;
 					}
 				}
@@ -147,8 +147,9 @@ public class JsonResultConvertor {
 	/**
 	 * 创建新的测量数据，放入结果
      */
-	private static Double[] createMeasureData(RRDJsonModel jsonModel,int dataLength,MeasurementCreator mc,Double[] firstData,Double[] secondData){
-		if(firstData==null) {
+	private static Double[] createMeasureData(RRDJsonModel jsonModel,int dataLength,MeasurementCreator mc){
+		Double[] firstData, secondData;
+		{
 			if (mc.getD1()!=null){
 				firstData=new Double[dataLength];
 				for (int i=0;i<dataLength;i++){
@@ -164,12 +165,12 @@ public class JsonResultConvertor {
 					firstData=djm1.getData();
 				}
 			}else if(mc.getNextOp1()!=null){
-				firstData=createMeasureData(jsonModel,dataLength,mc.getNextOp1(),null,null);
+				firstData=createMeasureData(jsonModel,dataLength,mc.getNextOp1());
 			}else{
 				throw new ParameterNamesNotFoundException("first data not found");
 			}
 		}
-		if(secondData==null) {
+		{
 			if (mc.getD2()!=null){
 				secondData=new Double[dataLength];
 				for (int i=0;i<dataLength;i++){
@@ -185,7 +186,7 @@ public class JsonResultConvertor {
 					secondData=djm2.getData();
 				}
 			}else if(mc.getNextOp2()!=null){
-				secondData=createMeasureData(jsonModel,dataLength,mc.getNextOp2(),null,null);
+				secondData=createMeasureData(jsonModel,dataLength,mc.getNextOp2());
 			}else{
 				throw new ParameterNamesNotFoundException("second data not found");
 			}

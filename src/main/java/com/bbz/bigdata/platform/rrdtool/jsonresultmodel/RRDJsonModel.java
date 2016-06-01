@@ -1,8 +1,11 @@
 package com.bbz.bigdata.platform.rrdtool.jsonresultmodel;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class RRDJsonModel {
 	/**
 	 * 数据显示单位
@@ -13,22 +16,4 @@ public class RRDJsonModel {
 	 */
 	private List<DataJsonModel> list=new ArrayList<>();
 
-
-	public String getYunit() {
-		return yunit;
-	}
-
-	public void setYunit(String yUnit) {
-		this.yunit = yUnit;
-	}
-
-	public List<DataJsonModel> getList() {
-		return list;
-	}
-
-	public void setList(List<DataJsonModel> list) {
-		this.list = list;
-	}
-
-	
 }

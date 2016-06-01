@@ -45,6 +45,7 @@ public abstract class Measurement {
 		}
 		
 		private String name;
+		private String showName;
 		private Measurement measurement;
 		
 		public String selfName(){
