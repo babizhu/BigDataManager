@@ -12,7 +12,7 @@ public class Constant {
 	/**
 	 * rrd数据存放位置
 	 */
-	public static String rrdDataLocation="/var/lib/ganglia/rrds/unspecified/";
+	public static String rrdDataLocation="/var/lib/ganglia/rrds/";
 //	/**
 //	 * 数据采集间隔
 //	 * from setting
@@ -22,7 +22,7 @@ public class Constant {
 	/**
 	 * 数值精度
 	 */
-	public static int numberScale=3;
+	public static int numberScale=2;
 	/**
 	 * 数值精度
 	 */

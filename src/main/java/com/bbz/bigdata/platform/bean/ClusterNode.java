@@ -29,6 +29,68 @@ public class ClusterNode extends BaseBean{
     @Column
     private String description;
 
+//    private Double cpuTotal;
+//    private Double diskFree;
+//    private Double memTotal;
+//    private Double memFree;
+//    private Double diskTotal;
+//    private Double diskFree;
+//    private Double diskTotal;
+//    private Double diskFree;
 
+    /**
+     * 节点状态 0：宕机，1：正常
+     */
+    private int status;
 
+    public final static int STATUS_DEAD=0;
+    public final static int STATUS_ALIVE=1;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getClusterId() {
+        return clusterId;
+    }
+
+    public void setClusterId(int clusterId) {
+        this.clusterId = clusterId;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 }

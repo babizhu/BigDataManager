@@ -1,6 +1,11 @@
 package com.bbz.bigdata.platform.module;
 
 import com.bbz.bigdata.platform.bean.Cluster;
+import com.bbz.bigdata.platform.module.modelview.ClusterChartsJM;
+import com.bbz.bigdata.platform.module.modelview.ClusterSummaryJM;
+import com.bbz.bigdata.platform.rrdtool.exception.BussException;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtoolproxy.model.ClusterNodesStatusAmountDto;
 import com.bbz.bigdata.platform.service.ClusterService;
 import com.bbz.bigdata.util.Util;
 import org.nutz.dao.Cnd;
@@ -16,6 +21,7 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -123,4 +129,54 @@ public class ClusterModule{
 //
 //        return cluster == null? ErrorCode.SUCCESS : ErrorCode.STUFF_NOT_ENOUGH;
 //    }
+
+//    @At
+//    public ClusterSummaryJM clusterNodeList(@Param("clusterId") int clusterId){
+//        ClusterNodesStatusAmountDto clusterNodesStatusAmountDto = clusterService.clusterNodesStatusAmount(clusterId);
+//        ClusterSummaryJM jm=new ClusterSummaryJM();
+//        jm.setTotalCount(clusterNodesStatusAmountDto.getTotalAmount());
+//        jm.setDeadCount(clusterNodesStatusAmountDto.getDeadAmount());
+//        jm.setAliveCount(clusterNodesStatusAmountDto.getAliveAmount());
+//        return jm;
+//    }
+
+    @At
+    public RRDJsonModel clusterMemeryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.clusterMemoryInfo(clusterId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public RRDJsonModel clusterCPUInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.clusterCPUInfo(clusterId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public RRDJsonModel clusterNetworkInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.clusterNetworkInfo(clusterId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public RRDJsonModel clusterDiskInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.clusterDiskInfo(clusterId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public ClusterSummaryJM clusterSummaryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+//      ClusterNodesStatusAmountDto clusterNodesStatusAmountDto = clusterService.clusterNodesStatusAmount(clusterId);
+        ClusterSummaryJM jm=new ClusterSummaryJM();
+        ClusterChartsJM cc=new ClusterChartsJM();
+        jm.setClusterCharts(cc);
+//        jm.setTotalCount(clusterNodesStatusAmountDto.getTotalAmount());
+//        jm.setDeadCount(clusterNodesStatusAmountDto.getDeadAmount());
+//        jm.setAliveCount(clusterNodesStatusAmountDto.getAliveAmount());
+        cc.setCpu(clusterService.clusterCPUSimpleData(clusterId,timePeriod));
+        cc.setMem(clusterService.clusterMemorySimpleData(clusterId,timePeriod));
+        cc.setNetwork(clusterService.clusterNetworkInfo(clusterId,timePeriod));
+        cc.setDisk(clusterService.clusterDiskSimpleData(clusterId,timePeriod));
+        return jm;
+    }
 }
