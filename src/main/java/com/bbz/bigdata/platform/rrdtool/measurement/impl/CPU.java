@@ -19,7 +19,7 @@ public class CPU extends Measurement{
 	public String name() {
 		return "CPU";
 	}
-	
+
 	@Override
 	public Map<String, Measurement.Detail> allDetails() {
 		return new HashMap<>(name_detail_map);

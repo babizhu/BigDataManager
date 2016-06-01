@@ -153,9 +153,12 @@ public class RRDVisitorProxy {
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
         }
-        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free},null,true
-                ,new MeasurementCreator[]{new MeasurementCreator(100.0, MeasurementCreator.Operator.MINUS,Metrics.Memory.Free,Metrics.Memory.name()+".Used")}
-                );
+        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Cache},null,true
+                ,new MeasurementCreator[]{new MeasurementCreator(
+                        100.0, MeasurementCreator.Operator.MINUS,new MeasurementCreator(
+                        Metrics.Memory.Free, MeasurementCreator.Operator.ADD,Metrics.Memory.Cache,null
+                ),Metrics.Memory.name()+".Used")}
+        );
     }
 
     /**

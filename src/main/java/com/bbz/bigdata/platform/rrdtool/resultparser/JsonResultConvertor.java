@@ -116,7 +116,10 @@ public class JsonResultConvertor {
 		List<DataJsonModel> newCreatedData=new ArrayList<>();
 		if(measurementCreators!=null) {
 			Stream.of(measurementCreators).forEach((mc) -> {
-				DataJsonModel tempDjm = jsonModel.getList().stream().findFirst().get();
+				if(jsonModel.getList().size()==0){
+					return;
+				}
+				DataJsonModel tempDjm = jsonModel.getList().iterator().next();
 				int dataLength = tempDjm.getData().length;
 				Double[] resData = createMeasureData(jsonModel, dataLength, mc);
 				DataJsonModel djm = new DataJsonModel();

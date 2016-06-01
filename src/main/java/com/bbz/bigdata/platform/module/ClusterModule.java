@@ -147,6 +147,12 @@ public class ClusterModule{
     }
 
     @At
+    public RRDJsonModel clusterMemorySimpleData(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.clusterMemorySimpleData(clusterId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
     public RRDJsonModel clusterCPUInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
         RRDJsonModel rrdJM = clusterService.clusterCPUInfo(clusterId,timePeriod);
         return rrdJM;

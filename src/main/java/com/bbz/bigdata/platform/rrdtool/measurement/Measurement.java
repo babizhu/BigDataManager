@@ -25,7 +25,12 @@ public abstract class Measurement {
 	 *
 	 */
 	public abstract String name();
-	
+
+	/**
+	 * 显示名称
+	 * @return
+     */
+//	public abstract String showName();
 	/**
 	 * 所有详细测量量
 	 * @return key:detailName,value:Detail对象
@@ -42,10 +47,11 @@ public abstract class Measurement {
 		public Detail(Measurement measurement,String name){
 			this.measurement=measurement;
 			this.name=name;
+//			this.showName=showName;
 		}
 		
 		private String name;
-		private String showName;
+//		private String showName;
 		private Measurement measurement;
 		
 		public String selfName(){
@@ -59,6 +65,8 @@ public abstract class Measurement {
 		public Measurement getMeasurement(){
 			return this.measurement;
 		}
+
+//		public String showName() { return this.showName; }
 	}
 
 	public static boolean containsDetail(Collection<Measurement> measurements, String detailName){
