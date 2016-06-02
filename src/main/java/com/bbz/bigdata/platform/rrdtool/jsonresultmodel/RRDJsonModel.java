@@ -15,5 +15,12 @@ public class RRDJsonModel {
 	 * 数据集合
 	 */
 	private List<DataJsonModel> list=new ArrayList<>();
-
+	/**
+	 * 总量
+	 */
+	private Double total;
+	/**
+	 * 总量单位
+	 */
+	private String totalUnit;
 }

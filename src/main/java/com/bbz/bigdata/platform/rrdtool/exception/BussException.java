@@ -27,13 +27,15 @@ public class BussException extends Exception{
 	
 	public final static int UNITTYPE_NOT_MATCHED=1; 
 	public final static int UNIT_NOT_MATCHED=2; 
-	public final static int CAN_NOT_TO_PERCENT=3; 
-	
+	public final static int CAN_NOT_TO_PERCENT=3;
+	public final static int CAN_NOT_FIND_TOTAL =4;
+
 	private String getMsg(int code){
 		switch (code) {
-		case UNITTYPE_NOT_MATCHED:return "单位类型不同";
-		case UNIT_NOT_MATCHED:return "单位不同";
-		case CAN_NOT_TO_PERCENT:return "不能转换成百分比";
+			case UNITTYPE_NOT_MATCHED:return "单位类型不同";
+			case UNIT_NOT_MATCHED:return "单位不同";
+			case CAN_NOT_TO_PERCENT:return "不能转换成百分比";
+			case CAN_NOT_FIND_TOTAL:return "未找到总量";
 
 		default:return "未知异常代码:"+code;
 		}

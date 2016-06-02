@@ -1,10 +1,14 @@
 package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 
 import com.bbz.bigdata.platform.rrdtool.Constant;
+import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
+import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 public class NetworkSearchCmd implements ICmd{
@@ -45,6 +49,11 @@ public class NetworkSearchCmd implements ICmd{
 	}
 
 	@Override
+	public Measurement measurement() {
+		return Metrics.Network;
+	}
+
+	@Override
 	public boolean canChangeToPercent() {
 		return false;
 	}
@@ -52,5 +61,13 @@ public class NetworkSearchCmd implements ICmd{
 	@Override
 	public void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
 		throw new BussException(BussException.CAN_NOT_TO_PERCENT);
+	}
+
+	@Override
+	public boolean hasTotal() {return false;}
+
+	@Override
+	public void handleTotal(RRDJsonModel jsonModel, Unit showUnit) throws BussException {
+		//need to nothing
 	}
 }

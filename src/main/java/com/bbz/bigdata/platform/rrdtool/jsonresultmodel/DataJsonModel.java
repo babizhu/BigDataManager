@@ -1,5 +1,8 @@
 package com.bbz.bigdata.platform.rrdtool.jsonresultmodel;
 
+import lombok.Data;
+
+@Data
 public class DataJsonModel {
 
 	/**
@@ -14,30 +17,30 @@ public class DataJsonModel {
 	private Double[] data;
 	
 	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public int getPointInterval() {
-		return pointInterval;
-	}
-	public void setPointInterval(int pointInterval) {
-		this.pointInterval = pointInterval;
-	}
-	public long getPointStart() {
-		return pointStart;
-	}
-	public void setPointStart(long pointStart) {
-		this.pointStart = pointStart;
-	}
-	public Double[] getData() {
-		return data;
-	}
-	public void setData(Double[] data) {
-		this.data = data;
-	}
+//	public String getName() {
+//		return name;
+//	}
+//	public void setName(String name) {
+//		this.name = name;
+//	}
+//	public int getPointInterval() {
+//		return pointInterval;
+//	}
+//	public void setPointInterval(int pointInterval) {
+//		this.pointInterval = pointInterval;
+//	}
+//	public long getPointStart() {
+//		return pointStart;
+//	}
+//	public void setPointStart(long pointStart) {
+//		this.pointStart = pointStart;
+//	}
+//	public Double[] getData() {
+//		return data;
+//	}
+//	public void setData(Double[] data) {
+//		this.data = data;
+//	}
 	
 	
 }

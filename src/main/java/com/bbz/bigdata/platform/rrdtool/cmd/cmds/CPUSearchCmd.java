@@ -1,10 +1,14 @@
 package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 
 import com.bbz.bigdata.platform.rrdtool.Constant;
+import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
+import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 public class CPUSearchCmd implements ICmd{
@@ -100,10 +104,15 @@ public class CPUSearchCmd implements ICmd{
 	public boolean canChangeToPercent() {
 		return true;
 	}
-	
+
 	@Override
 	public String getCmd() {
 		return cmdStr;
+	}
+
+	@Override
+	public Measurement measurement() {
+		return Metrics.CPU;
 	}
 
 	@Override
@@ -111,5 +120,11 @@ public class CPUSearchCmd implements ICmd{
 		// need do nothing
 	}
 
-	
+	@Override
+	public boolean hasTotal() {return false;}
+
+	@Override
+	public void handleTotal(RRDJsonModel jsonModel, Unit showUnit) throws BussException {
+		//need do noting
+	}
 }

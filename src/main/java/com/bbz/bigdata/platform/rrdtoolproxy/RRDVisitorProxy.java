@@ -76,15 +76,15 @@ public class RRDVisitorProxy {
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
         }
-//        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Use,Metrics.Memory.Total,Metrics.Memory.Share
-//        ,Metrics.Memory.Cache,Metrics.Memory.Swap,Metrics.Memory.Buffer},Unit.GB,false,null,Metrics.Memory.Free,Metrics.Memory.Use,Metrics.Memory.Share
-//                ,Metrics.Memory.Cache,Metrics.Memory.Swap,Metrics.Memory.Buffer);
-        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Cache},null,true
-                ,new MeasurementCreator[]{new MeasurementCreator(
-                        100.0, MeasurementCreator.Operator.MINUS,new MeasurementCreator(
-                        Metrics.Memory.Free, MeasurementCreator.Operator.ADD,Metrics.Memory.Cache,null
-                ),Metrics.Memory.name()+".Used")}
-        );
+        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Use,Metrics.Memory.Total,Metrics.Memory.Share
+        ,Metrics.Memory.Cache,Metrics.Memory.Swap,Metrics.Memory.Buffer},Unit.GB,false,null,Metrics.Memory.Free,Metrics.Memory.Use,Metrics.Memory.Share
+                ,Metrics.Memory.Cache,Metrics.Memory.Swap,Metrics.Memory.Buffer);
+//        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Cache},null,true
+//                ,new MeasurementCreator[]{new MeasurementCreator(
+//                        100.0, MeasurementCreator.Operator.MINUS,new MeasurementCreator(
+//                        Metrics.Memory.Free, MeasurementCreator.Operator.ADD,Metrics.Memory.Cache,null
+//                ),Metrics.Memory.name()+".Used")}
+//        );
     }
 
     /**
@@ -135,7 +135,7 @@ public class RRDVisitorProxy {
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
         }
-        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Disk.Free,Metrics.Disk.Total}, null
+        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Disk.Free,Metrics.Disk.Total}, Unit.GB
                 ,true, new MeasurementCreator[]{new MeasurementCreator(100.0,MeasurementCreator.Operator.MINUS,Metrics.Disk.Free,Metrics.Disk.name()+".Used")}
                 ,Metrics.Disk.Free);
     }
@@ -153,7 +153,7 @@ public class RRDVisitorProxy {
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
         }
-        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Cache},null,true
+        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Memory.Free,Metrics.Memory.Cache},Unit.GB,true
                 ,new MeasurementCreator[]{new MeasurementCreator(
                         100.0, MeasurementCreator.Operator.MINUS,new MeasurementCreator(
                         Metrics.Memory.Free, MeasurementCreator.Operator.ADD,Metrics.Memory.Cache,null
@@ -192,7 +192,7 @@ public class RRDVisitorProxy {
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
         }
-        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Disk.Free}, null
+        return visitor.visit(clusterName,"",timePeriod,new Measurement.Detail[]{Metrics.Disk.Free}, Unit.GB
                 ,true, new MeasurementCreator[]{new MeasurementCreator(100.0,MeasurementCreator.Operator.MINUS,Metrics.Disk.Free,Metrics.Disk.name()+".Used")}
                 );
     }

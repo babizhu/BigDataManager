@@ -3,7 +3,11 @@ package com.bbz.bigdata.platform.rrdtool;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 
 import java.math.BigDecimal;
-
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 
 /**
@@ -12,48 +16,103 @@ import java.math.BigDecimal;
  *
  */
 public class Unit {
-	
-	public enum Type{
-		BINARY,
-		FRACTIONS,
-		TIME
+
+	private interface Operator{
+		BigDecimal operate(BigDecimal num1,BigDecimal num2);
+	}
+
+	private static Operator oper_divide=(num1,num2) -> {
+			return num1.divide(num2,Constant.unitNumberScale,Constant.roundingMode);
+	};
+
+	private static class Type{
+
+		public static Type Binary=new Type();
+		public static Type Time=new Type();
+		public static Type Fraction=new Type();
+
+		public Type(){}
+		public Type(Type type1,Operator operator,Type type2){
+			this.type1=type1;
+			this.operator=operator;
+			this.type2=type2;
+		}
+		private Type type1;
+		private Operator operator;
+		private Type type2;
+
+		@Override
+		public int hashCode() {
+			if (operator==null){
+				return super.hashCode();
+			}else{
+				return (type1.hashCode()+"-"+operator.hashCode()+"-"+type2.hashCode()).hashCode();
+			}
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if(!(obj instanceof Type)){
+				return false;
+			}
+			Type tar=(Type) obj;
+			if (operator==null){
+				return this==tar;
+			}else{
+				return this.operator==tar.operator&&this.type1.equals(tar.type1)&&this.type2.equals(tar.type2);
+			}
+		}
 	}
 
 	private  Unit(String word,Type type,BigDecimal weight){
 		this.word=word;
 		this.type=type;
-		this.weight=weight;
+		this.weightGetter= ()->{return weight;};
+		putToType_units_map(this);
 	}
-	
-	private  Unit(String word,Unit numerator,Unit denominator){
+
+	private  Unit(String word,Unit numerator,Operator operator, Unit denominator){
 		this.word=word;
-		this.type=numerator.type;
-		this.weight=numerator.weight;
-		this.denominator=denominator;
+		this.type=new Type(numerator.type,operator,denominator.type);
+		this.weightGetter=()->{
+			return operator.operate(numerator.weightGetter.get(),denominator.weightGetter.get());
+		};
+		putToType_units_map(this);
 	}
 	
 	private String word;
 	private Type type;
-	private BigDecimal weight;
-	private Unit denominator;
+	private Supplier<BigDecimal> weightGetter;
+//	private Unit denominator;
 
 	private static final BigDecimal NUM_1024 =new BigDecimal(1024);
-	
-	public static Unit Byte=new Unit("Byte",Type.BINARY,BigDecimal.valueOf(1));
-	public static Unit KB=new Unit("KB",Type.BINARY, NUM_1024);
-	public static Unit MB=new Unit("MB",Type.BINARY, NUM_1024.multiply(NUM_1024));
-	public static Unit GB=new Unit("GB",Type.BINARY, NUM_1024.multiply(NUM_1024).multiply(NUM_1024));
-	public static Unit TB=new Unit("TB",Type.BINARY, NUM_1024.multiply(NUM_1024).multiply(NUM_1024).multiply(NUM_1024));
-	
-	public static Unit Second=new Unit("sec", Type.TIME, BigDecimal.valueOf(1));
-	public static Unit Minute=new Unit("sec", Type.TIME, BigDecimal.valueOf(60));
-	
-	public static Unit Perent=new Unit("%", Type.FRACTIONS, BigDecimal.valueOf(0.01));
 
-	public static Unit BytePerSecond=new Unit("B/sec", Byte, Second);
-	public static Unit KBPerSecond=new Unit("K/sec", KB, Second);
-	public static Unit MBPerSecond=new Unit("K/sec", MB, Second);
+	private static HashMap<Type,Collection<Unit>> type_units_map=new HashMap<>();
+
+	private static void putToType_units_map(Unit unit){
+		Collection<Unit> units = type_units_map.get(unit.type);
+		if (units==null){
+			units=new LinkedList<>();
+			type_units_map.put(unit.type,units);
+		}
+		units.add(unit);
+	}
 	
+	public static Unit Byte=new Unit("Byte",Type.Binary,BigDecimal.valueOf(1));
+	public static Unit KB=new Unit("KB",Type.Binary, NUM_1024);
+	public static Unit MB=new Unit("MB",Type.Binary, NUM_1024.multiply(NUM_1024));
+	public static Unit GB=new Unit("GB",Type.Binary, NUM_1024.multiply(NUM_1024).multiply(NUM_1024));
+	public static Unit TB=new Unit("TB",Type.Binary, NUM_1024.multiply(NUM_1024).multiply(NUM_1024).multiply(NUM_1024));
+	
+	public static Unit Second=new Unit("sec", Type.Time, BigDecimal.valueOf(1));
+	public static Unit Minute=new Unit("min", Type.Time, BigDecimal.valueOf(60));
+	
+	public static Unit Perent=new Unit("%", Type.Fraction, BigDecimal.valueOf(0.01));
+
+	public static Unit BytePerSecond=new Unit("B/S", Byte, oper_divide, Second);
+	public static Unit KBPerSecond=new Unit("K/S", KB, oper_divide, Second);
+	public static Unit MBPerSecond=new Unit("M/S", MB, oper_divide, Second);
+
 	/**
 	 * 当前单位与目标单位之比
 	 * example: MB.timesOf(KB)==1024
@@ -65,30 +124,38 @@ public class Unit {
 		if (this==tar) {
 			return new BigDecimal(1);
 		}
-		if (this.type!=tar.type) {
+		if (!this.type.equals(tar.type)) {
 			throw new BussException(BussException.UNITTYPE_NOT_MATCHED);
 		}
-		if (this.denominator==null) {
-			if (tar.denominator!=null) {
-				throw new BussException(BussException.UNITTYPE_NOT_MATCHED);
-			}
-			return this.weight.divide(tar.weight, Constant.unitNumberScale ,Constant.roundingMode);
-		}else{
-			if (tar.denominator==null) {
-				throw new BussException(BussException.UNITTYPE_NOT_MATCHED);
-			}
-			return this.weight.multiply(tar.denominator.timesOf(this.denominator)).divide(tar.weight, Constant.unitNumberScale ,Constant.roundingMode);
-		}
+		return this.weightGetter.get().divide(tar.weightGetter.get(), Constant.unitNumberScale ,Constant.roundingMode);
 	}
-	
+
+	public boolean sameType(Unit tar){
+		return this.type.equals(tar.type);
+	}
+
+	public static boolean sameType(Iterable<Unit> units){
+		Unit first=null;
+		for (Unit unit:units ) {
+			if (first==null){
+				first=unit;
+			}else{
+				if (!first.sameType(unit)){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		return word;
 	}
 	
-	public Type getType() {
-		return type;
-	}
+//	public Type getType() {
+//		return type;
+//	}
 	
 	
 //	@Override

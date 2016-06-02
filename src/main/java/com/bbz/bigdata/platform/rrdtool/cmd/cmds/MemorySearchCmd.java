@@ -1,11 +1,14 @@
 package com.bbz.bigdata.platform.rrdtool.cmd.cmds;
 
 import com.bbz.bigdata.platform.rrdtool.Constant;
+import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 public class MemorySearchCmd implements ICmd{
@@ -115,6 +118,11 @@ public class MemorySearchCmd implements ICmd{
 	}
 
 	@Override
+	public Measurement measurement() {
+		return Metrics.Memory;
+	}
+
+	@Override
 	public boolean canChangeToPercent() {
 		return true;
 	}
@@ -122,5 +130,13 @@ public class MemorySearchCmd implements ICmd{
 	@Override
 	public void handleToPercent(RRDJsonModel jsonModel, Collection<String> seleteFullNames) throws BussException{
 		ICmd.handleToPercent(jsonModel, seleteFullNames, Metrics.Memory.Total.fullName());
+	}
+
+	@Override
+	public boolean hasTotal() {return true;}
+
+	@Override
+	public void handleTotal(RRDJsonModel jsonModel, Unit showUnit) throws BussException {
+		ICmd.handleTotal(jsonModel,Metrics.Memory.Total.fullName(), showUnit,measurement().getResultUnit());
 	}
 }

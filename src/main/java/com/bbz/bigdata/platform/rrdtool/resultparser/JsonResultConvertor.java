@@ -54,10 +54,8 @@ public class JsonResultConvertor {
 			djm.setName(measurement.allDetails().get(drm.getName()).fullName());
 			djm.setPointStart(startTime.getTime());
 			djm.setPointInterval(resultModel.getStep()*1000);
-			System.out.print(resultModel.getStep());
 			Double[] pointdatas=new Double[drm.getData().length];
 			djm.setData(pointdatas);
-			jsonModel.getList().add(djm);
 			/*
 			 * 填入数据
 			 */
@@ -69,12 +67,17 @@ public class JsonResultConvertor {
 					pointdatas[j]=data.doubleValue();
 				}
 			}
+			jsonModel.getList().add(djm);
 		}
+
+		cmd.handleTotal(jsonModel,showUnit);
+
 		if (changeToPercent) {
 			jsonModel.setYunit(Unit.Perent.toString());
 			/*
 			 *转为百分比 
 			 */
+			cmd.handleTotal(jsonModel,showUnit);
 			cmd.handleToPercent(jsonModel,fullName_Detail_Map.keySet());
 			filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
 		}else {
@@ -96,7 +99,7 @@ public class JsonResultConvertor {
 							 */
 							djm.getData()[i]=Double.MAX_VALUE;
 						}else{
-							djm.getData()[i]=new BigDecimal(djm.getData()[i]).divide(times, Constant.numberScale ,Constant.roundingMode).doubleValue();
+							djm.getData()[i]=unitValue(new BigDecimal(djm.getData()[i]),times).doubleValue();
 						}
 					}
 				});
@@ -113,6 +116,9 @@ public class JsonResultConvertor {
 				});
 			}
 		}
+		/**
+		 * 用户创建的测量数据
+		 */
 		List<DataJsonModel> newCreatedData=new ArrayList<>();
 		if(measurementCreators!=null) {
 			Stream.of(measurementCreators).forEach((mc) -> {
@@ -130,6 +136,9 @@ public class JsonResultConvertor {
 				newCreatedData.add(djm);
 			});
 		}
+		/**
+		 * 保留显示数据
+		 */
 		if(measurementDetailsForShow!=null){
 			jsonModel.setList(jsonModel.getList().stream().filter((drm)->{
 
@@ -207,6 +216,10 @@ public class JsonResultConvertor {
 						return seletedFullName.contains(djm.getName());
 					}).collect( Collectors.toList())
 				);
+	}
+
+	private static BigDecimal unitValue(BigDecimal value,BigDecimal times){
+		return value.divide(times, Constant.numberScale ,Constant.roundingMode);
 	}
 
 }
