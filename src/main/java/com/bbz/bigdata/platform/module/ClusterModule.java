@@ -1,7 +1,10 @@
 package com.bbz.bigdata.platform.module;
 
 import com.bbz.bigdata.platform.bean.Cluster;
+import com.bbz.bigdata.platform.bean.ClusterNode;
 import com.bbz.bigdata.platform.module.modelview.ClusterChartsJM;
+import com.bbz.bigdata.platform.module.modelview.ClusterNodeJM;
+import com.bbz.bigdata.platform.module.modelview.ClusterNodeListJM;
 import com.bbz.bigdata.platform.module.modelview.ClusterSummaryJM;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
@@ -22,7 +25,9 @@ import org.nutz.mvc.annotation.Param;
 
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by liu_k on 2.
@@ -130,15 +135,31 @@ public class ClusterModule{
 //        return cluster == null? ErrorCode.SUCCESS : ErrorCode.STUFF_NOT_ENOUGH;
 //    }
 
-//    @At
-//    public ClusterSummaryJM clusterNodeList(@Param("clusterId") int clusterId){
-//        ClusterNodesStatusAmountDto clusterNodesStatusAmountDto = clusterService.clusterNodesStatusAmount(clusterId);
-//        ClusterSummaryJM jm=new ClusterSummaryJM();
-//        jm.setTotalCount(clusterNodesStatusAmountDto.getTotalAmount());
-//        jm.setDeadCount(clusterNodesStatusAmountDto.getDeadAmount());
-//        jm.setAliveCount(clusterNodesStatusAmountDto.getAliveAmount());
-//        return jm;
-//    }
+    @At
+    public Object clusterNodeList(@Param("clusterId") int clusterId,HttpServletResponse response ){
+        ClusterNodeListJM jm=new ClusterNodeListJM();
+        List<ClusterNode> nodes=null;
+        try {
+            nodes = clusterService.clusterNodesInfo(clusterId);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return Util.INSTANCE.buildErrorResponse( response, 500, e.getMessage() );
+        } catch (BussException e) {
+            e.printStackTrace();
+            return Util.INSTANCE.buildErrorResponse( response, 500, e.getMessage() );
+        } catch (Exception e){
+            e.printStackTrace();
+            return Util.INSTANCE.buildErrorResponse( response, 500, e.getMessage() );
+        }
+        if (nodes!=null){
+            List<ClusterNodeJM> nodejms=new ArrayList<>();
+            nodes.stream().forEach(node->{
+                nodejms.add(new ClusterNodeJM(node));
+            });
+            jm.setNodeList(nodejms);
+        }
+        return jm;
+    }
 
     @At
     public RRDJsonModel clusterMemeryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
@@ -172,13 +193,9 @@ public class ClusterModule{
 
     @At
     public ClusterSummaryJM clusterSummaryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
-//      ClusterNodesStatusAmountDto clusterNodesStatusAmountDto = clusterService.clusterNodesStatusAmount(clusterId);
         ClusterSummaryJM jm=new ClusterSummaryJM();
         ClusterChartsJM cc=new ClusterChartsJM();
         jm.setClusterCharts(cc);
-//        jm.setTotalCount(clusterNodesStatusAmountDto.getTotalAmount());
-//        jm.setDeadCount(clusterNodesStatusAmountDto.getDeadAmount());
-//        jm.setAliveCount(clusterNodesStatusAmountDto.getAliveAmount());
         cc.setCpu(clusterService.clusterCPUSimpleData(clusterId,timePeriod));
         cc.setMem(clusterService.clusterMemorySimpleData(clusterId,timePeriod));
         cc.setNetwork(clusterService.clusterNetworkInfo(clusterId,timePeriod));

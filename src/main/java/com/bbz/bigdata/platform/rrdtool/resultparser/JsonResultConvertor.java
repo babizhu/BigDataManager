@@ -54,7 +54,7 @@ public class JsonResultConvertor {
 			djm.setName(measurement.allDetails().get(drm.getName()).fullName());
 			djm.setPointStart(startTime.getTime());
 			djm.setPointInterval(resultModel.getStep()*1000);
-			Double[] pointdatas=new Double[drm.getData().length];
+			BigDecimal[] pointdatas=new BigDecimal[drm.getData().length];
 			djm.setData(pointdatas);
 			/*
 			 * 填入数据
@@ -64,7 +64,7 @@ public class JsonResultConvertor {
 				if (drmData!=null&&!drmData.isEmpty()&&!drmData.equals("NaN")) {
 					BigDecimal data=new BigDecimal(drm.getData()[j]);
 					data = data.setScale( Constant.numberScale ,Constant.roundingMode);
-					pointdatas[j]=data.doubleValue();
+					pointdatas[j]=data;
 				}
 			}
 			jsonModel.getList().add(djm);
@@ -81,41 +81,28 @@ public class JsonResultConvertor {
 			cmd.handleToPercent(jsonModel,fullName_Detail_Map.keySet());
 			filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
 		}else {
-			if (showUnit!=null&&showUnit!=measurement.getResultUnit()){
+			if (showUnit!=null&&showUnit!=measurement.getResultUnit()){ //给定了showUnit
 				jsonModel.setYunit(showUnit.toString());
 				filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
 				/*
 				 * 单位转换
 				 */
-				BigDecimal times=showUnit.timesOf(measurement.getResultUnit());
 				jsonModel.getList().forEach((djm)-> {
-					for (int i = 0; i < djm.getData().length; i++) {
-						if (djm.getData()[i]==null) {
-							continue;
-						}
-						if (times.doubleValue()==0) {
-							/*
-							 * 单位换算的精度应足够大，避免现此情况
-							 */
-							djm.getData()[i]=Double.MAX_VALUE;
-						}else{
-							djm.getData()[i]=unitValue(new BigDecimal(djm.getData()[i]),times).doubleValue();
-						}
-					}
+					djm.setData(showUnit.convertValue(measurement.getResultUnit(),djm.getData()));
 				});
 			}else {
-				jsonModel.setYunit(measurement.getResultUnit().toString());
 				filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
-				jsonModel.getList().forEach((djm) -> {
-					for (int i = 0; i < djm.getData().length; i++) {
-						if (djm.getData()[i] == null) {
-							continue;
-						}
-						djm.getData()[i] = new BigDecimal(djm.getData()[i]).setScale(Constant.numberScale, Constant.roundingMode).doubleValue();
-					}
-				});
+				List<BigDecimal[]> tempList = jsonModel.getList().stream().map(djm -> {
+					return djm.getData();
+				}).collect(Collectors.toList());
+				Unit.SuitableUnitAndValue suitableUnitAndValue = measurement.getResultUnit().toSuitableUnitAndValue(tempList);
+				for (int i=0;i<suitableUnitAndValue.values.size();i++){
+					jsonModel.getList().get(i).setData(suitableUnitAndValue.values.get(i));
+				}
+				jsonModel.setYunit(measurement.getResultUnit().toString());
 			}
 		}
+
 		/**
 		 * 用户创建的测量数据
 		 */
@@ -127,7 +114,7 @@ public class JsonResultConvertor {
 				}
 				DataJsonModel tempDjm = jsonModel.getList().iterator().next();
 				int dataLength = tempDjm.getData().length;
-				Double[] resData = createMeasureData(jsonModel, dataLength, mc);
+				BigDecimal[] resData = createMeasureData(jsonModel, dataLength, mc);
 				DataJsonModel djm = new DataJsonModel();
 				djm.setData(resData);
 				djm.setPointStart(tempDjm.getPointStart());
@@ -153,17 +140,28 @@ public class JsonResultConvertor {
 		}
 
 		jsonModel.getList().addAll(newCreatedData);
+		/**
+		 * 处理小数点
+		 */
+		jsonModel.getList().stream().forEach(djm->{
+			for (int i=0;i<djm.getData().length;i++){
+				if(djm.getData()[i]==null){
+					continue;
+				}
+				djm.getData()[i]=djm.getData()[i].setScale(Constant.numberScale,Constant.roundingMode);
+			}
+		});
 		return jsonModel;
 	}
 
 	/**
 	 * 创建新的测量数据，放入结果
      */
-	private static Double[] createMeasureData(RRDJsonModel jsonModel,int dataLength,MeasurementCreator mc){
-		Double[] firstData, secondData;
+	private static BigDecimal[] createMeasureData(RRDJsonModel jsonModel,int dataLength,MeasurementCreator mc){
+		BigDecimal[] firstData, secondData;
 		{
 			if (mc.getD1()!=null){
-				firstData=new Double[dataLength];
+				firstData=new BigDecimal[dataLength];
 				for (int i=0;i<dataLength;i++){
 					firstData[i]=mc.getD1();
 				}
@@ -184,7 +182,7 @@ public class JsonResultConvertor {
 		}
 		{
 			if (mc.getD2()!=null){
-				secondData=new Double[dataLength];
+				secondData=new BigDecimal[dataLength];
 				for (int i=0;i<dataLength;i++){
 					secondData[i]=mc.getD2();
 				}
@@ -218,8 +216,8 @@ public class JsonResultConvertor {
 				);
 	}
 
-	private static BigDecimal unitValue(BigDecimal value,BigDecimal times){
-		return value.divide(times, Constant.numberScale ,Constant.roundingMode);
-	}
+//	private static BigDecimal unitValue(BigDecimal value,BigDecimal times){
+//		return value.divide(times, Constant.numberScale ,Constant.roundingMode);
+//	}
 
 }

@@ -29,4 +29,9 @@ public enum  Util{
         response.setStatus( 500 );
         return buildErrorMsg( errId, args );
     }
+
+    public boolean isDebug(){
+        return System.getProperty("os.name").indexOf("Windows")!=-1;
+    }
+
 }

@@ -2,6 +2,8 @@ package com.bbz.bigdata.platform.rrdtool.jsonresultmodel;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class DataJsonModel {
 
@@ -14,7 +16,7 @@ public class DataJsonModel {
 	 */
 	private int pointInterval;
 	private long pointStart;
-	private Double[] data;
+	private BigDecimal[] data;
 	
 	
 //	public String getName() {

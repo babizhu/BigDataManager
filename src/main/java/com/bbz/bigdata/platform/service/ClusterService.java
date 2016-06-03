@@ -3,7 +3,9 @@ package com.bbz.bigdata.platform.service;
 import com.bbz.bigdata.platform.bean.Cluster;
 import com.bbz.bigdata.platform.bean.ClusterNode;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 import com.bbz.bigdata.platform.rrdtoolproxy.RRDVisitorProxy;
 import com.bbz.bigdata.platform.rrdtoolproxy.model.ClusterNodesStatusAmountDto;
 import org.nutz.dao.Cnd;
@@ -12,9 +14,10 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.service.IdNameEntityService;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by liu_k on 2016/5/25.
@@ -177,28 +180,94 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         return visitor.clusterDiskSimpleData(cluster.getName(),timePeriod);
     }
 
-//    /**
-//     * 集群内存监控数据
-//     * @param clusterId
-//     * @param timePeriod
-//     * @return
-//     * @throws ParseException
-//     * @throws BussException
-//     */
-//    public RRDJsonModel clusterNodeInfo(int clusterId, Integer timePeriod) throws ParseException, BussException {
-//        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
-//        RRDVisitorProxy visitor = new RRDVisitorProxy();
-//        cluster.getClusterNode().parallelStream().forEach((node)->{
-//            try {
-//                RRDJsonModel rrdJsonModel = visitor.clusterNodeMemoryInfo(cluster.getName(), node.getHost(), timePeriod);
-//
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            } catch (BussException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        return visitor.clusterNodeMemoryInfo(node.getHost(),timePeriod);
+    /**
+     * 集群内存监控数据
+     * @param clusterId
+     * @return
+     * @throws ParseException
+     * @throws BussException
+     */
+    public List<ClusterNode> clusterNodesInfo(int clusterId) throws ParseException, BussException {
+        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        if (cluster==null||cluster.getClusterNode()==null){
+            return null;
+        }
+        int timePeriod=RRDVisitorProxy.timePeriodNewestInfo;
+        RRDVisitorProxy visitor = new RRDVisitorProxy();
+        cluster.getClusterNode().parallelStream().forEach((node)->{
+            try {
+                RRDJsonModel rrdJsonModel = visitor.clusterNodeMemoryInfo(cluster.getName(), node.getHost(), timePeriod);
+                DataJsonModel djm = rrdJsonModel.getList().stream().filter(drm -> {
+                    return drm.getName() != null && drm.getName().equals(Metrics.Memory.name()+RRDVisitorProxy.DETAIL_NAME_USED);
+                }).findFirst().get();
+                if(djm!=null){
+                    node.setMemUsedPercent(firstNotNullFromLast(djm.getData()));
+                }
+                rrdJsonModel = visitor.clusterNodeCPUInfo(cluster.getName(), node.getHost(), timePeriod);
+                djm = rrdJsonModel.getList().stream().filter(drm -> {
+                    return drm.getName() != null && drm.getName().equals(Metrics.CPU.name()+RRDVisitorProxy.DETAIL_NAME_USED);
+                }).findFirst().get();
+                if(djm!=null){
+                    node.setCpuUsedPercent(firstNotNullFromLast(djm.getData()));
+                }
+                rrdJsonModel = visitor.clusterNodeDiskInfo(cluster.getName(), node.getHost(), timePeriod);
+                djm = rrdJsonModel.getList().stream().filter(drm -> {
+                    return drm.getName() != null && drm.getName().equals(Metrics.Disk.name()+RRDVisitorProxy.DETAIL_NAME_USED);
+                }).findFirst().get();
+                if(djm!=null){
+                    node.setDiskUsedPercent(firstNotNullFromLast(djm.getData()));
+                }
+                rrdJsonModel = visitor.clusterNodeNetworkInfo(cluster.getName(), node.getHost(), timePeriod);
+                djm = rrdJsonModel.getList().stream().filter(drm -> {
+                    return drm.getName() != null && drm.getName().equals(Metrics.Network.In.fullName());
+                }).findFirst().get();
+                if(djm!=null){
+                    node.setNetIn(firstNotNullFromLast(djm.getData()));
+                }
+                djm = rrdJsonModel.getList().stream().filter(drm -> {
+                    return drm.getName() != null && drm.getName().equals(Metrics.Network.Out.fullName());
+                }).findFirst().get();
+                if(djm!=null){
+                    node.setNetOut(firstNotNullFromLast(djm.getData()));
+                }
+                node.setNetUnit(rrdJsonModel.getYunit());
+//                Random random=new Random();
+//                node.setMemUsedPercent(new BigDecimal(random.nextInt(99)+1));
+//                node.setCpuUsedPercent(new BigDecimal(random.nextInt(99)+1));
+//                node.setDiskUsedPercent(new BigDecimal(random.nextInt(99)+1));
+//                node.setNetIn(new BigDecimal(random.nextInt(2234)));
+//                node.setNetOut(new BigDecimal(random.nextInt(123)));
+//                node.setNetUnit("K/S");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (BussException e) {
+                e.printStackTrace();
+            } catch (Exception ex){
+                ex.printStackTrace();
+                throw ex;
+            }
+        });
+        return cluster.getClusterNode();
+    }
+
+//    private void djm(RRDJsonModel rrdJsonModel){
+//        for(DataJsonModel djm : rrdJsonModel.getList()) {
+//            return drm.getName() != null && drm.getName().equals(Metrics.Memory.name()+RRDVisitorProxy.DETAIL_NAME_USED);
+//        }).findFirst().get();
+//        if(djm!=null){
+//            node.setMemUsedPercent(firstNotNullFromLast(djm.getData()));
+//        }
 //    }
 
+    private <T> T firstNotNullFromLast(T[] data){
+        if(data==null){
+            return null;
+        }
+        for (int i=data.length-1;i>=0;i--){
+            if (data[i]!=null){
+                return data[i];
+            }
+        }
+        return null;
+    }
 }

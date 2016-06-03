@@ -40,7 +40,7 @@ public class DiskSearchCmd implements ICmd{
 				+ " XPORT:'a0':'Free'"
 				+ " XPORT:'a1':'Total'";
 	}
-	
+
 	private String cmdStr;
 	
 	@Override

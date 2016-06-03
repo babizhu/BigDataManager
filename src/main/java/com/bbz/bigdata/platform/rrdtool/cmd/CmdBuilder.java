@@ -23,7 +23,11 @@ public class CmdBuilder {
 		if (measurement==Metrics.Memory) {
 			return new MemorySearchCmd(clusterName, hostName, startTime, endTime);
 		}else if (measurement==Metrics.CPU) {
-			return new CPUSearchCmd(clusterName, hostName, startTime, endTime);
+			if(hostName.isEmpty()||hostName.equals("__SummaryInfo__")) {
+				return new CPUSearchCmd(clusterName, startTime, endTime);
+			}else{
+				return new CPUSearchCmd(clusterName, hostName, startTime, endTime);
+			}
 		}else if (measurement==Metrics.Network) {
 			return new NetworkSearchCmd(clusterName, hostName, startTime, endTime);
 		}else if (measurement==Metrics.Disk) {

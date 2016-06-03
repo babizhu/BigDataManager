@@ -2,6 +2,7 @@ package com.bbz.bigdata.platform.rrdtool.jsonresultmodel;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class RRDJsonModel {
 	/**
 	 * 总量
 	 */
-	private Double total;
+	private BigDecimal total;
 	/**
 	 * 总量单位
 	 */

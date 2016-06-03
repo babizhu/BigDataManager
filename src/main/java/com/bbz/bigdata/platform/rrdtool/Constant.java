@@ -24,9 +24,9 @@ public class Constant {
 	 */
 	public static int numberScale=2;
 	/**
-	 * 数值精度
+	 * 单位精度
 	 */
-	public static int unitNumberScale=9;
+	public static int unitNumberScale=20;
 	/**
 	 * 数值近似处理方法
 	 */

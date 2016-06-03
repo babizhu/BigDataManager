@@ -7,6 +7,8 @@ import org.nutz.dao.entity.annotation.Id;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
 
+import java.math.BigDecimal;
+
 /**
  * Created by liu_k on 2016/5/26.
  * ClusterNode
@@ -28,15 +30,24 @@ public class ClusterNode extends BaseBean{
     private String ip;
     @Column
     private String description;
+    @Column
+    private String service;
 
-//    private Double cpuTotal;
-//    private Double diskFree;
-//    private Double memTotal;
-//    private Double memFree;
-//    private Double diskTotal;
-//    private Double diskFree;
-//    private Double diskTotal;
-//    private Double diskFree;
+    private BigDecimal cpuTotal;
+    private BigDecimal cpuUsed;
+    private String cpuUnit;
+    private BigDecimal cpuUsedPercent;
+    private BigDecimal memTotal;
+    private BigDecimal memUsed;
+    private String memUnit;
+    private BigDecimal memUsedPercent;
+    private BigDecimal diskTotal;
+    private BigDecimal diskUsed;
+    private String diskUnit;
+    private BigDecimal diskUsedPercent;
+    private BigDecimal netIn;
+    private BigDecimal netOut;
+    private String netUnit;
 
     /**
      * 节点状态 0：宕机，1：正常

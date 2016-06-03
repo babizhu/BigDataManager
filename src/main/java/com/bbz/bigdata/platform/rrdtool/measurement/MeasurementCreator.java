@@ -1,6 +1,7 @@
 package com.bbz.bigdata.platform.rrdtool.measurement;
 
 import com.bbz.bigdata.platform.rrdtool.Constant;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
  * @author weiran
  *
  */
+@Data
 public class MeasurementCreator {
 
 	public MeasurementCreator(Measurement.Detail md1, Operator operator, Measurement.Detail md2, String newName){
@@ -25,7 +27,7 @@ public class MeasurementCreator {
 		this.nextOp2=nextOp2;
 	}
 
-	public MeasurementCreator(Measurement.Detail md1, Operator operator, Double d2, String newName){
+	public MeasurementCreator(Measurement.Detail md1, Operator operator, BigDecimal d2, String newName){
 		this.md1=md1;
 		this.operator=operator;
 		this.newName=newName;
@@ -39,7 +41,7 @@ public class MeasurementCreator {
 		this.nextOp1=nextOp1;
 	}
 
-	public MeasurementCreator(MeasurementCreator nextOp1, Operator operator, Double d2, String newName){
+	public MeasurementCreator(MeasurementCreator nextOp1, Operator operator, BigDecimal d2, String newName){
 		this.d2=d2;
 		this.operator=operator;
 		this.newName=newName;
@@ -53,21 +55,21 @@ public class MeasurementCreator {
 		this.nextOp2=nextOp2;
 	}
 
-	public MeasurementCreator(Double d1, Operator operator, Measurement.Detail md2, String newName){
+	public MeasurementCreator(BigDecimal d1, Operator operator, Measurement.Detail md2, String newName){
 		this.d1=d1;
 		this.md2=md2;
 		this.operator=operator;
 		this.newName=newName;
 	}
 
-	public MeasurementCreator(Double d1, Operator operator, MeasurementCreator nextOp2, String newName){
+	public MeasurementCreator(BigDecimal d1, Operator operator, MeasurementCreator nextOp2, String newName){
 		this.d1=d1;
 		this.operator=operator;
 		this.newName=newName;
 		this.nextOp2=nextOp2;
 	}
 
-	public MeasurementCreator(Double d1, Operator operator, Double d2, String newName){
+	public MeasurementCreator(BigDecimal d1, Operator operator, BigDecimal d2, String newName){
 		this.d1=d1;
 		this.operator=operator;
 		this.newName=newName;
@@ -76,8 +78,8 @@ public class MeasurementCreator {
 
 	private Measurement.Detail md1;
 	private Measurement.Detail md2;
-	private Double d1;
-	private Double d2;
+	private BigDecimal d1;
+	private BigDecimal d2;
 	private Operator operator;
 	private String newName;
 	private MeasurementCreator nextOp1;
@@ -88,25 +90,25 @@ public class MeasurementCreator {
 		MINUS
 	}
 
-	public Double[] operate(Double[] d1,Double[] d2){
+	public BigDecimal[] operate(BigDecimal[] d1,BigDecimal[] d2){
 		if (d1==null||d2==null){
 			return null;
 		}
-		Double[] arr=new Double[d1.length];
+		BigDecimal[] arr=new BigDecimal[d1.length];
 		for (int i=0;i<arr.length;i++){
 			arr[i]=operate(d1[i],d2[i]);
 		}
 		return arr;
 	}
 
-	private Double operate(Double d1,Double d2){
+	private BigDecimal operate(BigDecimal d1,BigDecimal d2){
 		if (d1==null||d2==null){
 			return null;
 		}
 		if(operator==Operator.ADD){
-			return new BigDecimal(d1).add(new BigDecimal(d2)).setScale(Constant.numberScale,Constant.roundingMode).doubleValue();
+			return d1.add(d2);
 		}else if(operator==Operator.MINUS){
-			return new BigDecimal(d1).subtract(new BigDecimal(d2)).setScale(Constant.numberScale,Constant.roundingMode).doubleValue();
+			return d1.subtract(d2);
 		}else{
 			return null;
 		}
@@ -137,19 +139,19 @@ public class MeasurementCreator {
 		this.newName = newName;
 	}
 
-	public Double getD1() {
+	public BigDecimal getD1() {
 		return d1;
 	}
 
-	public void setD1(Double d1) {
+	public void setD1(BigDecimal d1) {
 		this.d1 = d1;
 	}
 
-	public Double getD2() {
+	public BigDecimal getD2() {
 		return d2;
 	}
 
-	public void setD2(Double d2) {
+	public void setD2(BigDecimal d2) {
 		this.d2 = d2;
 	}
 

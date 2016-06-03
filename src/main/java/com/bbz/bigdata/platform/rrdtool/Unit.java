@@ -3,11 +3,9 @@ package com.bbz.bigdata.platform.rrdtool;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 
 /**
@@ -103,7 +101,8 @@ public class Unit {
 	public static Unit MB=new Unit("MB",Type.Binary, NUM_1024.multiply(NUM_1024));
 	public static Unit GB=new Unit("GB",Type.Binary, NUM_1024.multiply(NUM_1024).multiply(NUM_1024));
 	public static Unit TB=new Unit("TB",Type.Binary, NUM_1024.multiply(NUM_1024).multiply(NUM_1024).multiply(NUM_1024));
-	
+	public static Unit PB=new Unit("TB",Type.Binary, NUM_1024.multiply(NUM_1024).multiply(NUM_1024).multiply(NUM_1024).multiply(NUM_1024));
+
 	public static Unit Second=new Unit("sec", Type.Time, BigDecimal.valueOf(1));
 	public static Unit Minute=new Unit("min", Type.Time, BigDecimal.valueOf(60));
 	
@@ -112,6 +111,7 @@ public class Unit {
 	public static Unit BytePerSecond=new Unit("B/S", Byte, oper_divide, Second);
 	public static Unit KBPerSecond=new Unit("K/S", KB, oper_divide, Second);
 	public static Unit MBPerSecond=new Unit("M/S", MB, oper_divide, Second);
+	public static Unit GBPerSecond=new Unit("G/S", GB, oper_divide, Second);
 
 	/**
 	 * 当前单位与目标单位之比
@@ -146,6 +146,135 @@ public class Unit {
 			}
 		}
 		return true;
+	}
+
+
+	/**
+	 * 计算合适的单位和值
+	 * @param values
+	 * @return
+     */
+	public BigDecimal[] convertValue(Unit sourceUnit,BigDecimal[] values){
+		if (values==null){
+			return null;
+		}
+		BigDecimal times= null;
+		try {
+			// 此处不应该抛异常
+			times = sourceUnit.timesOf(this);
+		} catch (BussException e) {
+			e.printStackTrace();
+		}
+		BigDecimal[] newValues=new BigDecimal[values.length];
+		for (int i=0;i<newValues.length;i++) {
+			if (values[i]==null){
+				continue;
+			}
+			newValues[i] = values[i].multiply(times).setScale(Constant.numberScale,Constant.roundingMode);
+		}
+		return newValues;
+	}
+
+	/**
+	 * 计算合适的单位和值
+	 * @param values
+	 * @return
+	 */
+	public SuitableUnitAndValue toSuitableUnitAndValue(List<BigDecimal[]> values){
+		Unit unit=this;
+		/**
+		 * 寻找同类型的unit
+		 */
+		Collection<Unit> sameTypeUnits = type_units_map.get(unit.type);
+		if (sameTypeUnits.size()==1){
+			return new SuitableUnitAndValue(unit,values);
+		}
+		/**
+		 * 计算最大数值
+		 */
+		if (values==null||values.size()==0){
+			return new SuitableUnitAndValue(unit,new ArrayList<>());
+		}
+		BigDecimal maxValue=null;
+		for (BigDecimal[] arr:values) {
+			if (arr==null) continue;
+			for (int i=0;i<arr.length;i++) {
+				if (arr[i] == null) continue;
+				BigDecimal abs = arr[i].abs();
+				if (maxValue==null||maxValue.compareTo(abs) == -1){
+					maxValue=abs;
+				}
+			}
+		}
+		if(maxValue==null){
+			return new SuitableUnitAndValue(unit,values);
+		}
+		HashMap<Unit,BigDecimal> unit_value_map=new HashMap<>();
+		/**
+		 * 计算和比较权重比
+		 */
+		for (Unit u:sameTypeUnits
+				) {
+			BigDecimal convertedValue = maxValue.multiply(unit.weightGetter.get()).divide(u.weightGetter.get());
+			unit_value_map.put(u,convertedValue);
+		}
+		Iterator<Map.Entry<Unit, BigDecimal>> iterator = unit_value_map.entrySet().stream()
+				.sorted((e1, e2) -> {
+					return e1.getValue().compareTo(e2.getValue());
+				})
+				.collect(Collectors.toList())
+				.iterator();
+		Map.Entry<Unit, BigDecimal> entry=null;
+		Map.Entry<Unit, BigDecimal> lastEntry=null;
+		BigDecimal threshold=BigDecimal.valueOf(1);
+		while(iterator.hasNext()){
+			entry = iterator.next();
+			if (entry.getValue().compareTo(threshold)>=0){
+				break;
+			}
+			lastEntry=entry;
+		}
+		if (entry==null){
+			entry=lastEntry;
+		}
+		if (entry.getKey()==unit){
+			return new SuitableUnitAndValue(unit,values);
+		}
+		/**
+		 * 根据新单位计算结果数值
+		 */
+		List<BigDecimal[]> list=new ArrayList<>();
+		for(BigDecimal[] arr:values){
+			list.add(entry.getKey().convertValue(unit,arr));
+		}
+		return new SuitableUnitAndValue(entry.getKey(),list);
+	}
+	public static void main(String[] args) {
+		BigDecimal[] arr1=new BigDecimal[]{new BigDecimal(100),new BigDecimal(3000),new BigDecimal(0.1)};
+		BigDecimal[] arr2=new BigDecimal[]{new BigDecimal(100),new BigDecimal(-4000),new BigDecimal(0.1)};
+		List<BigDecimal[]> list=new ArrayList<>();
+		list.add(arr1);
+		list.add(arr2);
+		SuitableUnitAndValue res = MB.toSuitableUnitAndValue(list);
+		System.out.println(res.unit);
+		for (BigDecimal[] arr:res.values
+			 ) {
+
+			for (BigDecimal b:arr
+					) {
+				System.out.println(b);
+			}
+		}
+	}
+
+	public class SuitableUnitAndValue{
+		private SuitableUnitAndValue(){}
+		private SuitableUnitAndValue(Unit unit,List<BigDecimal[]> values){
+			this.unit=unit;
+			this.values=values;
+		}
+		public Unit unit;
+		public List<BigDecimal[]> values;
 	}
 
 	@Override

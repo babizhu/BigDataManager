@@ -8,6 +8,7 @@ import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public interface ICmd {
 	 */
 	boolean canChangeToPercent();
 
-	void handleTotal(RRDJsonModel jsonModel,Unit showUnit) throws BussException;
+	void handleTotal(RRDJsonModel jsonModel,Unit tarUnit) throws BussException;
 	/**
 	 * 结果是否可转换为百分比形式
 	 */
@@ -49,17 +50,17 @@ public interface ICmd {
 		}).collect(Collectors.toList());
 		if (totaljsonModel.size()>=1) {
 			DataJsonModel totalDjm = totaljsonModel.get(0);
+			final BigDecimal num_100=new BigDecimal(100);
 			jsonModel.getList().stream().filter((djm)->{
 				return seleteFullNames.contains(djm.getName());
 			}).forEach((djm)->{
 				for (int j = 0; j < djm.getData().length; j++) {
-					if (djm.getData()[j]==null||totalDjm.getData()[j]==null||totalDjm.getData()[j]==0) {
+					if (djm.getData()[j]==null||totalDjm.getData()[j]==null||totalDjm.getData()[j].equals(BigDecimal.ZERO)) {
+						djm.getData()[j]=null;
 						continue;
 					}
-					djm.getData()[j]=new BigDecimal(djm.getData()[j])
-							.multiply(new BigDecimal(100))
-							.divide(new BigDecimal(totalDjm.getData()[j]), Constant.numberScale ,Constant.roundingMode)
-							.doubleValue();
+					djm.getData()[j]=djm.getData()[j].multiply(num_100)
+							.divide(totalDjm.getData()[j], Constant.numberScale ,Constant.roundingMode);
 				}
 			});
 		}else{
@@ -73,7 +74,7 @@ public interface ICmd {
 	 * @param totalDataFullName 分母或总量数据的全称
 	 * @throws BussException
 	 */
-	static void handleTotal(RRDJsonModel jsonModel, String totalDataFullName,Unit showUnit,Unit sourceUnit ) throws BussException{
+	static void handleTotal(RRDJsonModel jsonModel, String totalDataFullName,Unit tarUnit,Unit sourceUnit ) throws BussException{
 		List<DataJsonModel> totaljsonModel = jsonModel.getList().stream().filter((djm)->{
 			return totalDataFullName.equals(djm.getName());
 		}).collect(Collectors.toList());
@@ -81,16 +82,20 @@ public interface ICmd {
 			DataJsonModel totalDjm = totaljsonModel.get(0);
 			for(int i=totalDjm.getData().length-1;i>=0;i--){
 				if (totalDjm.getData()[i]!=null){
-					jsonModel.setTotal(totalDjm.getData()[i]);
+					jsonModel.setTotal(totalDjm.getData()[i].setScale(Constant.numberScale,Constant.roundingMode));
 					BigDecimal value;
-					if (showUnit==null){
-						value=new BigDecimal(jsonModel.getTotal()).setScale(Constant.numberScale,Constant.roundingMode);
-						jsonModel.setTotalUnit(sourceUnit.toString());
+					if (tarUnit==null){
+						List<BigDecimal[]> tempList=new ArrayList<>();
+						tempList.add(new BigDecimal[]{totalDjm.getData()[i]});
+						Unit.SuitableUnitAndValue suitableUnitAndValue = sourceUnit.toSuitableUnitAndValue(tempList);
+						value=suitableUnitAndValue.values.get(0)[0].setScale(Constant.numberScale,Constant.roundingMode);
+						jsonModel.setTotal(value);
+						jsonModel.setTotalUnit(suitableUnitAndValue.unit.toString());
 					}else{
-						value=new BigDecimal(jsonModel.getTotal()).divide(showUnit.timesOf(sourceUnit),Constant.numberScale,Constant.roundingMode);
-						jsonModel.setTotalUnit(showUnit.toString());
+						value=jsonModel.getTotal().divide(tarUnit.timesOf(sourceUnit),Constant.numberScale,Constant.roundingMode);
+						jsonModel.setTotal(value);
+						jsonModel.setTotalUnit(tarUnit.toString());
 					}
-					jsonModel.setTotal(value.doubleValue());
 					return;
 				}
 			}

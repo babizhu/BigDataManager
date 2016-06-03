@@ -10,17 +10,6 @@ import lombok.Data;
 @Data
 public class ClusterSummaryJM {
 
-//    private int totalCount;
-//    private int aliveCount;
-//    private int deadCount;
-//    private int taskTotalCount;
-//    private int taskSuccessCount;
-//    private int taskFailCount;
-//    private int taskRunningCount;
-//    private int serviceTotalCount;
-//    private int serviceRunningCount;
-//    private int serviceStopCount;
-
     private ClusterChartsJM clusterCharts;
 
 }
