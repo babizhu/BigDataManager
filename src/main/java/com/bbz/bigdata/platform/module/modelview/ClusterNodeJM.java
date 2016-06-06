@@ -4,6 +4,8 @@ import com.bbz.bigdata.platform.bean.ClusterNode;
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * Created by weiran on 2016/6/3.
  */
@@ -18,6 +20,7 @@ public class ClusterNodeJM {
         this.ip=node.getIp();
         this.description=node.getDescription();
         this.service=node.getService();
+        this.status=node.getStatus();
 
         this.cpuUsedPercent=node.getCpuUsedPercent()==null?null:node.getCpuUsedPercent().setScale(0, Constant.roundingMode).intValue();
         this.memUsedPercent=node.getMemUsedPercent()==null?null:node.getMemUsedPercent().setScale(0, Constant.roundingMode).intValue();
@@ -25,6 +28,12 @@ public class ClusterNodeJM {
         this.netIn=node.getNetIn()==null?null:node.getNetIn().setScale(0, Constant.roundingMode).intValue();
         this.netOut=node.getNetOut()==null?null:node.getNetOut().setScale(0, Constant.roundingMode).intValue();
         this.netUnit=node.getNetUnit();
+        this.cpuTotal=node.getCpuTotal();
+        this.cpuUnit=node.getCpuUnit();
+        this.memTotal=node.getMemTotal();
+        this.memUnit=node.getMemUnit();
+        this.diskTotal=node.getDiskTotal();
+        this.diskUnit=node.getDiskUnit();
     }
 
     private int id;
@@ -33,10 +42,17 @@ public class ClusterNodeJM {
     private String ip;
     private String description;
     private String service;
+    private int status;
 
     private Integer cpuUsedPercent;
+    private BigDecimal cpuTotal;
+    private String cpuUnit;
     private Integer memUsedPercent;
+    private BigDecimal memTotal;
+    private String memUnit;
     private Integer diskUsedPercent;
+    private BigDecimal diskTotal;
+    private String diskUnit;
     private Integer netIn;
     private Integer netOut;
     private String netUnit;

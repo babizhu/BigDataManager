@@ -24,12 +24,14 @@ public class CPUSearchCmd implements ICmd{
 			+ " DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE"
 			+ " DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE"
 			+ " DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE"
+//			+ " DEF:'cpu_speed'='"+dataDir+"/cpu_speed.rrd':'sum':AVERAGE"
 			+ " CDEF:'ccpu_user'=cpu_user,num_nodes,/"
 			+ " CDEF:'ccpu_nice'=cpu_nice,num_nodes,/"
 			+ " CDEF:'ccpu_system'=cpu_system,num_nodes,/"
 			+ " CDEF:'ccpu_idle'=cpu_idle,num_nodes,/"
 			+ " CDEF:'ccpu_wio'=cpu_wio,num_nodes,/"
 			+ " CDEF:'ccpu_steal'=cpu_steal,num_nodes,/"
+//			+ " CDEF:'ccpu_speed'=cpu_speed,num_nodes,/"
 			+ " AREA:'ccpu_user'#3333bb:'User\\g'"
 			+ " CDEF:user_pos=ccpu_user,0,INF,LIMIT"
 			+ " VDEF:user_last=user_pos,LAST"
@@ -108,6 +110,7 @@ public class CPUSearchCmd implements ICmd{
 				" DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE" +
+				" DEF:'cpu_speed'='"+dataDir+"/cpu_speed.rrd':'sum':AVERAGE" +
 				" AREA:'cpu_user'#3333bb:'User\\g'" +
 				" CDEF:user_pos=cpu_user,0,INF,LIMIT" +
 				" VDEF:user_last=user_pos,LAST" +
@@ -168,11 +171,23 @@ public class CPUSearchCmd implements ICmd{
 				" GPRINT:'idle_min':' Min\\:%5.1lf%%'" +
 				" GPRINT:'idle_avg':' Avg\\:%5.1lf%%'" +
 				" GPRINT:'idle_max':' Max\\:%5.1lf%%\\l'" +
-				" XPORT:'cpu_user':'User\\g' XPORT:'cpu_nice':'Nice\\g'" +
+				" STACK:'cpu_speed'#bb3344:'Speed\\g'" +
+				" CDEF:speed_pos=cpu_speed,0,INF,LIMIT" +
+				" VDEF:speed_last=speed_pos,LAST" +
+				" VDEF:speed_min=speed_pos,MINIMUM" +
+				" VDEF:speed_avg=speed_pos,AVERAGE" +
+				" VDEF:speed_max=speed_pos,MAXIMUM" +
+				" GPRINT:'speed_last':' Now\\:%5.1lf%%'" +
+				" GPRINT:'speed_min':' Min\\:%5.1lf%%'" +
+				" GPRINT:'speed_avg':' Avg\\:%5.1lf%%'" +
+				" GPRINT:'speed_max':' Max\\:%5.1lf%%\\l'" +
+				" XPORT:'cpu_user':'User\\g'" +
+				" XPORT:'cpu_nice':'Nice\\g'" +
 				" XPORT:'cpu_system':'System\\g'" +
 				" XPORT:'cpu_wio':'Wait\\g'" +
 				" XPORT:'cpu_steal':'Steal\\g'" +
-				" XPORT:'cpu_idle':'Idle\\g'";
+				" XPORT:'cpu_idle':'Idle\\g'" +
+				" XPORT:'cpu_speed':'Speed\\g'";
 	}
 	private String cmdStr;
 	

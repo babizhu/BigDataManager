@@ -8,7 +8,6 @@ import com.bbz.bigdata.platform.module.modelview.ClusterNodeListJM;
 import com.bbz.bigdata.platform.module.modelview.ClusterSummaryJM;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
-import com.bbz.bigdata.platform.rrdtoolproxy.model.ClusterNodesStatusAmountDto;
 import com.bbz.bigdata.platform.service.ClusterService;
 import com.bbz.bigdata.util.Util;
 import org.nutz.dao.Cnd;
@@ -130,6 +129,7 @@ public class ClusterModule{
         return clusterService.query( cnd, pager );
     }
 
+
 //    private ErrorCode checkCluster( Cluster cluster ){
 //
 //        return cluster == null? ErrorCode.SUCCESS : ErrorCode.STUFF_NOT_ENOUGH;
@@ -155,6 +155,10 @@ public class ClusterModule{
             List<ClusterNodeJM> nodejms=new ArrayList<>();
             nodes.stream().forEach(node->{
                 nodejms.add(new ClusterNodeJM(node));
+                jm.setTotalCount(jm.getTotalCount()+1);
+                if(node.getStatus()==1){
+                    jm.setAliveCount(jm.getAliveCount()+1);
+                }
             });
             jm.setNodeList(nodejms);
         }
@@ -192,7 +196,17 @@ public class ClusterModule{
     }
 
     @At
-    public ClusterSummaryJM clusterSummaryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+    public ClusterChartsJM clusterCharts(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        ClusterChartsJM cc=new ClusterChartsJM();
+        cc.setCpu(clusterService.clusterCPUSimpleData(clusterId,timePeriod));
+        cc.setMem(clusterService.clusterMemorySimpleData(clusterId,timePeriod));
+        cc.setNetwork(clusterService.clusterNetworkInfo(clusterId,timePeriod));
+        cc.setDisk(clusterService.clusterDiskSimpleData(clusterId,timePeriod));
+        return cc;
+    }
+
+    @At
+    public Object clusterSummaryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
         ClusterSummaryJM jm=new ClusterSummaryJM();
         ClusterChartsJM cc=new ClusterChartsJM();
         jm.setClusterCharts(cc);
@@ -200,6 +214,12 @@ public class ClusterModule{
         cc.setMem(clusterService.clusterMemorySimpleData(clusterId,timePeriod));
         cc.setNetwork(clusterService.clusterNetworkInfo(clusterId,timePeriod));
         cc.setDisk(clusterService.clusterDiskSimpleData(clusterId,timePeriod));
+        Object nodeListJM = this.clusterNodeList(clusterId,null);
+        if(nodeListJM instanceof ClusterNodeListJM) {
+            jm.setClusterNodeList((ClusterNodeListJM)nodeListJM);
+        }else{
+            return nodeListJM;
+        }
         return jm;
     }
 }

@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 
 public class XMLResultParser {
 
@@ -38,9 +39,12 @@ public class XMLResultParser {
 					dataNode=node;
 				}
 			}
-			Node gprintsNode=null;
+			Node legendNode=null,gprintsNode=null;
 			for (int i = 0; i < metaNode.getChildNodes().getLength(); i++) {
 				Node node = metaNode.getChildNodes().item(i);
+				if (!(node instanceof Element)) {
+					continue;
+				}
 				String name = node.getNodeName();
 				if (name.equals("start")) {
 					resultModel.setStart(Long.parseLong(node.getTextContent()));
@@ -54,36 +58,48 @@ public class XMLResultParser {
 					resultModel.setColumns(Integer.parseInt(node.getTextContent()));
 //					resultModel.setDatas(new ArrayList<>(resultModel.getColumns()));
 				}else if(name.equals("legend")) {
-//					legendNode=node;
+					legendNode=node;
 				}else if(name.equals("gprints")) {
 					gprintsNode=node;
 				}
 			}
-//			HashMap<String, DataResultModel> dataModelMap=new HashMap<>();
+			HashMap<String, DataXMLModel> dataModelMap=new HashMap<>();
+			if(legendNode!=null){
+				for (int i = 0; i < legendNode.getChildNodes().getLength(); i++) {
+					Node node = legendNode.getChildNodes().item(i);
+					if (node instanceof Element) {
+						DataXMLModel dataModel = new DataXMLModel();
+						dataModel.setName(node.getTextContent().trim().replace("\\g", ""));
+						dataModel.setData(new String[resultModel.getRows()]);
+						resultModel.getDatas().add(dataModel);
+						dataModelMap.put(dataModel.getName(), dataModel);
+					}
+				}
+			}
 			Node cNode = gprintsNode.getFirstChild();
 			cNode=nextElement(cNode);
 			while (cNode!=null&&!cNode.getNodeName().equals("gprint")) {
-				DataXMLModel dataModel=new DataXMLModel();
-				dataModel.setName(cNode.getTextContent().trim().replace("\\g", ""));
-				dataModel.setData(new String[resultModel.getRows()]);
+				DataXMLModel dataModel=dataModelMap.get(cNode.getTextContent().trim().replace("\\g", ""));
 				cNode = cNode.getNextSibling();
 				cNode = nextElement(cNode);
 				while (cNode!=null&&cNode.getNodeName().equals("gprint")) {
 					String text=cNode.getTextContent().trim().replace("\\l", "");
 					String[] kv=text.split(":");
-					if (kv[0].equals("Now")) {
-						dataModel.setNow(kv[1].trim());
-					}else if (kv[0].equals("Min")) {
-						dataModel.setMin(kv[1].trim());
-					}else if (kv[0].equals("Avg")) {
-						dataModel.setAvg(kv[1].trim());
-					}else if (kv[0].equals("Max")) {
-						dataModel.setMax(kv[1].trim());
+					if(dataModel!=null) {
+						if (kv[0].equals("Now")) {
+							dataModel.setNow(kv[1].trim());
+						} else if (kv[0].equals("Min")) {
+							dataModel.setMin(kv[1].trim());
+						} else if (kv[0].equals("Avg")) {
+							dataModel.setAvg(kv[1].trim());
+						} else if (kv[0].equals("Max")) {
+							dataModel.setMax(kv[1].trim());
+						}
 					}
 					cNode = cNode.getNextSibling();
 					cNode = nextElement(cNode);
 				}
-				resultModel.getDatas().add(dataModel);
+//				resultModel.getDatas().add(dataModel);
 //				dataModelMap.put(dataModel.getName(), dataModel);
 			}
 			int rowIndex=0;
@@ -128,7 +144,6 @@ public class XMLResultParser {
     "<rows>12</rows>"+
     "<columns>7</columns>"+
     "<legend>"+
-      "<entry>Use\\g</entry>"+
       "<entry>Share\\g</entry>"+
       "<entry>Cache\\g</entry>"+
       "<entry>Buffer\\g</entry>"+
@@ -175,18 +190,18 @@ public class XMLResultParser {
     "</gprints>"+
   "</meta>"+
   "<data>"+
-    "<row><v>1.4665932800e+09</v><v>0.0000000000e+00</v><v>5.7694208000e+08</v><v>1.4090240000e+06</v><v>5.5296491520e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4665932800e+09</v><v>0.0000000000e+00</v><v>5.7694208000e+08</v><v>1.4090240000e+06</v><v>5.5296491520e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4667582123e+09</v><v>0.0000000000e+00</v><v>5.7694317227e+08</v><v>1.4090240000e+06</v><v>5.5294831275e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>1.4672117760e+09</v><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694208000e+08</v><v>1.4090240000e+06</v><v>5.5296491520e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694208000e+08</v><v>1.4090240000e+06</v><v>5.5296491520e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694317227e+08</v><v>1.4090240000e+06</v><v>5.5294831275e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
+    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
   "</data>"+
 "</xport>";
 		

@@ -11,5 +11,6 @@ import lombok.Data;
 public class ClusterSummaryJM {
 
     private ClusterChartsJM clusterCharts;
+    private ClusterNodeListJM clusterNodeList;
 
 }

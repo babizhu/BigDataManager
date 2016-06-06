@@ -15,8 +15,8 @@ public class ClusterNodeListJM {
 
     private Collection<ClusterNodeJM> nodeList;
 
-//    private int totalCount;
-//    private int aliveCount;
+    private int totalCount;
+    private int aliveCount;
 //    private int deadCount;
 //    private int taskTotalCount;
 //    private int taskSuccessCount;

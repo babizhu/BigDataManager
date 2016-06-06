@@ -2,12 +2,13 @@ package com.bbz.bigdata.platform.service;
 
 import com.bbz.bigdata.platform.bean.Cluster;
 import com.bbz.bigdata.platform.bean.ClusterNode;
+import com.bbz.bigdata.platform.rrdtool.Constant;
+import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 import com.bbz.bigdata.platform.rrdtoolproxy.RRDVisitorProxy;
-import com.bbz.bigdata.platform.rrdtoolproxy.model.ClusterNodesStatusAmountDto;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.QueryResult;
 import org.nutz.dao.pager.Pager;
@@ -17,7 +18,6 @@ import org.nutz.service.IdNameEntityService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Created by liu_k on 2016/5/25.
@@ -49,10 +49,17 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         dao().insert( cluster );
     }
 
+    public void add( ClusterNode clusterNode ){
+        dao().insert( clusterNode );
+    }
+
     public void updateIgnoreNull( Cluster cluster ){
         dao().updateIgnoreNull( cluster );
     }
 
+    public void updateIgnoreNull( ClusterNode clusterNode ){
+        dao().updateIgnoreNull( clusterNode );
+    }
 
 //    public Cluster queryOne( Cnd cnd){
 //        List<Cluster> list = dao().query(Cluster.class,cnd);
@@ -63,24 +70,24 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         return dao().fetch(ClusterNode.class, nodeId);
     }
 
-    /**
-     * 集群节点状态数量统计
-     * @param clusterId
-     * @return
-     */
-    public ClusterNodesStatusAmountDto clusterNodesStatusAmount(int clusterId){
-        ClusterNodesStatusAmountDto dto=new ClusterNodesStatusAmountDto();
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
-        if (cluster==null||cluster.getClusterNode()==null||cluster.getClusterNode().size()==0){
-            return dto;
-        }
-        RRDVisitorProxy visitor = new RRDVisitorProxy();
-        Collection<String> hostNames=new ArrayList<>(cluster.getClusterNode().size());
-        cluster.getClusterNode().forEach((node)->{
-            hostNames.add(node.getHost());
-        });
-        return visitor.clusterNodeStateAmount(cluster.getName(),hostNames);
-    }
+//    /**
+//     * 集群节点状态数量统计
+//     * @param clusterId
+//     * @return
+//     */
+//    public ClusterNodesStatusAmountDto clusterNodesStatusAmount(int clusterId){
+//        ClusterNodesStatusAmountDto dto=new ClusterNodesStatusAmountDto();
+//        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+//        if (cluster==null||cluster.getClusterNode()==null||cluster.getClusterNode().size()==0){
+//            return dto;
+//        }
+//        RRDVisitorProxy visitor = new RRDVisitorProxy();
+//        Collection<String> hostNames=new ArrayList<>(cluster.getClusterNode().size());
+//        cluster.getClusterNode().forEach((node)->{
+//            hostNames.add(node.getHost());
+//        });
+//        return visitor.clusterNodeStateAmount(cluster.getName(),hostNames);
+//    }
 
     /**
      * 集群内存监控数据
@@ -181,7 +188,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
     }
 
     /**
-     * 集群内存监控数据
+     * 节点列表信息
      * @param clusterId
      * @return
      * @throws ParseException
@@ -201,34 +208,66 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                     return drm.getName() != null && drm.getName().equals(Metrics.Memory.name()+RRDVisitorProxy.DETAIL_NAME_USED);
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setMemUsedPercent(firstNotNullFromLast(djm.getData()));
+                    node.setMemUsedPercent(newestData(djm.getData()));
+                    if(node.getMemUsedPercent()!=null){
+                        node.setStatus(1);
+                    }
                 }
+                node.setMemTotal(rrdJsonModel.getTotal());
+                node.setMemUnit(rrdJsonModel.getTotalUnit());
                 rrdJsonModel = visitor.clusterNodeCPUInfo(cluster.getName(), node.getHost(), timePeriod);
                 djm = rrdJsonModel.getList().stream().filter(drm -> {
                     return drm.getName() != null && drm.getName().equals(Metrics.CPU.name()+RRDVisitorProxy.DETAIL_NAME_USED);
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setCpuUsedPercent(firstNotNullFromLast(djm.getData()));
+                    node.setCpuUsedPercent(newestData(djm.getData()));
+                    if(node.getCpuUsedPercent()!=null){
+                        node.setStatus(1);
+                    }
+                }
+                djm = rrdJsonModel.getList().stream().filter(drm -> {
+                    return drm.getName() != null && drm.getName().equals(Metrics.CPU.Speed.fullName());
+                }).findFirst().get();
+                if(djm!=null){
+                    node.setCpuTotal(newestData(djm.getData()));
+                    if (node.getCpuTotal()!=null){
+                        node.setCpuTotal(node.getCpuTotal().divide(new BigDecimal(10), Constant.numberScale,Constant.roundingMode));
+                    }
+                    node.setCpuUnit(Unit.GHz.toString());
+                    if(node.getCpuTotal()!=null){
+                        node.setStatus(1);
+                    }
                 }
                 rrdJsonModel = visitor.clusterNodeDiskInfo(cluster.getName(), node.getHost(), timePeriod);
                 djm = rrdJsonModel.getList().stream().filter(drm -> {
                     return drm.getName() != null && drm.getName().equals(Metrics.Disk.name()+RRDVisitorProxy.DETAIL_NAME_USED);
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setDiskUsedPercent(firstNotNullFromLast(djm.getData()));
+                    node.setDiskUsedPercent(newestData(djm.getData()));
+                    if(node.getDiskUsedPercent()!=null){
+                        node.setStatus(1);
+                    }
                 }
+                node.setDiskTotal(rrdJsonModel.getTotal());
+                node.setDiskUnit(rrdJsonModel.getTotalUnit());
                 rrdJsonModel = visitor.clusterNodeNetworkInfo(cluster.getName(), node.getHost(), timePeriod);
                 djm = rrdJsonModel.getList().stream().filter(drm -> {
                     return drm.getName() != null && drm.getName().equals(Metrics.Network.In.fullName());
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setNetIn(firstNotNullFromLast(djm.getData()));
+                    node.setNetIn(newestData(djm.getData()));
+                    if(node.getNetIn()!=null){
+                        node.setStatus(1);
+                    }
                 }
                 djm = rrdJsonModel.getList().stream().filter(drm -> {
                     return drm.getName() != null && drm.getName().equals(Metrics.Network.Out.fullName());
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setNetOut(firstNotNullFromLast(djm.getData()));
+                    node.setNetOut(newestData(djm.getData()));
+                    if(node.getNetOut()!=null){
+                        node.setStatus(1);
+                    }
                 }
                 node.setNetUnit(rrdJsonModel.getYunit());
 //                Random random=new Random();
@@ -244,26 +283,17 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                 e.printStackTrace();
             } catch (Exception ex){
                 ex.printStackTrace();
-                throw ex;
+//                throw ex;
             }
         });
         return cluster.getClusterNode();
     }
 
-//    private void djm(RRDJsonModel rrdJsonModel){
-//        for(DataJsonModel djm : rrdJsonModel.getList()) {
-//            return drm.getName() != null && drm.getName().equals(Metrics.Memory.name()+RRDVisitorProxy.DETAIL_NAME_USED);
-//        }).findFirst().get();
-//        if(djm!=null){
-//            node.setMemUsedPercent(firstNotNullFromLast(djm.getData()));
-//        }
-//    }
-
-    private <T> T firstNotNullFromLast(T[] data){
+    private <T> T newestData(T[] data){
         if(data==null){
             return null;
         }
-        for (int i=data.length-1;i>=0;i--){
+        for (int i=data.length-1;i>=0&&i>=data.length-RRDVisitorProxy.NULL_COUNT_OF_DEAD_LIMIT;i--){
             if (data[i]!=null){
                 return data[i];
             }

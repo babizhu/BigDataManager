@@ -25,6 +25,7 @@ public class Unit {
 
 	private static class Type{
 
+		public static Type Number=new Type();
 		public static Type Binary=new Type();
 		public static Type Time=new Type();
 		public static Type Fraction=new Type();
@@ -84,6 +85,7 @@ public class Unit {
 //	private Unit denominator;
 
 	private static final BigDecimal NUM_1024 =new BigDecimal(1024);
+	private static final BigDecimal NUM_1000 =new BigDecimal(1000);
 
 	private static HashMap<Type,Collection<Unit>> type_units_map=new HashMap<>();
 
@@ -105,13 +107,21 @@ public class Unit {
 
 	public static Unit Second=new Unit("sec", Type.Time, BigDecimal.valueOf(1));
 	public static Unit Minute=new Unit("min", Type.Time, BigDecimal.valueOf(60));
-	
-	public static Unit Perent=new Unit("%", Type.Fraction, BigDecimal.valueOf(0.01));
 
 	public static Unit BytePerSecond=new Unit("B/S", Byte, oper_divide, Second);
 	public static Unit KBPerSecond=new Unit("K/S", KB, oper_divide, Second);
 	public static Unit MBPerSecond=new Unit("M/S", MB, oper_divide, Second);
 	public static Unit GBPerSecond=new Unit("G/S", GB, oper_divide, Second);
+
+	public static Unit Perent=new Unit("%", Type.Number, BigDecimal.valueOf(0.01));
+	public static Unit Num=new Unit("", Type.Number, BigDecimal.ONE);
+	public static Unit K=new Unit("K", Type.Number, NUM_1000);
+	public static Unit M=new Unit("M", Type.Number, NUM_1000.multiply(NUM_1000));
+	public static Unit G=new Unit("G", Type.Number, NUM_1000.multiply(NUM_1000).multiply(NUM_1000));
+	public static Unit T=new Unit("T", Type.Number, NUM_1000.multiply(NUM_1000).multiply(NUM_1000).multiply(NUM_1000));
+
+	public static Unit Hz=new Unit("Hz", Num, oper_divide, Second);
+	public static Unit GHz=new Unit("GHz", G, oper_divide, Second);
 
 	/**
 	 * 当前单位与目标单位之比

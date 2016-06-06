@@ -30,5 +30,5 @@ public class Constant {
 	/**
 	 * 数值近似处理方法
 	 */
-	public static int roundingMode=BigDecimal.ROUND_HALF_UP;
+	public static int roundingMode=BigDecimal.ROUND_CEILING;
 }
