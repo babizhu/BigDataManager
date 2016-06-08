@@ -108,7 +108,7 @@ public class CPUSearchCmd implements ICmd{
 		this.cmdStr=Constant.rrdToolLocation
 				+ " xport --start '"+startTime+"' --end '"+endTime
 				+ "' DEF:'cpu_user'='"+dataDir+"/cpu_user.rrd':'sum':AVERAGE" +
-				" DEF:'cpu_nice'='"+dataDir+"/cpu_nice.rrd':'sum':AVERAGE" +
+//				" DEF:'cpu_nice'='"+dataDir+"/cpu_nice.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_system'='"+dataDir+"/cpu_system.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE" +
@@ -124,16 +124,16 @@ public class CPUSearchCmd implements ICmd{
 				" GPRINT:'user_min':' Min\\:%5.1lf%%'" +
 				" GPRINT:'user_avg':' Avg\\:%5.1lf%%'" +
 				" GPRINT:'user_max':' Max\\:%5.1lf%%\\l'" +
-				" STACK:'cpu_nice'#ffea00:'Nice\\g'" +
-				" CDEF:nice_pos=cpu_nice,0,INF,LIMIT" +
-				" VDEF:nice_last=nice_pos,LAST" +
-				" VDEF:nice_min=nice_pos,MINIMUM" +
-				" VDEF:nice_avg=nice_pos,AVERAGE" +
-				" VDEF:nice_max=nice_pos,MAXIMUM" +
-				" GPRINT:'nice_last':' Now\\:%5.1lf%%'" +
-				" GPRINT:'nice_min':' Min\\:%5.1lf%%'" +
-				" GPRINT:'nice_avg':' Avg\\:%5.1lf%%'" +
-				" GPRINT:'nice_max':' Max\\:%5.1lf%%\\l'" +
+//				" STACK:'cpu_nice'#ffea00:'Nice\\g'" +
+//				" CDEF:nice_pos=cpu_nice,0,INF,LIMIT" +
+//				" VDEF:nice_last=nice_pos,LAST" +
+//				" VDEF:nice_min=nice_pos,MINIMUM" +
+//				" VDEF:nice_avg=nice_pos,AVERAGE" +
+//				" VDEF:nice_max=nice_pos,MAXIMUM" +
+//				" GPRINT:'nice_last':' Now\\:%5.1lf%%'" +
+//				" GPRINT:'nice_min':' Min\\:%5.1lf%%'" +
+//				" GPRINT:'nice_avg':' Avg\\:%5.1lf%%'" +
+//				" GPRINT:'nice_max':' Max\\:%5.1lf%%\\l'" +
 				" STACK:'cpu_system'#dd0000:'System\\g'" +
 				" CDEF:system_pos=cpu_system,0,INF,LIMIT" +
 				" VDEF:system_last=system_pos,LAST" +
@@ -185,7 +185,7 @@ public class CPUSearchCmd implements ICmd{
 				" GPRINT:'speed_avg':' Avg\\:%5.1lf%%'" +
 				" GPRINT:'speed_max':' Max\\:%5.1lf%%\\l'" +
 				" XPORT:'cpu_user':'User\\g'" +
-				" XPORT:'cpu_nice':'Nice\\g'" +
+//				" XPORT:'cpu_nice':'Nice\\g'" +
 				" XPORT:'cpu_system':'System\\g'" +
 				" XPORT:'cpu_wio':'Wait\\g'" +
 				" XPORT:'cpu_steal':'Steal\\g'" +
