@@ -4,12 +4,15 @@ import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
+import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CPUSearchCmd implements ICmd{
 
@@ -216,6 +219,12 @@ public class CPUSearchCmd implements ICmd{
 
 	@Override
 	public void handleTotal(RRDJsonModel jsonModel, Unit showUnit) throws BussException {
-		//need do noting
+		long count = jsonModel.getList().stream().filter((djm) -> {
+			return Metrics.CPU.Speed.fullName().equals(djm.getName());
+		}).count();
+		if(count==1) {
+			ICmd.handleTotal(jsonModel, Metrics.CPU.Speed.fullName(), showUnit, Metrics.CPU.Speed.unit());
+		}
 	}
+
 }

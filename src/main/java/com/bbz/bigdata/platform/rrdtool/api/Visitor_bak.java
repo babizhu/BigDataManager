@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-public class Visitor{
+public class Visitor_bak {
 
     private static SimpleDateFormat dateFormater = new SimpleDateFormat( "MM/dd/yyyy HH:mm" );
 
@@ -79,18 +79,17 @@ public class Visitor{
             }
             list.add(measurementDetail);
         }
-//        if( !changeValueToPercent ) {
-//            //不转化为百分比，则要求单位同类型
-//            Measurement.Detail firstD = null;
-//            for( Measurement.Detail detail : measurementDetails ) {
-//                if( firstD == null ) {
-//                    firstD = detail;
-//                } else if( !firstD.unit().sameType(detail.unit()) ) {
-//                    throw new BussException( BussException.UNITTYPE_NOT_MATCHED );
-//                }
-//            }
-//        }
+        if( !changeValueToPercent ) {
+            Measurement firstM = null;
+            for( Measurement measurement : measurements.keySet() ) {
+                if( firstM == null ) {
+                    firstM = measurement;
+                } else if( !firstM.getResultUnit().sameType(measurement.getResultUnit()) ) {
+                    throw new BussException( BussException.UNITTYPE_NOT_MATCHED );
+                }
+            }
 
+        }
         RRDJsonModel fullJsonModel = null;
         Date sdate = dateFormater.parse( startTime );
         for( Map.Entry<Measurement, List<Measurement.Detail>> mEntry : measurements.entrySet() ) {
@@ -113,7 +112,6 @@ public class Visitor{
                 fullJsonModel = JsonResultJoiner.join( fullJsonModel, jsonModel, true );
             }
         }
-
         return fullJsonModel;
     }
 

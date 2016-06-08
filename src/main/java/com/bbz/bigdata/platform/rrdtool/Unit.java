@@ -113,7 +113,8 @@ public class Unit {
 	public static Unit MBPerSecond=new Unit("M/S", MB, oper_divide, Second);
 	public static Unit GBPerSecond=new Unit("G/S", GB, oper_divide, Second);
 
-	public static Unit Perent=new Unit("%", Type.Number, BigDecimal.valueOf(0.01));
+	public static Unit Perent=new Unit("%", Type.Fraction, BigDecimal.valueOf(0.01));
+
 	public static Unit Num=new Unit("", Type.Number, BigDecimal.ONE);
 	public static Unit K=new Unit("K", Type.Number, NUM_1000);
 	public static Unit M=new Unit("M", Type.Number, NUM_1000.multiply(NUM_1000));
@@ -121,6 +122,7 @@ public class Unit {
 	public static Unit T=new Unit("T", Type.Number, NUM_1000.multiply(NUM_1000).multiply(NUM_1000).multiply(NUM_1000));
 
 	public static Unit Hz=new Unit("Hz", Num, oper_divide, Second);
+	public static Unit MHz=new Unit("MHz", M, oper_divide, Second);
 	public static Unit GHz=new Unit("GHz", G, oper_divide, Second);
 
 	/**

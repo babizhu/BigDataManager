@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JsonResultConvertor {
+public class JsonResultConvertor_bak {
 
 	/**
 	 * 把rrd查询数据类转换成json类
@@ -77,6 +77,7 @@ public class JsonResultConvertor {
 			/*
 			 *转为百分比 
 			 */
+			cmd.handleTotal(jsonModel,showUnit);
 			cmd.handleToPercent(jsonModel,fullName_Detail_Map.keySet());
 			filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
 		}else {

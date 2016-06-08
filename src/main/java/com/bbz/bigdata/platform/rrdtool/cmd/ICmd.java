@@ -82,7 +82,6 @@ public interface ICmd {
 			DataJsonModel totalDjm = totaljsonModel.get(0);
 			for(int i=totalDjm.getData().length-1;i>=0;i--){
 				if (totalDjm.getData()[i]!=null){
-					jsonModel.setTotal(totalDjm.getData()[i].setScale(Constant.numberScale,Constant.roundingMode));
 					BigDecimal value;
 					if (tarUnit==null){
 						List<BigDecimal[]> tempList=new ArrayList<>();

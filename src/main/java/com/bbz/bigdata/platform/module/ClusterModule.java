@@ -2,12 +2,11 @@ package com.bbz.bigdata.platform.module;
 
 import com.bbz.bigdata.platform.bean.Cluster;
 import com.bbz.bigdata.platform.bean.ClusterNode;
-import com.bbz.bigdata.platform.module.modelview.ClusterChartsJM;
-import com.bbz.bigdata.platform.module.modelview.ClusterNodeJM;
-import com.bbz.bigdata.platform.module.modelview.ClusterNodeListJM;
-import com.bbz.bigdata.platform.module.modelview.ClusterSummaryJM;
+import com.bbz.bigdata.platform.module.modelview.*;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
+import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 import com.bbz.bigdata.platform.service.ClusterService;
 import com.bbz.bigdata.util.Util;
 import org.nutz.dao.Cnd;
@@ -27,6 +26,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liu_k on 2.
@@ -138,9 +138,9 @@ public class ClusterModule{
     @At
     public Object clusterNodeList(@Param("clusterId") int clusterId,HttpServletResponse response ){
         ClusterNodeListJM jm=new ClusterNodeListJM();
-        List<ClusterNode> nodes=null;
+        Map<ClusterNode,Map<Measurement,RRDJsonModel>> nodesRRDMap=null;
         try {
-            nodes = clusterService.clusterNodesInfo(clusterId);
+            nodesRRDMap = clusterService.clusterNodesInfo(clusterId);
         } catch (ParseException e) {
             e.printStackTrace();
             return Util.INSTANCE.buildErrorResponse( response, 500, e.getMessage() );
@@ -151,12 +151,17 @@ public class ClusterModule{
             e.printStackTrace();
             return Util.INSTANCE.buildErrorResponse( response, 500, e.getMessage() );
         }
-        if (nodes!=null){
+        if (nodesRRDMap!=null){
             List<ClusterNodeJM> nodejms=new ArrayList<>();
-            nodes.stream().forEach(node->{
-                nodejms.add(new ClusterNodeJM(node));
+            nodesRRDMap.entrySet().forEach(entry->{
+                ClusterNodeJM nodeJM = new ClusterNodeJM(entry.getKey());
+                nodeJM.getCharts().setCpu(entry.getValue().get(Metrics.CPU));
+                nodeJM.getCharts().setMem(entry.getValue().get(Metrics.Memory));
+                nodeJM.getCharts().setDisk(entry.getValue().get(Metrics.Disk));
+                nodeJM.getCharts().setNetwork(entry.getValue().get(Metrics.Network));
+                nodejms.add(nodeJM);
                 jm.setTotalCount(jm.getTotalCount()+1);
-                if(node.getStatus()==1){
+                if(entry.getKey().getStatus()==1){
                     jm.setAliveCount(jm.getAliveCount()+1);
                 }
             });
@@ -166,7 +171,7 @@ public class ClusterModule{
     }
 
     @At
-    public RRDJsonModel clusterMemeryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+    public RRDJsonModel clusterMemoryInfo(@Param("clusterId") int clusterId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
         RRDJsonModel rrdJM = clusterService.clusterMemoryInfo(clusterId,timePeriod);
         return rrdJM;
     }

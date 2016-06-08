@@ -31,7 +31,7 @@ public class CPU extends Measurement{
 	public Measurement.Detail Wait=this.new Detail(this,"Wait");
 	public Measurement.Detail Steal=this.new Detail(this,"Steal");
 	public Measurement.Detail Idle=this.new Detail(this,"Idle");
-	public Measurement.Detail Speed=this.new Detail(this,"Speed");
+	public Measurement.Detail Speed=this.new Detail(this,"Speed",Unit.MHz);
 	
 	private HashMap<String, Detail> name_detail_map=new HashMap<>();
 

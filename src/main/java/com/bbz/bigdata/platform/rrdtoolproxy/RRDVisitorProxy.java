@@ -17,7 +17,7 @@ public class RRDVisitorProxy {
     /**
      * 默认查询时间段 单位：秒
      */
-    private static final int timePeriod=1800;
+    public static final int timePeriod=1800;
     /**
      * 默认查询时间段 单位：秒
      */
@@ -231,6 +231,25 @@ public class RRDVisitorProxy {
             timePeriod= RRDVisitorProxy.timePeriod;
         }
         return visitor.visit(clusterName,nodeName,timePeriod,new Measurement.Detail[]{Metrics.CPU.Idle,Metrics.CPU.Speed}, null,false
+                ,new MeasurementCreator[]{new MeasurementCreator(new BigDecimal(100), MeasurementCreator.Operator.MINUS,Metrics.CPU.Idle,Metrics.CPU.name()+DETAIL_NAME_USED)
+                });
+    }
+
+    /**
+     * 节点CPU信息图数据
+     * @param clusterName 集群名称
+     * @param nodeName 节点名称
+     * @param timePeriod 到目前为止的时间段
+     * @return
+     * @throws ParseException
+     * @throws BussException
+     */
+    public RRDJsonModel clusterNodeCPUSpeed(String clusterName,String nodeName, Integer timePeriod) throws ParseException, BussException {
+        Visitor visitor=new Visitor();
+        if (timePeriod==null){
+            timePeriod= RRDVisitorProxy.timePeriod;
+        }
+        return visitor.visit(clusterName,nodeName,timePeriod,new Measurement.Detail[]{Metrics.CPU.Speed}, null,false
                 ,new MeasurementCreator[]{new MeasurementCreator(new BigDecimal(100), MeasurementCreator.Operator.MINUS,Metrics.CPU.Idle,Metrics.CPU.name()+DETAIL_NAME_USED)
                 },Metrics.CPU.Speed );
     }

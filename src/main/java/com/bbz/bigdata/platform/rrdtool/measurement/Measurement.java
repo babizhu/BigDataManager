@@ -47,11 +47,17 @@ public abstract class Measurement {
 		public Detail(Measurement measurement,String name){
 			this.measurement=measurement;
 			this.name=name;
-//			this.showName=showName;
+			this.unit=measurement.getResultUnit();
+		}
+
+		public Detail(Measurement measurement,String name,Unit unit){
+			this.measurement=measurement;
+			this.name=name;
+			this.unit=unit==null?measurement.getResultUnit():unit;
 		}
 		
 		private String name;
-//		private String showName;
+		private Unit unit;
 		private Measurement measurement;
 		
 		public String selfName(){
@@ -66,7 +72,8 @@ public abstract class Measurement {
 			return this.measurement;
 		}
 
-//		public String showName() { return this.showName; }
+		public Unit unit(){return this.unit;}
+
 	}
 
 	public static boolean containsDetail(Collection<Measurement> measurements, String detailName){

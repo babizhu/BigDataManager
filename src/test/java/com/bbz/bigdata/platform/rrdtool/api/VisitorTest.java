@@ -6,6 +6,8 @@ import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 import org.junit.Test;
 
+import java.util.LinkedHashMap;
+
 /**
  * Created by liu_k on 2016/5/20.
  * test
@@ -21,8 +23,13 @@ public class VisitorTest{
 
     @Test
     public void testTemp(){
-        double a=1;
-        double b=1.133;
-        System.out.println(a-b);
+        LinkedHashMap<String,String> map=new LinkedHashMap<>();
+        map.put("b","");
+        map.put("a","");
+        map.put("c","");
+        map.put("d","");
+        map.entrySet().forEach(e->{
+            System.out.println(e.getKey());
+        });
     }
 }

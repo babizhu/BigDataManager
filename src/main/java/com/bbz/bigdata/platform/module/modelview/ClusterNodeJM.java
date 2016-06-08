@@ -56,4 +56,7 @@ public class ClusterNodeJM {
     private Integer netIn;
     private Integer netOut;
     private String netUnit;
+
+    private ClusterNodeChartsJM charts=new ClusterNodeChartsJM();
+
 }

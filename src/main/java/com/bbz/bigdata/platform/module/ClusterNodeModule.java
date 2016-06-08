@@ -1,21 +1,13 @@
 package com.bbz.bigdata.platform.module;
 
-import com.bbz.bigdata.platform.bean.Cluster;
 import com.bbz.bigdata.platform.bean.ClusterNode;
-import com.bbz.bigdata.platform.module.modelview.ClusterChartsJM;
 import com.bbz.bigdata.platform.module.modelview.ClusterNodeJM;
-import com.bbz.bigdata.platform.module.modelview.ClusterNodeListJM;
-import com.bbz.bigdata.platform.module.modelview.ClusterSummaryJM;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.service.ClusterService;
 import com.bbz.bigdata.util.Util;
-import org.nutz.dao.Cnd;
-import org.nutz.dao.QueryResult;
-import org.nutz.dao.pager.Pager;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Fail;
@@ -86,7 +78,7 @@ public class ClusterNodeModule {
 
 
         clusterService.add( clusterNode );
-        return re.setv( "ok", true ).setv( "data", clusterNode );
+        return re.setv( "ok", true ).setv( "data",  new ClusterNodeJM(clusterNode) );
     }
 
 
@@ -101,10 +93,34 @@ public class ClusterNodeModule {
     }
 
     private Object delete( ClusterNode clusterNode ){
-        clusterService.delete( clusterNode.getId() );
+        clusterService.deleteNode( clusterNode.getId() );
 //        dao.delete( Cluster.class, cluster.getId() ); // 再严谨一些的话,需要判断是否为>0
         NutMap re = new NutMap();
         return re.setv( "ok", true ).setv( "data", clusterNode );
     }
 
+
+    @At
+    public RRDJsonModel nodeMemoryInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.nodeMemoryInfo(nodeId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public RRDJsonModel nodeCPUInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.nodeCPUInfo(nodeId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public RRDJsonModel nodeNetworkInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.nodeNetworkInfo(nodeId,timePeriod);
+        return rrdJM;
+    }
+
+    @At
+    public RRDJsonModel nodeDiskInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDJsonModel rrdJM = clusterService.nodeDiskInfo(nodeId,timePeriod);
+        return rrdJM;
+    }
 }
