@@ -76,6 +76,8 @@ public class MeasurementCreator {
 		this.d2=d2;
 	}
 
+	/************************/
+
 	private Measurement.Detail md1;
 	private Measurement.Detail md2;
 	private BigDecimal d1;

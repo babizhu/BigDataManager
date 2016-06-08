@@ -29,8 +29,8 @@ public class Visitor{
      * @param timePeriod           从查询起点到目前为止的时间段，单位：分钟
      * @param measurementDetails   测量数据数组 [CPU.Free,Memory.Total]
      * @param showUnit             显示单位 (Unit.GB) ，若为空则自动转换为合适的单位
-     * @param changeValueToPercent 是否转换为百分比单位,如果为true则showUnit无效
-     * @param measurementCreators 新数据创建方法
+     * @param changeValueToPercent 是否转换为百分比单位,如果为true则showUnit只对total有效
+     * @param measurementCreators  新数据创建方法
      * @throws ParseException
      * @throws BussException
      */
@@ -52,9 +52,10 @@ public class Visitor{
      * @param hostName             主机名,空字符串则为集群的summaryinfo
      * @param startTime            MM/dd/yyyy HH:mm
      * @param endTime              MM/dd/yyyy HH:mm
-     * @param showUnit             显示单位
-     * @param changeValueToPercent 是否统一为百分比单位
-     * @param measurementCreators 新数据创建方法
+     * @param measurementDetails   测量数据数组 [CPU.Free,Memory.Total]
+     * @param showUnit             显示单位 (Unit.GB) ，若为空则自动转换为合适的单位
+     * @param changeValueToPercent 是否转换为百分比单位,如果为true则showUnit只对total有效
+     * @param measurementCreators  新数据创建方法
      * @throws ParseException
      * @throws BussException
      */
@@ -93,27 +94,30 @@ public class Visitor{
 
         RRDJsonModel fullJsonModel = null;
         Date sdate = dateFormater.parse( startTime );
-        for( Map.Entry<Measurement, List<Measurement.Detail>> mEntry : measurements.entrySet() ) {
-            Measurement measurement = mEntry.getKey();
-            List<Measurement.Detail> detailList = mEntry.getValue();
-            ICmd cmd = CmdBuilder.buildCmd(clusterName, hostName, measurement, startTime, endTime );
-            String result;
-            if(Util.INSTANCE.isDebug()){
-                result = tempres;
-            }else {
-                System.out.println("\r" + cmd.getCmd());
-                result = CmdExecutor.execute(cmd.getCmd());
-                System.out.println(result);
+        try {
+            for (Map.Entry<Measurement, List<Measurement.Detail>> mEntry : measurements.entrySet()) {
+                Measurement measurement = mEntry.getKey();
+                List<Measurement.Detail> detailList = mEntry.getValue();
+                ICmd cmd = CmdBuilder.buildCmd(clusterName, hostName, measurement, startTime, endTime);
+                String result;
+                if (Util.INSTANCE.isDebug()) {
+                    result = tempres;
+                } else {
+                    System.out.println("\r" + cmd.getCmd());
+                    result = CmdExecutor.execute(cmd.getCmd());
+                    System.out.println(result);
+                }
+                FullXMLModel crm = XMLResultParser.parse(result);
+                RRDJsonModel jsonModel = JsonResultConvertor.convert(crm, cmd, sdate, detailList, showUnit, changeValueToPercent, measurementCreators, measurementDetailsForShow);
+                if (fullJsonModel == null) {
+                    fullJsonModel = jsonModel;
+                } else {
+                    fullJsonModel = JsonResultJoiner.join(fullJsonModel, jsonModel, true);
+                }
             }
-            FullXMLModel crm = XMLResultParser.parse( result );
-            RRDJsonModel jsonModel = JsonResultConvertor.convert( crm, cmd, sdate, detailList, showUnit, changeValueToPercent, measurementCreators,measurementDetailsForShow);
-            if( fullJsonModel == null ) {
-                fullJsonModel = jsonModel;
-            } else {
-                fullJsonModel = JsonResultJoiner.join( fullJsonModel, jsonModel, true );
-            }
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
-
         return fullJsonModel;
     }
 

@@ -13,12 +13,19 @@ public class Constant {
 	 * rrd数据存放位置
 	 */
 	public static String rrdDataLocation="/var/lib/ganglia/rrds/";
-//	/**
-//	 * 数据采集间隔
-//	 * from setting
-//	 * unit:seconds
-//	 */
-//	public static int dataIntervalTime=15;
+	/**
+	 * 数据采集间隔
+	 * from setting
+	 * unit:second
+	 */
+	public static int dataIntervalTime=10;
+
+	/**
+	 * 默认数据
+	 * from setting
+	 * unit:second
+	 */
+	public static int defaultPointAmountThreshold=10;
 	/**
 	 * 数值精度
 	 */

@@ -215,15 +215,19 @@ public class ClusterModule{
         ClusterSummaryJM jm=new ClusterSummaryJM();
         ClusterChartsJM cc=new ClusterChartsJM();
         jm.setClusterCharts(cc);
-        cc.setCpu(clusterService.clusterCPUSimpleData(clusterId,timePeriod));
-        cc.setMem(clusterService.clusterMemorySimpleData(clusterId,timePeriod));
-        cc.setNetwork(clusterService.clusterNetworkInfo(clusterId,timePeriod));
-        cc.setDisk(clusterService.clusterDiskSimpleData(clusterId,timePeriod));
-        Object nodeListJM = this.clusterNodeList(clusterId,null);
-        if(nodeListJM instanceof ClusterNodeListJM) {
-            jm.setClusterNodeList((ClusterNodeListJM)nodeListJM);
-        }else{
-            return nodeListJM;
+        try {
+            cc.setCpu(clusterService.clusterCPUSimpleData(clusterId, timePeriod));
+            cc.setMem(clusterService.clusterMemorySimpleData(clusterId, timePeriod));
+            cc.setNetwork(clusterService.clusterNetworkInfo(clusterId, timePeriod));
+            cc.setDisk(clusterService.clusterDiskSimpleData(clusterId, timePeriod));
+            Object nodeListJM = this.clusterNodeList(clusterId, null);
+            if (nodeListJM instanceof ClusterNodeListJM) {
+                jm.setClusterNodeList((ClusterNodeListJM) nodeListJM);
+            } else {
+                return nodeListJM;
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
         return jm;
     }

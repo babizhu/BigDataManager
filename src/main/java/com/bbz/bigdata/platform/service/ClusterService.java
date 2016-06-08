@@ -35,9 +35,16 @@ public class ClusterService extends IdNameEntityService<Cluster>{
     }
 
     public Cluster getClusterInfoWithNodes( int clusterId ){
-        Cluster cluster = dao().fetchLinks( dao().fetch( Cluster.class,clusterId), null, Cnd.orderBy().asc("host"));
+        Cluster cluster = dao().fetch( Cluster.class,clusterId);
+        if(cluster == null) return null;
+        cluster = dao().fetchLinks( cluster, null, Cnd.orderBy().asc("host"));
         return cluster;
     }
+
+    public Cluster getClusterInfoWithoutNodes( int clusterId ){
+        return dao().fetch( Cluster.class,clusterId);
+    }
+
     public int count(){
         System.out.println( dao().count( Cluster.class ) );
         return dao().count( Cluster.class );
@@ -95,7 +102,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterMemoryInfo(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterMemoryDataValue(cluster.getName(),timePeriod);
     }
@@ -109,7 +117,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterCPUInfo(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterCPUDataValue(cluster.getName(),timePeriod);
     }
@@ -123,7 +132,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterNetworkInfo(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterNetworkDataValue(cluster.getName(),timePeriod);
     }
@@ -137,7 +147,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterDiskInfo(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterDiskDataValue(cluster.getName(),timePeriod);
     }
@@ -151,7 +162,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterMemorySimpleData(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if ( cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterMemorySimpleData(cluster.getName(),timePeriod);
     }
@@ -165,7 +177,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterCPUSimpleData(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterCPUSimpleData(cluster.getName(),timePeriod);
     }
@@ -179,7 +192,8 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      * @throws BussException
      */
     public RRDJsonModel clusterDiskSimpleData(int clusterId, Integer timePeriod) throws ParseException, BussException {
-        Cluster cluster=this.getClusterInfoWithNodes(clusterId);
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterId);
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterDiskSimpleData(cluster.getName(),timePeriod);
     }
@@ -199,7 +213,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         int timePeriod=RRDVisitorProxy.timePeriod;
         LinkedHashMap<ClusterNode,Map<Measurement,RRDJsonModel>> result=new LinkedHashMap<>();
         RRDVisitorProxy visitor = new RRDVisitorProxy();
-        cluster.getClusterNode().parallelStream().forEach((node)->{
+        cluster.getClusterNode().forEach((node)->{
             Map<Measurement,RRDJsonModel> rrdMap=new HashMap<>();
             result.put(node,rrdMap);
             try {
@@ -298,7 +312,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
     }
 
     /**
-     * 集群内存监控数据
+     * 节点内存监控数据
      * @param nodeId
      * @param timePeriod
      * @return
@@ -307,13 +321,15 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      */
     public RRDJsonModel nodeMemoryInfo(int nodeId, Integer timePeriod) throws ParseException, BussException {
         ClusterNode clusterNode = this.getClusterNode(nodeId);
-        Cluster cluster=this.getClusterInfoWithNodes(clusterNode.getClusterId());
+        if (clusterNode==null) return null;
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterNode.getClusterId());
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterNodeMemoryInfo(cluster.getName(),clusterNode.getHost(),timePeriod);
     }
 
     /**
-     * 集群CPU监控数据
+     * 节点CPU监控数据
      * @param nodeId
      * @param timePeriod 查询时间段，为空则用默认时长
      * @return
@@ -322,13 +338,15 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      */
     public RRDJsonModel nodeCPUInfo(int nodeId, Integer timePeriod) throws ParseException, BussException {
         ClusterNode clusterNode = this.getClusterNode(nodeId);
-        Cluster cluster=this.getClusterInfoWithNodes(clusterNode.getClusterId());
+        if (clusterNode==null) return null;
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterNode.getClusterId());
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterNodeCPUInfo(cluster.getName(), clusterNode.getHost(),timePeriod);
     }
 
     /**
-     * 集群的网络IO监控数据
+     * 节点的网络IO监控数据
      * @param nodeId
      * @param timePeriod 查询时间段，为空则用默认时长
      * @return
@@ -337,13 +355,15 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      */
     public RRDJsonModel nodeNetworkInfo(int nodeId, Integer timePeriod) throws ParseException, BussException {
         ClusterNode clusterNode = this.getClusterNode(nodeId);
-        Cluster cluster=this.getClusterInfoWithNodes(clusterNode.getClusterId());
+        if (clusterNode==null) return null;
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterNode.getClusterId());
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterNodeNetworkInfo(cluster.getName(), clusterNode.getHost(),timePeriod);
     }
 
     /**
-     * 集群的硬盘监控数据
+     * 节点的硬盘监控数据
      * @param nodeId
      * @param timePeriod 查询时间段，为空则用默认时长
      * @return
@@ -352,7 +372,9 @@ public class ClusterService extends IdNameEntityService<Cluster>{
      */
     public RRDJsonModel nodeDiskInfo(int nodeId, Integer timePeriod) throws ParseException, BussException {
         ClusterNode clusterNode = this.getClusterNode(nodeId);
-        Cluster cluster=this.getClusterInfoWithNodes(clusterNode.getClusterId());
+        if (clusterNode==null) return null;
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterNode.getClusterId());
+        if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterNodeDiskInfo(cluster.getName(), clusterNode.getHost(),timePeriod);
     }
