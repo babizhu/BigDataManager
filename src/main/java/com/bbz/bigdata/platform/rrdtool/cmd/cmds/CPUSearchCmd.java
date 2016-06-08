@@ -4,15 +4,11 @@ import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
-import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CPUSearchCmd implements ICmd{
 
@@ -111,7 +107,7 @@ public class CPUSearchCmd implements ICmd{
 //				" DEF:'cpu_nice'='"+dataDir+"/cpu_nice.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_system'='"+dataDir+"/cpu_system.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE" +
-				" DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE" +
+//				" DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_speed'='"+dataDir+"/cpu_speed.rrd':'sum':AVERAGE" +
 				" AREA:'cpu_user'#3333bb:'User\\g'" +
@@ -144,16 +140,16 @@ public class CPUSearchCmd implements ICmd{
 				" GPRINT:'system_min':' Min\\:%5.1lf%%'" +
 				" GPRINT:'system_avg':' Avg\\:%5.1lf%%'" +
 				" GPRINT:'system_max':' Max\\:%5.1lf%%\\l'" +
-				" STACK:'cpu_wio'#ff8a60:'Wait\\g'" +
-				" CDEF:wio_pos=cpu_wio,0,INF,LIMIT" +
-				" VDEF:wio_last=wio_pos,LAST" +
-				" VDEF:wio_min=wio_pos,MINIMUM" +
-				" VDEF:wio_avg=wio_pos,AVERAGE" +
-				" VDEF:wio_max=wio_pos,MAXIMUM" +
-				" GPRINT:'wio_last':' Now\\:%5.1lf%%'" +
-				" GPRINT:'wio_min':' Min\\:%5.1lf%%'" +
-				" GPRINT:'wio_avg':' Avg\\:%5.1lf%%'" +
-				" GPRINT:'wio_max':' Max\\:%5.1lf%%\\l'" +
+//				" STACK:'cpu_wio'#ff8a60:'Wait\\g'" +
+//				" CDEF:wio_pos=cpu_wio,0,INF,LIMIT" +
+//				" VDEF:wio_last=wio_pos,LAST" +
+//				" VDEF:wio_min=wio_pos,MINIMUM" +
+//				" VDEF:wio_avg=wio_pos,AVERAGE" +
+//				" VDEF:wio_max=wio_pos,MAXIMUM" +
+//				" GPRINT:'wio_last':' Now\\:%5.1lf%%'" +
+//				" GPRINT:'wio_min':' Min\\:%5.1lf%%'" +
+//				" GPRINT:'wio_avg':' Avg\\:%5.1lf%%'" +
+//				" GPRINT:'wio_max':' Max\\:%5.1lf%%\\l'" +
 				" STACK:'cpu_steal'#990099:'Steal\\g'" +
 				" CDEF:steal_pos=cpu_steal,0,INF,LIMIT" +
 				" VDEF:steal_last=steal_pos,LAST" +
@@ -187,7 +183,7 @@ public class CPUSearchCmd implements ICmd{
 				" XPORT:'cpu_user':'User\\g'" +
 //				" XPORT:'cpu_nice':'Nice\\g'" +
 				" XPORT:'cpu_system':'System\\g'" +
-				" XPORT:'cpu_wio':'Wait\\g'" +
+//				" XPORT:'cpu_wio':'Wait\\g'" +
 				" XPORT:'cpu_steal':'Steal\\g'" +
 				" XPORT:'cpu_idle':'Idle\\g'" +
 				" XPORT:'cpu_speed':'Speed\\g'";
