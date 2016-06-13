@@ -215,8 +215,43 @@ public class JsonResultConvertor {
 				);
 	}
 
-//	private static BigDecimal unitValue(BigDecimal value,BigDecimal times){
-//		return value.divide(times, Constant.numberScale ,Constant.roundingMode);
-//	}
+	private static void filteDataInterval(RRDJsonModel rrdJsonModel,Integer pointAmountThreshold){
+		if (rrdJsonModel==null||rrdJsonModel.getList()==null||rrdJsonModel.getList().size()==0){
+			return;
+		}
+		rrdJsonModel.getList().forEach(djm->{
+			int interval=calDataPiontInterval(djm.getData().length,pointAmountThreshold);
+			if (interval==1){
+				return;
+			}
+			int intervalTime=djm.getPointInterval()*interval;
+			BigDecimal[] newData=new BigDecimal[(djm.getData().length-1)/interval+1];
+			long start=djm.getPointStart()+djm.getData().length*djm.getPointInterval()-1
+					;
+			/**
+			 * i:data从右往左第几个数，n：第几个筛选出来的数
+			 */
+			for (int i=1,n=1;i<=djm.getData().length;i++){
+				if((i-1)%interval==0){
+					newData[newData.length-n]=djm.getData()[djm.getData().length-i];
+					n++;
+				}
+			}
+			djm.setData(newData);
+			djm.setPointInterval(intervalTime);
+//			djm.setPointStart(djm.get);
+		});
+	}
+
+	private static int calDataPiontInterval(int totalDataAmount,Integer pointAmountThreshold){
+		if (pointAmountThreshold==null||pointAmountThreshold<=0){
+			pointAmountThreshold=Constant.defaultPointAmountThreshold;
+		}
+		if(totalDataAmount<=pointAmountThreshold){
+			return 1;
+		}
+		int interval = totalDataAmount/pointAmountThreshold;
+		return interval;
+	}
 
 }

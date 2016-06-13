@@ -69,7 +69,7 @@ public class Visitor{
             throw new IllegalArgumentException( "measurementDetails can not be empty" );
         }
         if( hostName.isEmpty() ) {
-            hostName = "__SummaryInfo__";
+            hostName = null;
         }
         HashMap<Measurement, List<Measurement.Detail>> measurements = new HashMap<>();
         for (Measurement.Detail measurementDetail : measurementDetails) {

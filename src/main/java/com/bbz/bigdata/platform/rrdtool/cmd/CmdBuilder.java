@@ -20,10 +20,15 @@ public class CmdBuilder {
 	 * @return 查询指令对象
 	 */
 	public static ICmd buildCmd(String clusterName, String hostName, Measurement measurement, String startTime, String endTime){
+		if(hostName==null||hostName.isEmpty()){
+			hostName="__SummaryInfo__";
+		}else{
+			hostName=hostName.toLowerCase();
+		}
 		if (measurement==Metrics.Memory) {
 			return new MemorySearchCmd(clusterName, hostName, startTime, endTime);
 		}else if (measurement==Metrics.CPU) {
-			if(hostName.isEmpty()||hostName.equals("__SummaryInfo__")) {
+			if(hostName.equals("__SummaryInfo__")) {
 				return new CPUSearchCmd(clusterName, startTime, endTime);
 			}else{
 				return new CPUSearchCmd(clusterName, hostName, startTime, endTime);

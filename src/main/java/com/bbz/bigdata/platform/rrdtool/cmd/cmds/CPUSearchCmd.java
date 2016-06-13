@@ -18,19 +18,19 @@ public class CPUSearchCmd implements ICmd{
 			+ " xport --start '"+startTime+"' --end '"+endTime
 			+ "' DEF:'num_nodes'='"+dataDir+"/cpu_user.rrd':'num':AVERAGE"
 			+ " DEF:'cpu_user'='"+dataDir+"/cpu_user.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_nice'='"+dataDir+"/cpu_nice.rrd':'sum':AVERAGE"
+//			+ " DEF:'cpu_nice'='"+dataDir+"/cpu_nice.rrd':'sum':AVERAGE"
 			+ " DEF:'cpu_system'='"+dataDir+"/cpu_system.rrd':'sum':AVERAGE"
 			+ " DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE"
-			+ " DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE"
-//			+ " DEF:'cpu_speed'='"+dataDir+"/cpu_speed.rrd':'sum':AVERAGE"
+//			+ " DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE"
+//			+ " DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE"
+			+ " DEF:'cpu_speed'='"+dataDir+"/cpu_speed.rrd':'sum':AVERAGE"
 			+ " CDEF:'ccpu_user'=cpu_user,num_nodes,/"
-			+ " CDEF:'ccpu_nice'=cpu_nice,num_nodes,/"
+//			+ " CDEF:'ccpu_nice'=cpu_nice,num_nodes,/"
 			+ " CDEF:'ccpu_system'=cpu_system,num_nodes,/"
 			+ " CDEF:'ccpu_idle'=cpu_idle,num_nodes,/"
-			+ " CDEF:'ccpu_wio'=cpu_wio,num_nodes,/"
-			+ " CDEF:'ccpu_steal'=cpu_steal,num_nodes,/"
-//			+ " CDEF:'ccpu_speed'=cpu_speed,num_nodes,/"
+//			+ " CDEF:'ccpu_wio'=cpu_wio,num_nodes,/"
+//			+ " CDEF:'ccpu_steal'=cpu_steal,num_nodes,/"
+			+ " CDEF:'ccpu_speed'=cpu_speed,num_nodes,/"
 			+ " AREA:'ccpu_user'#3333bb:'User\\g'"
 			+ " CDEF:user_pos=ccpu_user,0,INF,LIMIT"
 			+ " VDEF:user_last=user_pos,LAST"
@@ -41,16 +41,16 @@ public class CPUSearchCmd implements ICmd{
 			+ " GPRINT:'user_min':' Min\\:%5.1lf%%'"
 			+ " GPRINT:'user_avg':'Avg\\:%5.1lf%%'"
 			+ " GPRINT:'user_max':' Max\\:%5.1lf%%\\l'"
-			+ " STACK:'ccpu_nice'#ffea00:'Nice\\g'"
-			+ " CDEF:nice_pos=ccpu_nice,0,INF,LIMIT"
-			+ " VDEF:nice_last=nice_pos,LAST"
-			+ " VDEF:nice_min=nice_pos,MINIMUM"
-			+ " VDEF:nice_avg=nice_pos,AVERAGE"
-			+ " VDEF:nice_max=nice_pos,MAXIMUM"
-			+ " GPRINT:'nice_last':' Now\\:%5.1lf%%'"
-			+ " GPRINT:'nice_min':' Min\\:%5.1lf%%'"
-			+ " GPRINT:'nice_avg':'Avg\\:%5.1lf%%'"
-			+ " GPRINT:'nice_max':' Max\\:%5.1lf%%\\l'"
+//			+ " STACK:'ccpu_nice'#ffea00:'Nice\\g'"
+//			+ " CDEF:nice_pos=ccpu_nice,0,INF,LIMIT"
+//			+ " VDEF:nice_last=nice_pos,LAST"
+//			+ " VDEF:nice_min=nice_pos,MINIMUM"
+//			+ " VDEF:nice_avg=nice_pos,AVERAGE"
+//			+ " VDEF:nice_max=nice_pos,MAXIMUM"
+//			+ " GPRINT:'nice_last':' Now\\:%5.1lf%%'"
+//			+ " GPRINT:'nice_min':' Min\\:%5.1lf%%'"
+//			+ " GPRINT:'nice_avg':'Avg\\:%5.1lf%%'"
+//			+ " GPRINT:'nice_max':' Max\\:%5.1lf%%\\l'"
 			+ " STACK:'ccpu_system'#dd0000:'System\\g'"
 			+ " CDEF:system_pos=ccpu_system,0,INF,LIMIT"
 			+ " VDEF:system_last=system_pos,LAST"
@@ -61,26 +61,26 @@ public class CPUSearchCmd implements ICmd{
 			+ " GPRINT:'system_min':' Min\\:%5.1lf%%'"
 			+ " GPRINT:'system_avg':'Avg\\:%5.1lf%%'"
 			+ " GPRINT:'system_max':' Max\\:%5.1lf%%\\l'"
-			+ " STACK:'ccpu_wio'#ff8a60:'Wait\\g'"
-			+ " CDEF:wio_pos=ccpu_wio,0,INF,LIMIT"
-			+ " VDEF:wio_last=wio_pos,LAST"
-			+ " VDEF:wio_min=wio_pos,MINIMUM"
-			+ " VDEF:wio_avg=wio_pos,AVERAGE"
-			+ " VDEF:wio_max=wio_pos,MAXIMUM"
-			+ " GPRINT:'wio_last':' Now\\:%5.1lf%%'"
-			+ " GPRINT:'wio_min':' Min\\:%5.1lf%%'"
-			+ " GPRINT:'wio_avg':'Avg\\:%5.1lf%%'"
-			+ " GPRINT:'wio_max':' Max\\:%5.1lf%%\\l'"
-			+ " STACK:'ccpu_steal'#990099:'Steal\\g'"
-			+ " CDEF:steal_pos=ccpu_steal,0,INF,LIMIT"
-			+ " VDEF:steal_last=steal_pos,LAST"
-			+ " VDEF:steal_min=steal_pos,MINIMUM"
-			+ " VDEF:steal_avg=steal_pos,AVERAGE"
-			+ " VDEF:steal_max=steal_pos,MAXIMUM"
-			+ " GPRINT:'steal_last':' Now\\:%5.1lf%%'"
-			+ " GPRINT:'steal_min':' Min\\:%5.1lf%%'"
-			+ " GPRINT:'steal_avg':'Avg\\:%5.1lf%%'"
-			+ " GPRINT:'steal_max':' Max\\:%5.1lf%%\\l'"
+//			+ " STACK:'ccpu_wio'#ff8a60:'Wait\\g'"
+//			+ " CDEF:wio_pos=ccpu_wio,0,INF,LIMIT"
+//			+ " VDEF:wio_last=wio_pos,LAST"
+//			+ " VDEF:wio_min=wio_pos,MINIMUM"
+//			+ " VDEF:wio_avg=wio_pos,AVERAGE"
+//			+ " VDEF:wio_max=wio_pos,MAXIMUM"
+//			+ " GPRINT:'wio_last':' Now\\:%5.1lf%%'"
+//			+ " GPRINT:'wio_min':' Min\\:%5.1lf%%'"
+//			+ " GPRINT:'wio_avg':'Avg\\:%5.1lf%%'"
+//			+ " GPRINT:'wio_max':' Max\\:%5.1lf%%\\l'"
+//			+ " STACK:'ccpu_steal'#990099:'Steal\\g'"
+//			+ " CDEF:steal_pos=ccpu_steal,0,INF,LIMIT"
+//			+ " VDEF:steal_last=steal_pos,LAST"
+//			+ " VDEF:steal_min=steal_pos,MINIMUM"
+//			+ " VDEF:steal_avg=steal_pos,AVERAGE"
+//			+ " VDEF:steal_max=steal_pos,MAXIMUM"
+//			+ " GPRINT:'steal_last':' Now\\:%5.1lf%%'"
+//			+ " GPRINT:'steal_min':' Min\\:%5.1lf%%'"
+//			+ " GPRINT:'steal_avg':'Avg\\:%5.1lf%%'"
+//			+ " GPRINT:'steal_max':' Max\\:%5.1lf%%\\l'"
 			+ " STACK:'ccpu_idle'#e2e2f2:'Idle\\g'"
 			+ " CDEF:idle_pos=ccpu_idle,0,INF,LIMIT"
 			+ " VDEF:idle_last=idle_pos,LAST"
@@ -92,10 +92,10 @@ public class CPUSearchCmd implements ICmd{
 			+ " GPRINT:'idle_avg':'Avg\\:%5.1lf%%'"
 			+ " GPRINT:'idle_max':' Max\\:%5.1lf%%\\l'"
 			+ " XPORT:'ccpu_user':'User\\g'"
-			+ " XPORT:'ccpu_nice':'Nice\\g'"
+//			+ " XPORT:'ccpu_nice':'Nice\\g'"
 			+ " XPORT:'ccpu_system':'System\\g'"
-			+ " XPORT:'ccpu_wio':'Wait\\g'"
-			+ " XPORT:'ccpu_steal':'Steal\\g'"
+//			+ " XPORT:'ccpu_wio':'Wait\\g'"
+//			+ " XPORT:'ccpu_steal':'Steal\\g'"
 			+ " XPORT:'ccpu_idle':'Idle\\g'";
 	}
 
@@ -108,7 +108,7 @@ public class CPUSearchCmd implements ICmd{
 				" DEF:'cpu_system'='"+dataDir+"/cpu_system.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_idle'='"+dataDir+"/cpu_idle.rrd':'sum':AVERAGE" +
 //				" DEF:'cpu_wio'='"+dataDir+"/cpu_wio.rrd':'sum':AVERAGE" +
-				" DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE" +
+//				" DEF:'cpu_steal'='"+dataDir+"/cpu_steal.rrd':'sum':AVERAGE" +
 				" DEF:'cpu_speed'='"+dataDir+"/cpu_speed.rrd':'sum':AVERAGE" +
 				" AREA:'cpu_user'#3333bb:'User\\g'" +
 				" CDEF:user_pos=cpu_user,0,INF,LIMIT" +
@@ -150,16 +150,16 @@ public class CPUSearchCmd implements ICmd{
 //				" GPRINT:'wio_min':' Min\\:%5.1lf%%'" +
 //				" GPRINT:'wio_avg':' Avg\\:%5.1lf%%'" +
 //				" GPRINT:'wio_max':' Max\\:%5.1lf%%\\l'" +
-				" STACK:'cpu_steal'#990099:'Steal\\g'" +
-				" CDEF:steal_pos=cpu_steal,0,INF,LIMIT" +
-				" VDEF:steal_last=steal_pos,LAST" +
-				" VDEF:steal_min=steal_pos,MINIMUM" +
-				" VDEF:steal_avg=steal_pos,AVERAGE" +
-				" VDEF:steal_max=steal_pos,MAXIMUM" +
-				" GPRINT:'steal_last':' Now\\:%5.1lf%%'" +
-				" GPRINT:'steal_min':' Min\\:%5.1lf%%'" +
-				" GPRINT:'steal_avg':' Avg\\:%5.1lf%%'" +
-				" GPRINT:'steal_max':' Max\\:%5.1lf%%\\l'" +
+//				" STACK:'cpu_steal'#990099:'Steal\\g'" +
+//				" CDEF:steal_pos=cpu_steal,0,INF,LIMIT" +
+//				" VDEF:steal_last=steal_pos,LAST" +
+//				" VDEF:steal_min=steal_pos,MINIMUM" +
+//				" VDEF:steal_avg=steal_pos,AVERAGE" +
+//				" VDEF:steal_max=steal_pos,MAXIMUM" +
+//				" GPRINT:'steal_last':' Now\\:%5.1lf%%'" +
+//				" GPRINT:'steal_min':' Min\\:%5.1lf%%'" +
+//				" GPRINT:'steal_avg':' Avg\\:%5.1lf%%'" +
+//				" GPRINT:'steal_max':' Max\\:%5.1lf%%\\l'" +
 				" STACK:'cpu_idle'#e2e2f2:'Idle\\g'" +
 				" CDEF:idle_pos=cpu_idle,0,INF,LIMIT" +
 				" VDEF:idle_last=idle_pos,LAST" +
@@ -184,7 +184,7 @@ public class CPUSearchCmd implements ICmd{
 //				" XPORT:'cpu_nice':'Nice\\g'" +
 				" XPORT:'cpu_system':'System\\g'" +
 //				" XPORT:'cpu_wio':'Wait\\g'" +
-				" XPORT:'cpu_steal':'Steal\\g'" +
+//				" XPORT:'cpu_steal':'Steal\\g'" +
 				" XPORT:'cpu_idle':'Idle\\g'" +
 				" XPORT:'cpu_speed':'Speed\\g'";
 	}

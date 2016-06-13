@@ -21,11 +21,11 @@ public class Constant {
 	public static int dataIntervalTime=10;
 
 	/**
-	 * 默认数据
+	 * 默认数据量阈值
 	 * from setting
 	 * unit:second
 	 */
-	public static int defaultPointAmountThreshold=10;
+	public static int defaultPointAmountThreshold=30;
 	/**
 	 * 数值精度
 	 */
