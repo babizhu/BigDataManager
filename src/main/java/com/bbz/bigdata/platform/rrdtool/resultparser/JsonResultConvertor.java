@@ -71,6 +71,7 @@ public class JsonResultConvertor {
 		}
 
 		cmd.handleTotal(jsonModel,showUnit);
+		filteDataInterval(jsonModel,null);
 
 		if (changeToPercent) {
 			jsonModel.setYunit(Unit.Perent.toString());
@@ -78,11 +79,11 @@ public class JsonResultConvertor {
 			 *转为百分比 
 			 */
 			cmd.handleToPercent(jsonModel,fullName_Detail_Map.keySet());
-			filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
+			filteUserSelect(jsonModel, fullName_Detail_Map.keySet());
 		}else {
 			if (showUnit!=null&&showUnit!=measurement.getResultUnit()){ //给定了showUnit
 				jsonModel.setYunit(showUnit.toString());
-				filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
+				filteUserSelect(jsonModel, fullName_Detail_Map.keySet());
 				/*
 				 * 单位转换
 				 */
@@ -90,7 +91,7 @@ public class JsonResultConvertor {
 					djm.setData(showUnit.convertValue(measurement.getResultUnit(),djm.getData()));
 				});
 			}else {
-				filterUserSelect(jsonModel, fullName_Detail_Map.keySet());
+				filteUserSelect(jsonModel, fullName_Detail_Map.keySet());
 				List<BigDecimal[]> tempList = jsonModel.getList().stream().map(djm -> {
 					return djm.getData();
 				}).collect(Collectors.toList());
@@ -207,7 +208,7 @@ public class JsonResultConvertor {
 	/**
 	 *过滤用户所选detail 
 	 */
-	private static void filterUserSelect(RRDJsonModel jsonModel, Collection<String> seletedFullName){
+	private static void filteUserSelect(RRDJsonModel jsonModel, Collection<String> seletedFullName){
 		jsonModel.setList(
 				jsonModel.getList().stream().filter((djm)->{
 						return seletedFullName.contains(djm.getName());
@@ -226,8 +227,7 @@ public class JsonResultConvertor {
 			}
 			int intervalTime=djm.getPointInterval()*interval;
 			BigDecimal[] newData=new BigDecimal[(djm.getData().length-1)/interval+1];
-			long start=djm.getPointStart()+djm.getData().length*djm.getPointInterval()-1
-					;
+			long newStart=djm.getPointStart()+(djm.getData().length-((newData.length-1)*interval+1))*djm.getPointInterval();
 			/**
 			 * i:data从右往左第几个数，n：第几个筛选出来的数
 			 */
@@ -239,7 +239,7 @@ public class JsonResultConvertor {
 			}
 			djm.setData(newData);
 			djm.setPointInterval(intervalTime);
-//			djm.setPointStart(djm.get);
+			djm.setPointStart(newStart);
 		});
 	}
 
@@ -254,4 +254,23 @@ public class JsonResultConvertor {
 		return interval;
 	}
 
+//	public static void main(String[] args) {
+//		RRDJsonModel jsonModel=new RRDJsonModel();
+//		jsonModel.setList(new ArrayList<>());
+//		DataJsonModel djm=new DataJsonModel();
+//		jsonModel.getList().add(djm);
+//		djm.setPointStart(10000);
+//		djm.setPointInterval(1);
+//		djm.setData(new BigDecimal[11]);
+//		for (int i=1;i<12;i++){
+//			djm.getData()[i-1]=new BigDecimal(i);
+//		}
+//		filteDataInterval(jsonModel,3);
+//		for (BigDecimal b:djm.getData()
+//			 ) {
+//			System.out.println(b);
+//		}
+//		System.out.println(djm.getPointStart());
+//		System.out.println(djm.getPointInterval());
+//	}
 }
