@@ -1,4 +1,10 @@
 var ioc = {
+    conf : {
+        type : "org.nutz.ioc.impl.PropertiesProxy",
+        fields : {
+            paths : ["custom/"]
+        }
+    },
     dataSource : {
         type : "com.alibaba.druid.pool.DruidDataSource",
         events : {

@@ -3,6 +3,7 @@ package com.bbz.bigdata.platform;
 import com.bbz.bigdata.platform.bean.Cluster;
 import org.nutz.dao.Dao;
 import org.nutz.dao.util.Daos;
+import org.nutz.integration.quartz.NutQuartzCronJobFactory;
 import org.nutz.ioc.Ioc;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
@@ -28,7 +29,7 @@ public class MainSetup implements Setup{
 
             dao.insert( cluster );
         }
-//        ioc.get(NutQuartzCronJobFactory.class);
+        ioc.get(NutQuartzCronJobFactory.class);
     }
 
     public void destroy( NutConfig conf ){
