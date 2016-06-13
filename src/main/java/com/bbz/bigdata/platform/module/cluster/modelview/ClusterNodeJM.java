@@ -1,4 +1,4 @@
-package com.bbz.bigdata.platform.module.modelview;
+package com.bbz.bigdata.platform.module.cluster.modelview;
 
 import com.bbz.bigdata.platform.bean.ClusterNode;
 import com.bbz.bigdata.platform.rrdtool.Constant;

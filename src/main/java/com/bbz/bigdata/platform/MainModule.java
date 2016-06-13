@@ -12,7 +12,8 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
 @SetupBy(value = MainSetup.class)
 @IocBy(type = ComboIocProvider.class, args = {"*js", "ioc/",
         "*anno", "com.bbz.bigdata",
-        "*tx"})
+        "*tx",
+        "*org.nutz.integration.quartz.QuartzIocLoader"})
 //@Filters(#  CrossOrginFilter)
 @Filters({@By(type = CrossOriginFilter.class)})
 @Ok("json:full")

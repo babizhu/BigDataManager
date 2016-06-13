@@ -1,8 +1,11 @@
-package com.bbz.bigdata.platform.module;
+package com.bbz.bigdata.platform.module.cluster;
 
 import com.bbz.bigdata.platform.bean.Cluster;
 import com.bbz.bigdata.platform.bean.ClusterNode;
-import com.bbz.bigdata.platform.module.modelview.*;
+import com.bbz.bigdata.platform.module.cluster.modelview.ClusterChartsJM;
+import com.bbz.bigdata.platform.module.cluster.modelview.ClusterNodeJM;
+import com.bbz.bigdata.platform.module.cluster.modelview.ClusterNodeListJM;
+import com.bbz.bigdata.platform.module.cluster.modelview.ClusterSummaryJM;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;

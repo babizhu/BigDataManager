@@ -18,7 +18,12 @@
         <dependency>
             <groupId>org.nutz</groupId>
             <artifactId>nutz</artifactId>
-            <version>1.r.55</version>
+            <version>1.r.56</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nutz</groupId>
+            <artifactId>nutz-integration-quartz</artifactId>
+            <version>1.r.56</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -96,7 +101,11 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.3</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>ROOT</finalName>

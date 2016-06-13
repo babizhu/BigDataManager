@@ -28,6 +28,7 @@ public class MainSetup implements Setup{
 
             dao.insert( cluster );
         }
+//        ioc.get(NutQuartzCronJobFactory.class);
     }
 
     public void destroy( NutConfig conf ){

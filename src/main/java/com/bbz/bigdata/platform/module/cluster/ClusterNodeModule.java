@@ -1,7 +1,7 @@
-package com.bbz.bigdata.platform.module;
+package com.bbz.bigdata.platform.module.cluster;
 
 import com.bbz.bigdata.platform.bean.ClusterNode;
-import com.bbz.bigdata.platform.module.modelview.ClusterNodeJM;
+import com.bbz.bigdata.platform.module.cluster.modelview.ClusterNodeJM;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import com.bbz.bigdata.platform.service.ClusterService;
@@ -16,9 +16,7 @@ import org.nutz.mvc.annotation.Param;
 
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by liu_k on 2.
