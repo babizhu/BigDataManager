@@ -5,12 +5,12 @@
 //import com.bbz.bigdata.platform.rrdtool.cmd.CmdBuilder;
 //import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 //import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-//import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+//import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 //import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 //import com.bbz.bigdata.platform.rrdtool.measurement.MeasurementCreator;
-//import com.bbz.bigdata.platform.rrdtool.resultmodel.FullXMLModel;
-//import com.bbz.bigdata.platform.rrdtool.resultparser.JsonResultConvertor;
-//import com.bbz.bigdata.platform.rrdtool.resultparser.JsonResultJoiner;
+//import com.bbz.bigdata.platform.rrdtool.xmlmodel.FullXMLModel;
+//import com.bbz.bigdata.platform.rrdtool.resultparser.RRDResultConvertor;
+//import com.bbz.bigdata.platform.rrdtool.resultparser.RRDResultJoiner;
 //import com.bbz.bigdata.platform.rrdtool.resultparser.XMLResultParser;
 //import com.bbz.bigdata.util.Util;
 //
@@ -34,7 +34,7 @@
 //     * @throws ParseException
 //     * @throws BussException
 //     */
-//    public RRDJsonModel visit(String clusterName, String hostName, int timePeriod, Measurement.Detail[] measurementDetails, Unit showUnit
+//    public RRDModel visit(String clusterName, String hostName, int timePeriod, Measurement.Detail[] measurementDetails, Unit showUnit
 //            , boolean changeValueToPercent, MeasurementCreator[] measurementCreators,Measurement.Detail... measurementDetailsForShow) throws ParseException, BussException{
 //        Calendar date = Calendar.getInstance();
 //        Date now = new Date();
@@ -58,7 +58,7 @@
 //     * @throws ParseException
 //     * @throws BussException
 //     */
-//    public RRDJsonModel visit(String clusterName, String hostName,
+//    public RRDModel visit(String clusterName, String hostName,
 //                              String startTime,
 //                              String endTime,
 //                              Measurement.Detail[] measurementDetails,
@@ -90,7 +90,7 @@
 //            }
 //
 //        }
-//        RRDJsonModel fullJsonModel = null;
+//        RRDModel fullJsonModel = null;
 //        Date sdate = dateFormater.parse( startTime );
 //        for( Map.Entry<Measurement, List<Measurement.Detail>> mEntry : measurements.entrySet() ) {
 //            Measurement measurement = mEntry.getKey();
@@ -105,11 +105,11 @@
 //                System.out.println(result);
 //            }
 //            FullXMLModel crm = XMLResultParser.parse( result );
-//            RRDJsonModel jsonModel = JsonResultConvertor.convert( crm, cmd, sdate, detailList, showUnit, changeValueToPercent, measurementCreators,measurementDetailsForShow);
+//            RRDModel jsonModel = RRDResultConvertor.convert( crm, cmd, sdate, detailList, showUnit, changeValueToPercent, measurementCreators,measurementDetailsForShow);
 //            if( fullJsonModel == null ) {
 //                fullJsonModel = jsonModel;
 //            } else {
-//                fullJsonModel = JsonResultJoiner.join( fullJsonModel, jsonModel, true );
+//                fullJsonModel = RRDResultJoiner.join( fullJsonModel, jsonModel, true );
 //            }
 //        }
 //        return fullJsonModel;

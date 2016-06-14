@@ -1,11 +1,11 @@
 package com.bbz.bigdata.platform.rrdtool.resultparser;
 
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 
 import java.util.ArrayList;
 
-public class JsonResultJoiner {
+public class RRDResultJoiner {
 
 	/**
 	 * json结果合并方法
@@ -14,7 +14,7 @@ public class JsonResultJoiner {
 	 * @param checkYUnit 是否检查纵坐标单位是否相同
 	 * @throws BussException 
 	 */
-	public static RRDJsonModel join(RRDJsonModel primaryModel, RRDJsonModel joiner, boolean checkYUnit) throws BussException{
+	public static RRDModel join(RRDModel primaryModel, RRDModel joiner, boolean checkYUnit) throws BussException{
 		if (joiner==null) {
 			return primaryModel;
 		}

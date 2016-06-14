@@ -1,11 +1,11 @@
-package com.bbz.bigdata.platform.rrdtool.resultmodel;
+package com.bbz.bigdata.platform.rrdtool.xmlmodel;
 
 /**
- * 查询rrd数据的一次结果数据表示类
+ * 查询rrd数据的一条数据表示类
  * @author weiran
  *
  */
-public class DataResultModel {
+public class DataXMLModel {
 
 	private String name;
 	private String now;

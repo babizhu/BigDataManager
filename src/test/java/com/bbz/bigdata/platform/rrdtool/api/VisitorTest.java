@@ -6,6 +6,7 @@ import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 
 /**
@@ -31,5 +32,16 @@ public class VisitorTest{
         map.entrySet().forEach(e->{
             System.out.println(e.getKey());
         });
+    }
+
+    @Test
+    public void testFile(){
+        File file = new File("C:\\do");
+        //判断文件夹是否存在,如果不存在则创建文件夹
+        System.out.println(file.exists());
+        System.out.println(File.separator);
+        System.out.println(File.separatorChar);
+        System.out.println(File.pathSeparator);
+        System.out.println(File.pathSeparatorChar);
     }
 }

@@ -5,12 +5,12 @@
 //import com.bbz.bigdata.platform.rrdtool.Unit;
 //import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 //import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-//import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
-//import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+//import com.bbz.bigdata.platform.rrdtool.rrdmodel.DataModel;
+//import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 //import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 //import com.bbz.bigdata.platform.rrdtool.measurement.MeasurementCreator;
-//import com.bbz.bigdata.platform.rrdtool.resultmodel.DataXMLModel;
-//import com.bbz.bigdata.platform.rrdtool.resultmodel.FullXMLModel;
+//import com.bbz.bigdata.platform.rrdtool.xmlmodel.DataXMLModel;
+//import com.bbz.bigdata.platform.rrdtool.xmlmodel.FullXMLModel;
 //import com.thoughtworks.paranamer.ParameterNamesNotFoundException;
 //
 //import java.math.BigDecimal;
@@ -32,9 +32,9 @@
 //	 * @return json数据结果
 //	 * @throws BussException
 //	 */
-//	public static RRDJsonModel convert(FullXMLModel resultModel, ICmd cmd, Date startTime, List<Measurement.Detail> measurementDetails, Unit showUnit, boolean changeToPercent
+//	public static RRDModel convert(FullXMLModel resultModel, ICmd cmd, Date startTime, List<Measurement.Detail> measurementDetails, Unit showUnit, boolean changeToPercent
 //			, MeasurementCreator[] measurementCreators,Measurement.Detail... measurementDetailsForShow) throws BussException{
-//		RRDJsonModel jsonModel = new RRDJsonModel();
+//		RRDModel jsonModel = new RRDModel();
 //		HashMap<String, Measurement.Detail> name_Detail_Map=new HashMap<>();
 //		HashMap<String, Measurement.Detail> fullName_Detail_Map=new HashMap<>();
 //		for (Measurement.Detail detail : measurementDetails) {
@@ -47,7 +47,7 @@
 //		 */
 //		for(int i=0; i<resultModel.getDatas().size(); i++) {
 //			DataXMLModel drm = resultModel.getDatas().get(i);
-//			DataJsonModel djm=new DataJsonModel();
+//			DataModel djm=new DataModel();
 //			if (!measurement.allDetails().containsKey(drm.getName())) {
 //				continue;
 //			}
@@ -106,16 +106,16 @@
 //		/**
 //		 * 用户创建的测量数据
 //		 */
-//		List<DataJsonModel> newCreatedData=new ArrayList<>();
+//		List<DataModel> newCreatedData=new ArrayList<>();
 //		if(measurementCreators!=null) {
 //			Stream.of(measurementCreators).forEach((mc) -> {
 //				if(jsonModel.getList().size()==0){
 //					return;
 //				}
-//				DataJsonModel tempDjm = jsonModel.getList().iterator().next();
+//				DataModel tempDjm = jsonModel.getList().iterator().next();
 //				int dataLength = tempDjm.getData().length;
 //				BigDecimal[] resData = createMeasureData(jsonModel, dataLength, mc);
-//				DataJsonModel djm = new DataJsonModel();
+//				DataModel djm = new DataModel();
 //				djm.setData(resData);
 //				djm.setPointStart(tempDjm.getPointStart());
 //				djm.setPointInterval(tempDjm.getPointInterval());
@@ -157,7 +157,7 @@
 //	/**
 //	 * 创建新的测量数据，放入结果
 //     */
-//	private static BigDecimal[] createMeasureData(RRDJsonModel jsonModel,int dataLength,MeasurementCreator mc){
+//	private static BigDecimal[] createMeasureData(RRDModel jsonModel,int dataLength,MeasurementCreator mc){
 //		BigDecimal[] firstData, secondData;
 //		{
 //			if (mc.getD1()!=null){
@@ -166,7 +166,7 @@
 //					firstData[i]=mc.getD1();
 //				}
 //			}else if(mc.getMd1()!=null){
-//				DataJsonModel djm1 = jsonModel.getList().stream().filter((djm) -> {
+//				DataModel djm1 = jsonModel.getList().stream().filter((djm) -> {
 //					return mc.getMd1().fullName().equals(djm.getName());
 //				}).findFirst().get();
 //				if (djm1==null){
@@ -187,7 +187,7 @@
 //					secondData[i]=mc.getD2();
 //				}
 //			}else if(mc.getMd2()!=null){
-//				DataJsonModel djm2 = jsonModel.getList().stream().filter((djm) -> {
+//				DataModel djm2 = jsonModel.getList().stream().filter((djm) -> {
 //					return mc.getMd2().fullName().equals(djm.getName());
 //				}).findFirst().get();
 //				if (djm2==null){
@@ -208,7 +208,7 @@
 //	/**
 //	 *过滤用户所选detail
 //	 */
-//	private static void filterUserSelect(RRDJsonModel jsonModel, Collection<String> seletedFullName){
+//	private static void filterUserSelect(RRDModel jsonModel, Collection<String> seletedFullName){
 //		jsonModel.setList(
 //				jsonModel.getList().stream().filter((djm)->{
 //						return seletedFullName.contains(djm.getName());

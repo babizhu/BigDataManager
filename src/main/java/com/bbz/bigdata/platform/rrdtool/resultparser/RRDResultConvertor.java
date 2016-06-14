@@ -5,12 +5,12 @@ import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.Unit;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.DataJsonModel;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.rrdmodel.DataModel;
+import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.MeasurementCreator;
-import com.bbz.bigdata.platform.rrdtool.resultmodel.DataXMLModel;
-import com.bbz.bigdata.platform.rrdtool.resultmodel.FullXMLModel;
+import com.bbz.bigdata.platform.rrdtool.xmlmodel.DataXMLModel;
+import com.bbz.bigdata.platform.rrdtool.xmlmodel.FullXMLModel;
 import com.thoughtworks.paranamer.ParameterNamesNotFoundException;
 
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JsonResultConvertor {
+public class RRDResultConvertor {
 
 	/**
 	 * 把rrd查询数据类转换成json类
@@ -32,9 +32,9 @@ public class JsonResultConvertor {
 	 * @return json数据结果
 	 * @throws BussException
 	 */
-	public static RRDJsonModel convert(FullXMLModel resultModel, ICmd cmd, Date startTime, List<Measurement.Detail> measurementDetails, Unit showUnit, boolean changeToPercent
-			, MeasurementCreator[] measurementCreators,Measurement.Detail... measurementDetailsForShow) throws BussException{
-		RRDJsonModel jsonModel = new RRDJsonModel();
+	public static RRDModel convert(FullXMLModel resultModel, ICmd cmd, Date startTime, List<Measurement.Detail> measurementDetails, Unit showUnit, boolean changeToPercent
+			, MeasurementCreator[] measurementCreators, Measurement.Detail... measurementDetailsForShow) throws BussException{
+		RRDModel rrdModel = new RRDModel();
 		HashMap<String, Measurement.Detail> name_Detail_Map=new HashMap<>();
 		HashMap<String, Measurement.Detail> fullName_Detail_Map=new HashMap<>();
 		for (Measurement.Detail detail : measurementDetails) {
@@ -47,13 +47,13 @@ public class JsonResultConvertor {
 		 */
 		for(int i=0; i<resultModel.getDatas().size(); i++) {
 			DataXMLModel drm = resultModel.getDatas().get(i);
-			DataJsonModel djm=new DataJsonModel();
+			DataModel djm=new DataModel();
 			if (!measurement.allDetails().containsKey(drm.getName())) {
 				continue;
 			}
 			djm.setName(measurement.allDetails().get(drm.getName()).fullName());
 			djm.setPointStart(startTime.getTime());
-			djm.setPointInterval(resultModel.getStep()*1000);
+			djm.setPointInterval(resultModel.getStep());
 			BigDecimal[] pointdatas=new BigDecimal[drm.getData().length];
 			djm.setData(pointdatas);
 			/*
@@ -67,55 +67,55 @@ public class JsonResultConvertor {
 					pointdatas[j]=data;
 				}
 			}
-			jsonModel.getList().add(djm);
+			rrdModel.getList().add(djm);
 		}
 
-		cmd.handleTotal(jsonModel,showUnit);
-		filteDataInterval(jsonModel,null);
+		cmd.handleTotal(rrdModel,showUnit);
+		filteDataInterval(rrdModel,null);
 
 		if (changeToPercent) {
-			jsonModel.setYunit(Unit.Perent.toString());
+			rrdModel.setYunit(Unit.Perent);
 			/*
 			 *转为百分比 
 			 */
-			cmd.handleToPercent(jsonModel,fullName_Detail_Map.keySet());
-			filteUserSelect(jsonModel, fullName_Detail_Map.keySet());
+			cmd.handleToPercent(rrdModel,fullName_Detail_Map.keySet());
+			filteUserSelect(rrdModel, fullName_Detail_Map.keySet());
 		}else {
 			if (showUnit!=null&&showUnit!=measurement.getResultUnit()){ //给定了showUnit
-				jsonModel.setYunit(showUnit.toString());
-				filteUserSelect(jsonModel, fullName_Detail_Map.keySet());
+				rrdModel.setYunit(showUnit);
+				filteUserSelect(rrdModel, fullName_Detail_Map.keySet());
 				/*
 				 * 单位转换
 				 */
-				jsonModel.getList().forEach((djm)-> {
+				rrdModel.getList().forEach((djm)-> {
 					djm.setData(showUnit.convertValue(measurement.getResultUnit(),djm.getData()));
 				});
 			}else {
-				filteUserSelect(jsonModel, fullName_Detail_Map.keySet());
-				List<BigDecimal[]> tempList = jsonModel.getList().stream().map(djm -> {
+				filteUserSelect(rrdModel, fullName_Detail_Map.keySet());
+				List<BigDecimal[]> tempList = rrdModel.getList().stream().map(djm -> {
 					return djm.getData();
 				}).collect(Collectors.toList());
 				Unit.SuitableUnitAndValue suitableUnitAndValue = measurement.getResultUnit().toSuitableUnitAndValue(tempList);
 				for (int i=0;i<suitableUnitAndValue.values.size();i++){
-					jsonModel.getList().get(i).setData(suitableUnitAndValue.values.get(i));
+					rrdModel.getList().get(i).setData(suitableUnitAndValue.values.get(i));
 				}
-				jsonModel.setYunit(measurement.getResultUnit().toString());
+				rrdModel.setYunit(suitableUnitAndValue.unit);
 			}
 		}
 
 		/**
 		 * 用户创建的测量数据
 		 */
-		List<DataJsonModel> newCreatedData=new ArrayList<>();
+		List<DataModel> newCreatedData=new ArrayList<>();
 		if(measurementCreators!=null) {
 			Stream.of(measurementCreators).forEach((mc) -> {
-				if(jsonModel.getList().size()==0){
+				if(rrdModel.getList().size()==0){
 					return;
 				}
-				DataJsonModel tempDjm = jsonModel.getList().iterator().next();
+				DataModel tempDjm = rrdModel.getList().iterator().next();
 				int dataLength = tempDjm.getData().length;
-				BigDecimal[] resData = createMeasureData(jsonModel, dataLength, mc);
-				DataJsonModel djm = new DataJsonModel();
+				BigDecimal[] resData = createMeasureData(rrdModel, dataLength, mc);
+				DataModel djm = new DataModel();
 				djm.setData(resData);
 				djm.setPointStart(tempDjm.getPointStart());
 				djm.setPointInterval(tempDjm.getPointInterval());
@@ -127,7 +127,7 @@ public class JsonResultConvertor {
 		 * 保留显示数据
 		 */
 		if(measurementDetailsForShow!=null){
-			jsonModel.setList(jsonModel.getList().stream().filter((drm)->{
+			rrdModel.setList(rrdModel.getList().stream().filter((drm)->{
 
 				for (Measurement.Detail md:
 						measurementDetailsForShow) {
@@ -139,11 +139,11 @@ public class JsonResultConvertor {
 			}).collect(Collectors.toList()));
 		}
 
-		jsonModel.getList().addAll(newCreatedData);
+		rrdModel.getList().addAll(newCreatedData);
 		/**
 		 * 处理小数点
 		 */
-		jsonModel.getList().stream().forEach(djm->{
+		rrdModel.getList().stream().forEach(djm->{
 			for (int i=0;i<djm.getData().length;i++){
 				if(djm.getData()[i]==null){
 					continue;
@@ -151,13 +151,13 @@ public class JsonResultConvertor {
 				djm.getData()[i]=djm.getData()[i].setScale(Constant.numberScale,Constant.roundingMode);
 			}
 		});
-		return jsonModel;
+		return rrdModel;
 	}
 
 	/**
 	 * 创建新的测量数据，放入结果
      */
-	private static BigDecimal[] createMeasureData(RRDJsonModel jsonModel,int dataLength,MeasurementCreator mc){
+	private static BigDecimal[] createMeasureData(RRDModel rrdModel, int dataLength, MeasurementCreator mc){
 		BigDecimal[] firstData, secondData;
 		{
 			if (mc.getD1()!=null){
@@ -166,7 +166,7 @@ public class JsonResultConvertor {
 					firstData[i]=mc.getD1();
 				}
 			}else if(mc.getMd1()!=null){
-				DataJsonModel djm1 = jsonModel.getList().stream().filter((djm) -> {
+				DataModel djm1 = rrdModel.getList().stream().filter((djm) -> {
 					return mc.getMd1().fullName().equals(djm.getName());
 				}).findFirst().get();
 				if (djm1==null){
@@ -175,7 +175,7 @@ public class JsonResultConvertor {
 					firstData=djm1.getData();
 				}
 			}else if(mc.getNextOp1()!=null){
-				firstData=createMeasureData(jsonModel,dataLength,mc.getNextOp1());
+				firstData=createMeasureData(rrdModel,dataLength,mc.getNextOp1());
 			}else{
 				throw new ParameterNamesNotFoundException("first data not found");
 			}
@@ -187,7 +187,7 @@ public class JsonResultConvertor {
 					secondData[i]=mc.getD2();
 				}
 			}else if(mc.getMd2()!=null){
-				DataJsonModel djm2 = jsonModel.getList().stream().filter((djm) -> {
+				DataModel djm2 = rrdModel.getList().stream().filter((djm) -> {
 					return mc.getMd2().fullName().equals(djm.getName());
 				}).findFirst().get();
 				if (djm2==null){
@@ -196,7 +196,7 @@ public class JsonResultConvertor {
 					secondData=djm2.getData();
 				}
 			}else if(mc.getNextOp2()!=null){
-				secondData=createMeasureData(jsonModel,dataLength,mc.getNextOp2());
+				secondData=createMeasureData(rrdModel,dataLength,mc.getNextOp2());
 			}else{
 				throw new ParameterNamesNotFoundException("second data not found");
 			}
@@ -208,26 +208,26 @@ public class JsonResultConvertor {
 	/**
 	 *过滤用户所选detail 
 	 */
-	private static void filteUserSelect(RRDJsonModel jsonModel, Collection<String> seletedFullName){
-		jsonModel.setList(
-				jsonModel.getList().stream().filter((djm)->{
+	private static void filteUserSelect(RRDModel rrdModel, Collection<String> seletedFullName){
+		rrdModel.setList(
+				rrdModel.getList().stream().filter((djm)->{
 						return seletedFullName.contains(djm.getName());
 					}).collect( Collectors.toList())
 				);
 	}
 
-	private static void filteDataInterval(RRDJsonModel rrdJsonModel,Integer pointAmountThreshold){
-		if (rrdJsonModel==null||rrdJsonModel.getList()==null||rrdJsonModel.getList().size()==0){
+	private static void filteDataInterval(RRDModel rrdModel, Integer pointAmountThreshold){
+		if (rrdModel ==null|| rrdModel.getList()==null|| rrdModel.getList().size()==0){
 			return;
 		}
-		rrdJsonModel.getList().forEach(djm->{
+		rrdModel.getList().forEach(djm->{
 			int interval=calDataPiontInterval(djm.getData().length,pointAmountThreshold);
 			if (interval==1){
 				return;
 			}
 			int intervalTime=djm.getPointInterval()*interval;
 			BigDecimal[] newData=new BigDecimal[(djm.getData().length-1)/interval+1];
-			long newStart=djm.getPointStart()+(djm.getData().length-((newData.length-1)*interval+1))*djm.getPointInterval();
+			long newStart=djm.getPointStart()+(djm.getData().length-((newData.length-1)*interval+1))*djm.getPointInterval()*1000;
 			/**
 			 * i:data从右往左第几个数，n：第几个筛选出来的数
 			 */
@@ -255,17 +255,17 @@ public class JsonResultConvertor {
 	}
 
 //	public static void main(String[] args) {
-//		RRDJsonModel jsonModel=new RRDJsonModel();
-//		jsonModel.setList(new ArrayList<>());
-//		DataJsonModel djm=new DataJsonModel();
-//		jsonModel.getList().add(djm);
+//		RRDModel rrdModel=new RRDModel();
+//		rrdModel.setList(new ArrayList<>());
+//		DataModel djm=new DataModel();
+//		rrdModel.getList().add(djm);
 //		djm.setPointStart(10000);
 //		djm.setPointInterval(1);
 //		djm.setData(new BigDecimal[11]);
 //		for (int i=1;i<12;i++){
 //			djm.getData()[i-1]=new BigDecimal(i);
 //		}
-//		filteDataInterval(jsonModel,3);
+//		filteDataInterval(rrdModel,3);
 //		for (BigDecimal b:djm.getData()
 //			 ) {
 //			System.out.println(b);

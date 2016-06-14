@@ -2,11 +2,13 @@ package com.bbz.bigdata.platform.rrdtool;
 
 import java.math.BigDecimal;
 
+/**
+ * from setting
+ */
 public class Constant {
 
 	/**
 	 * rrdtool程序位置
-	 * from setting
 	 */
 	public static String rrdToolLocation="/usr/local/rrdtool/bin/rrdtool";
 	/**
@@ -15,14 +17,12 @@ public class Constant {
 	public static String rrdDataLocation="/var/lib/ganglia/rrds/";
 	/**
 	 * 数据采集间隔
-	 * from setting
 	 * unit:second
 	 */
 	public static int dataIntervalTime=10;
 
 	/**
 	 * 默认数据量阈值
-	 * from setting
 	 * unit:second
 	 */
 	public static int defaultPointAmountThreshold=30;

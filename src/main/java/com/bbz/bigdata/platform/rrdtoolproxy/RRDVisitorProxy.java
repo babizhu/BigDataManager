@@ -2,7 +2,7 @@ package com.bbz.bigdata.platform.rrdtoolproxy;
 
 import com.bbz.bigdata.platform.rrdtool.api.Visitor;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.MeasurementCreator;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
@@ -18,15 +18,12 @@ public class RRDVisitorProxy {
      * 默认查询时间段 单位：秒
      */
     public static final int timePeriod=1800;
-    /**
-     * 默认查询时间段 单位：秒
-     */
-    public static final int timePeriodNewestInfo=180;
 
     /**
-     * 判断间节点为dead时连续无数据个数
+     * 用于判断间节点为dead的无数据时长阈值
+     * unit:second
      */
-    public static final int NULL_COUNT_OF_DEAD_LIMIT=4;
+    public static final int NO_DATA_LIMIT_FOR_DEAD=60;
 
     public static final String DETAIL_NAME_USED=".Used";
 
@@ -43,7 +40,7 @@ public class RRDVisitorProxy {
 //        Visitor visitor=new Visitor();
 //        for (String hostName:hostNames ) {
 //            try {
-//                RRDJsonModel jm = visitor.visit(clusterName, hostName, timePeriod, new Measurement.Detail[]{Metrics.Disk.Free}, null, false,null);
+//                RRDModel jm = visitor.visit(clusterName, hostName, timePeriod, new Measurement.Detail[]{Metrics.Disk.Free}, null, false,null);
 //                if(this.isAlive(jm.getList().get(0).getData())){
 //                    dto.setAliveAmount(dto.getAliveAmount()+1);
 //                }else{
@@ -55,17 +52,17 @@ public class RRDVisitorProxy {
 //        }
 //        return dto;
 //    }
-
-    private boolean isAlive(BigDecimal[] data){
-        if (data==null) return false;
-        if (data.length< NULL_COUNT_OF_DEAD_LIMIT) return true;
-        for (int i=data.length-1;i>=data.length-NULL_COUNT_OF_DEAD_LIMIT&&i>=0;i--){
-            if (data[i]!=null){
-                return true;
-            }
-        }
-        return false;
-    }
+//
+//    private boolean isAlive(BigDecimal[] data){
+//        if (data==null) return false;
+//        if (data.length< NULL_COUNT_OF_DEAD_LIMIT) return true;
+//        for (int i=data.length-1;i>=data.length-NULL_COUNT_OF_DEAD_LIMIT&&i>=0;i--){
+//            if (data[i]!=null){
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * 集群内存信息图数据
@@ -75,7 +72,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterMemoryDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterMemoryDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -93,7 +90,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterCPUDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterCPUDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -111,7 +108,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterNetworkDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterNetworkDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -128,7 +125,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterDiskDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterDiskDataValue(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -146,7 +143,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterMemorySimpleData(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterMemorySimpleData(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -167,7 +164,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterCPUSimpleData(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterCPUSimpleData(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -185,7 +182,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterDiskSimpleData(String clusterName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterDiskSimpleData(String clusterName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -204,7 +201,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterNodeMemoryInfo(String clusterName,String nodeName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterNodeMemoryInfo(String clusterName, String nodeName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -225,7 +222,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterNodeCPUInfo(String clusterName,String nodeName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterNodeCPUInfo(String clusterName, String nodeName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -244,7 +241,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterNodeCPUSpeed(String clusterName,String nodeName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterNodeCPUSpeed(String clusterName, String nodeName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -263,7 +260,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterNodeNetworkInfo(String clusterName,String nodeName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterNodeNetworkInfo(String clusterName, String nodeName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor=new Visitor();
         if (timePeriod==null){
             timePeriod= RRDVisitorProxy.timePeriod;
@@ -281,7 +278,7 @@ public class RRDVisitorProxy {
      * @throws ParseException
      * @throws BussException
      */
-    public RRDJsonModel clusterNodeDiskInfo(String clusterName,String nodeName, Integer timePeriod) throws ParseException, BussException {
+    public RRDModel clusterNodeDiskInfo(String clusterName, String nodeName, Integer timePeriod) throws ParseException, BussException {
         Visitor visitor = new Visitor();
         if (timePeriod == null) {
             timePeriod = RRDVisitorProxy.timePeriod;

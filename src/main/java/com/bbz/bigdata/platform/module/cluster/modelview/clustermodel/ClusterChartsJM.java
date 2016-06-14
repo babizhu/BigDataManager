@@ -1,6 +1,6 @@
-package com.bbz.bigdata.platform.module.cluster.modelview;
+package com.bbz.bigdata.platform.module.cluster.modelview.clustermodel;
 
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.module.cluster.modelview.rrdjsonmodel.RRDJsonModel;
 import lombok.Data;
 
 /**

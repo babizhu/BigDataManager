@@ -2,8 +2,8 @@ package com.bbz.bigdata.platform.rrdtool.resultparser;
 
 import com.alibaba.fastjson.JSON;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.resultmodel.DataXMLModel;
-import com.bbz.bigdata.platform.rrdtool.resultmodel.FullXMLModel;
+import com.bbz.bigdata.platform.rrdtool.xmlmodel.DataXMLModel;
+import com.bbz.bigdata.platform.rrdtool.xmlmodel.FullXMLModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -207,8 +207,6 @@ public class XMLResultParser {
 		
 		FullXMLModel resultModel = parse(xml);
 		System.out.println(JSON.toJSONString(resultModel,true));
-//		CommonJsonModel b = JsonResultConvertor.convert(resultModel, new Date(), Measurement.Memory, null);
-//		System.out.println(JSON.toJSONString(b,true));
-//		System.out.println(new BigDecimal("0.0000000000e+00").doubleValue());
+
 	}
 }

@@ -1,9 +1,10 @@
 package com.bbz.bigdata.platform.module.cluster;
 
 import com.bbz.bigdata.platform.bean.ClusterNode;
-import com.bbz.bigdata.platform.module.cluster.modelview.ClusterNodeJM;
+import com.bbz.bigdata.platform.module.cluster.modelview.clustermodel.ClusterNodeJM;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.module.cluster.modelview.rrdjsonmodel.RRDJsonModel;
+import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 import com.bbz.bigdata.platform.service.ClusterService;
 import com.bbz.bigdata.util.Util;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -99,26 +100,26 @@ public class ClusterNodeModule {
 
 
     @At
-    public RRDJsonModel nodeMemoryInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
-        RRDJsonModel rrdJM = clusterService.nodeMemoryInfo(nodeId,timePeriod);
-        return rrdJM;
+    public RRDJsonModel nodeMemoryInfo(@Param("nodeId") int nodeId, @Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDModel rrdJM = clusterService.nodeMemoryInfo(nodeId,timePeriod);
+        return new RRDJsonModel(rrdJM);
     }
 
     @At
-    public RRDJsonModel nodeCPUInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
-        RRDJsonModel rrdJM = clusterService.nodeCPUInfo(nodeId,timePeriod);
-        return rrdJM;
+    public RRDJsonModel nodeCPUInfo(@Param("nodeId") int nodeId, @Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDModel rrdJM = clusterService.nodeCPUInfo(nodeId,timePeriod);
+        return new RRDJsonModel(rrdJM);
     }
 
     @At
-    public RRDJsonModel nodeNetworkInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
-        RRDJsonModel rrdJM = clusterService.nodeNetworkInfo(nodeId,timePeriod);
-        return rrdJM;
+    public RRDJsonModel nodeNetworkInfo(@Param("nodeId") int nodeId, @Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDModel rrdJM = clusterService.nodeNetworkInfo(nodeId,timePeriod);
+        return new RRDJsonModel(rrdJM);
     }
 
     @At
-    public RRDJsonModel nodeDiskInfo(@Param("nodeId") int nodeId,@Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
-        RRDJsonModel rrdJM = clusterService.nodeDiskInfo(nodeId,timePeriod);
-        return rrdJM;
+    public RRDJsonModel nodeDiskInfo(@Param("nodeId") int nodeId, @Param("timePeriod") Integer timePeriod) throws ParseException, BussException {
+        RRDModel rrdJM = clusterService.nodeDiskInfo(nodeId,timePeriod);
+        return new RRDJsonModel(rrdJM);
     }
 }

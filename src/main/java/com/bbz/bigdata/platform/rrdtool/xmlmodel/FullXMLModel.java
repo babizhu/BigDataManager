@@ -1,4 +1,4 @@
-package com.bbz.bigdata.platform.rrdtool.resultmodel;
+package com.bbz.bigdata.platform.rrdtool.xmlmodel;
 
 import java.util.ArrayList;
 import java.util.List;

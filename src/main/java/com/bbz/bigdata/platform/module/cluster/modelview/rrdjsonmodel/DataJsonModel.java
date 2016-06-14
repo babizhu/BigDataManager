@@ -1,11 +1,21 @@
-package com.bbz.bigdata.platform.rrdtool.jsonresultmodel;
+package com.bbz.bigdata.platform.module.cluster.modelview.rrdjsonmodel;
 
+import com.bbz.bigdata.platform.rrdtool.rrdmodel.DataModel;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
 public class DataJsonModel {
+
+	public  DataJsonModel(){}
+
+	public  DataJsonModel(DataModel dataModel){
+		this.name=dataModel.getName();
+		this.data=dataModel.getData();
+		this.pointInterval=dataModel.getPointInterval()*1000;
+		this.pointStart=dataModel.getPointStart();
+	}
 
 	/**
 	 * 数据名称 （比如 Memory.Free）

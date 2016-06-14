@@ -1,7 +1,5 @@
-package com.bbz.bigdata.platform.module.cluster.modelview;
+package com.bbz.bigdata.platform.module.cluster.modelview.clustermodel;
 
-import com.bbz.bigdata.platform.bean.ClusterNode;
-import com.bbz.bigdata.platform.rrdtool.jsonresultmodel.RRDJsonModel;
 import lombok.Data;
 
 import java.util.Collection;
