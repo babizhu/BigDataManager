@@ -19,8 +19,10 @@ public class DataModel {
 	 * 起始点时间 单位：毫秒
 	 */
 	private long pointStart;
+
 	private BigDecimal[] data;
-	
+
+	private BigDecimal newestData;
 //	public String getName() {
 //		return name;
 //	}

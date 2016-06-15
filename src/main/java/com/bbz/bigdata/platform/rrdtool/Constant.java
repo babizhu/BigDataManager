@@ -38,4 +38,8 @@ public class Constant {
 	 * 数值近似处理方法
 	 */
 	public static int roundingMode=BigDecimal.ROUND_CEILING;
+	/**
+	 * 用于寻找最新数据点的时间阈值 单位:秒
+	 */
+	public static int thresholdTimeForNewestData=60;
 }

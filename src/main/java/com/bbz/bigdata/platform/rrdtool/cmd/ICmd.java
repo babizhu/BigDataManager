@@ -2,6 +2,7 @@ package com.bbz.bigdata.platform.rrdtool.cmd;
 
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.Unit;
+import com.bbz.bigdata.platform.rrdtool.Util;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.rrdmodel.DataModel;
 import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
@@ -62,6 +63,11 @@ public interface ICmd {
 					djm.getData()[j]=djm.getData()[j].multiply(num_100)
 							.divide(totalDjm.getData()[j], Constant.numberScale ,Constant.roundingMode);
 				}
+				if(djm.getNewestData()!=null){
+					BigDecimal total = Util.newestData(totalDjm.getData(),djm.getPointInterval());
+					djm.setNewestData(djm.getNewestData().multiply(num_100)
+							.divide(total, Constant.numberScale ,Constant.roundingMode));
+				}
 			});
 		}else{
 			throw new BussException(BussException.CAN_NOT_TO_PERCENT,"未找到Total数据，不能转换为百分比");
@@ -69,7 +75,7 @@ public interface ICmd {
 	}
 
 	/**
-	 * 较为通用的转百分比处理默认方法
+	 * 较为通用的计算总量默认方法
 	 * @param jsonModel rrd数据模型
 	 * @param totalDataFullName 分母或总量数据的全称
 	 * @throws BussException

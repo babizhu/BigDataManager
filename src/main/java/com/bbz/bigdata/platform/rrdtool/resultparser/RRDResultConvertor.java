@@ -3,6 +3,7 @@ package com.bbz.bigdata.platform.rrdtool.resultparser;
 
 import com.bbz.bigdata.platform.rrdtool.Constant;
 import com.bbz.bigdata.platform.rrdtool.Unit;
+import com.bbz.bigdata.platform.rrdtool.Util;
 import com.bbz.bigdata.platform.rrdtool.cmd.ICmd;
 import com.bbz.bigdata.platform.rrdtool.exception.BussException;
 import com.bbz.bigdata.platform.rrdtool.rrdmodel.DataModel;
@@ -42,7 +43,7 @@ public class RRDResultConvertor {
 			fullName_Detail_Map.put(detail.fullName(), detail);
 		}
 		Measurement measurement=measurementDetails.get(0).getMeasurement();
-		/*
+		/**
 		 * 创建json数据模型
 		 */
 		for(int i=0; i<resultModel.getDatas().size(); i++) {
@@ -56,7 +57,7 @@ public class RRDResultConvertor {
 			djm.setPointInterval(resultModel.getStep());
 			BigDecimal[] pointdatas=new BigDecimal[drm.getData().length];
 			djm.setData(pointdatas);
-			/*
+			/**
 			 * 填入数据
 			 */
 			for (int j=0;j<pointdatas.length;j++) {
@@ -67,15 +68,20 @@ public class RRDResultConvertor {
 					pointdatas[j]=data;
 				}
 			}
+			djm.setNewestData(Util.newestData(pointdatas,djm.getPointInterval()));
 			rrdModel.getList().add(djm);
 		}
-
+		/**
+		 * 计算总量
+		 */
 		cmd.handleTotal(rrdModel,showUnit);
-		filteDataInterval(rrdModel,null);
 
+		/**
+		 * 单位转换，筛选用户所选
+		 */
 		if (changeToPercent) {
 			rrdModel.setYunit(Unit.Perent);
-			/*
+			/**
 			 *转为百分比 
 			 */
 			cmd.handleToPercent(rrdModel,fullName_Detail_Map.keySet());
@@ -84,20 +90,30 @@ public class RRDResultConvertor {
 			if (showUnit!=null&&showUnit!=measurement.getResultUnit()){ //给定了showUnit
 				rrdModel.setYunit(showUnit);
 				filteUserSelect(rrdModel, fullName_Detail_Map.keySet());
-				/*
+				/**
 				 * 单位转换
 				 */
 				rrdModel.getList().forEach((djm)-> {
 					djm.setData(showUnit.convertValue(measurement.getResultUnit(),djm.getData()));
+					if(djm.getNewestData()!=null){
+						djm.setNewestData(showUnit.convertValue(measurement.getResultUnit(),djm.getNewestData()));
+					}
 				});
 			}else {
 				filteUserSelect(rrdModel, fullName_Detail_Map.keySet());
 				List<BigDecimal[]> tempList = rrdModel.getList().stream().map(djm -> {
 					return djm.getData();
 				}).collect(Collectors.toList());
+				/**
+				 * 自适应单位转换
+				 */
 				Unit.SuitableUnitAndValue suitableUnitAndValue = measurement.getResultUnit().toSuitableUnitAndValue(tempList);
 				for (int i=0;i<suitableUnitAndValue.values.size();i++){
-					rrdModel.getList().get(i).setData(suitableUnitAndValue.values.get(i));
+					DataModel djm = rrdModel.getList().get(i);
+					djm.setData(suitableUnitAndValue.values.get(i));
+					if(djm.getNewestData()!=null){
+						djm.setNewestData(suitableUnitAndValue.unit.convertValue(measurement.getResultUnit(),djm.getNewestData()));
+					}
 				}
 				rrdModel.setYunit(suitableUnitAndValue.unit);
 			}
@@ -120,6 +136,7 @@ public class RRDResultConvertor {
 				djm.setPointStart(tempDjm.getPointStart());
 				djm.setPointInterval(tempDjm.getPointInterval());
 				djm.setName(mc.getNewName());
+				djm.setNewestData(Util.newestData(resData,djm.getPointInterval()));
 				newCreatedData.add(djm);
 			});
 		}
@@ -140,6 +157,11 @@ public class RRDResultConvertor {
 		}
 
 		rrdModel.getList().addAll(newCreatedData);
+
+		/**
+		 * 数据点采样
+		 */
+		filteDataInterval(rrdModel,null);
 		/**
 		 * 处理小数点
 		 */

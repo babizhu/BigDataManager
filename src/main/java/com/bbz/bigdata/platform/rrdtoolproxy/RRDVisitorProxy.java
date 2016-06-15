@@ -19,12 +19,6 @@ public class RRDVisitorProxy {
      */
     public static final int timePeriod=1800;
 
-    /**
-     * 用于判断间节点为dead的无数据时长阈值
-     * unit:second
-     */
-    public static final int NO_DATA_LIMIT_FOR_DEAD=60;
-
     public static final String DETAIL_NAME_USED=".Used";
 
 //    /**

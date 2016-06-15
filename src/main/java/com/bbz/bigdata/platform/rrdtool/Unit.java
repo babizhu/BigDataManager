@@ -160,9 +160,26 @@ public class Unit {
 		return true;
 	}
 
+	/**
+	 * 单位转换后的值
+	 * @return
+	 */
+	public BigDecimal convertValue(Unit sourceUnit,BigDecimal value){
+		if (value==null){
+			return null;
+		}
+		BigDecimal times= null;
+		try {
+			// 此处不应该抛异常
+			times = sourceUnit.timesOf(this);
+		} catch (BussException e) {
+			e.printStackTrace();
+		}
+		return value.multiply(times).setScale(Constant.numberScale,Constant.roundingMode);
+	}
 
 	/**
-	 * 计算合适的单位和值
+	 * 单位转换后的值
 	 * @param values
 	 * @return
      */

@@ -25,8 +25,8 @@ public class ClusterNodeJM {
         this.cpuUsedPercent=node.getCpuUsedPercent()==null?-1:node.getCpuUsedPercent().setScale(0, Constant.roundingMode).intValue();
         this.memUsedPercent=node.getMemUsedPercent()==null?-1:node.getMemUsedPercent().setScale(0, Constant.roundingMode).intValue();
         this.diskUsedPercent=node.getDiskUsedPercent()==null?-1:node.getDiskUsedPercent().setScale(0, Constant.roundingMode).intValue();
-        this.netIn=node.getNetIn()==null?-1:node.getNetIn().setScale(0, Constant.roundingMode).intValue();
-        this.netOut=node.getNetOut()==null?-1:node.getNetOut().setScale(0, Constant.roundingMode).intValue();
+        this.netIn=node.getNetIn();
+        this.netOut=node.getNetOut();
         this.netUnit=node.getNetUnit();
         this.cpuTotal=node.getCpuTotal();
         this.cpuUnit=node.getCpuUnit();
@@ -53,8 +53,8 @@ public class ClusterNodeJM {
     private Integer diskUsedPercent;
     private BigDecimal diskTotal;
     private String diskUnit;
-    private Integer netIn;
-    private Integer netOut;
+    private BigDecimal netIn;
+    private BigDecimal netOut;
     private String netUnit;
 
     private ClusterNodeChartsJM charts=new ClusterNodeChartsJM();

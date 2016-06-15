@@ -222,7 +222,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                     return drm.getName() != null && drm.getName().equals(Metrics.CPU.name()+RRDVisitorProxy.DETAIL_NAME_USED);
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setCpuUsedPercent(newestData(djm.getData(),djm.getPointInterval()));
+                    node.setCpuUsedPercent(djm.getNewestData());
                     if(node.getCpuUsedPercent()!=null){
                         node.setStatus(1);
                     }
@@ -236,7 +236,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                     return drm.getName() != null && drm.getName().equals(Metrics.Memory.name()+RRDVisitorProxy.DETAIL_NAME_USED);
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setMemUsedPercent(newestData(djm.getData(),djm.getPointInterval()));
+                    node.setMemUsedPercent(djm.getNewestData());
                     if(node.getMemUsedPercent()!=null){
                         node.setStatus(1);
                     }
@@ -250,7 +250,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                     return drm.getName() != null && drm.getName().equals(Metrics.Disk.name()+RRDVisitorProxy.DETAIL_NAME_USED);
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setDiskUsedPercent(newestData(djm.getData(),djm.getPointInterval()));
+                    node.setDiskUsedPercent(djm.getNewestData());
                     if(node.getDiskUsedPercent()!=null){
                         node.setStatus(1);
                     }
@@ -264,7 +264,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                     return drm.getName() != null && drm.getName().equals(Metrics.Network.In.fullName());
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setNetIn(newestData(djm.getData(),djm.getPointInterval()));
+                    node.setNetIn(djm.getNewestData());
                     if(node.getNetIn()!=null){
                         node.setStatus(1);
                     }
@@ -273,7 +273,7 @@ public class ClusterService extends IdNameEntityService<Cluster>{
                     return drm.getName() != null && drm.getName().equals(Metrics.Network.Out.fullName());
                 }).findFirst().get();
                 if(djm!=null){
-                    node.setNetOut(newestData(djm.getData(),djm.getPointInterval()));
+                    node.setNetOut(djm.getNewestData());
                     if(node.getNetOut()!=null){
                         node.setStatus(1);
                     }
@@ -293,17 +293,17 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         return result;
     }
 
-    private <T> T newestData(T[] data,int dataIntervalTime){
-        if(data==null){
-            return null;
-        }
-        for (int i=data.length-1;i>=0&&i>=data.length-RRDVisitorProxy.NO_DATA_LIMIT_FOR_DEAD/dataIntervalTime;i--){
-            if (data[i]!=null){
-                return data[i];
-            }
-        }
-        return null;
-    }
+//    private <T> T newestData(T[] data,int dataIntervalTime){
+//        if(data==null){
+//            return null;
+//        }
+//        for (int i=data.length-1;i>=0&&i>=data.length-RRDVisitorProxy.NO_DATA_LIMIT_FOR_DEAD/dataIntervalTime;i--){
+//            if (data[i]!=null){
+//                return data[i];
+//            }
+//        }
+//        return null;
+//    }
 
     /**
      * 节点内存监控数据
