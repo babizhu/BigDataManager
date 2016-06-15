@@ -5,6 +5,7 @@ import com.bbz.bigdata.platform.rrdtool.cmd.cmds.CPUSearchCmd;
 import com.bbz.bigdata.platform.rrdtool.cmd.cmds.DiskSearchCmd;
 import com.bbz.bigdata.platform.rrdtool.cmd.cmds.MemorySearchCmd;
 import com.bbz.bigdata.platform.rrdtool.cmd.cmds.NetworkSearchCmd;
+import com.bbz.bigdata.platform.rrdtool.cmd.cmds.hdfs.HDSFCapacityCmd;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
 
@@ -37,6 +38,8 @@ public class CmdBuilder {
 			return new NetworkSearchCmd(clusterName, hostName, startTime, endTime);
 		}else if (measurement==Metrics.Disk) {
 			return new DiskSearchCmd(clusterName, hostName, startTime, endTime);
+		}else if(measurement==Metrics.HDFSCapacity){
+			return new HDSFCapacityCmd(clusterName, hostName, startTime, endTime);
 		}else {
 			return null;
 		}

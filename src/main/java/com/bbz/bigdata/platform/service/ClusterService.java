@@ -217,70 +217,76 @@ public class ClusterService extends IdNameEntityService<Cluster>{
             Map<Measurement,RRDModel> rrdMap=new HashMap<>();
             result.put(node,rrdMap);
             try {
-                RRDModel rrdModel = visitor.clusterNodeCPUInfo(cluster.getName(), node.getHost(), timePeriod);
-                DataModel djm = rrdModel.getList().stream().filter(drm -> {
-                    return drm.getName() != null && drm.getName().equals(Metrics.CPU.name()+RRDVisitorProxy.DETAIL_NAME_USED);
-                }).findFirst().get();
-                if(djm!=null){
-                    node.setCpuUsedPercent(djm.getNewestData());
-                    if(node.getCpuUsedPercent()!=null){
-                        node.setStatus(1);
+                RRDModel rrdModel = null;
+                DataModel djm = null;
+                rrdModel = visitor.clusterNodeCPUInfo(cluster.getName(), node.getHost(), timePeriod);
+                if(rrdModel!=null) {
+                    djm = rrdModel.getList().stream().filter(drm -> {
+                        return drm.getName() != null && drm.getName().equals(Metrics.CPU.name() + RRDVisitorProxy.DETAIL_NAME_USED);
+                    }).findFirst().get();
+                    if (djm != null) {
+                        node.setCpuUsedPercent(djm.getNewestData());
+                        if (node.getCpuUsedPercent() != null) {
+                            node.setStatus(1);
+                        }
                     }
+                    node.setCpuUnit(rrdModel.getTotalUnit()==null?null:rrdModel.getTotalUnit().toString());
+                    node.setCpuTotal(rrdModel.getTotal());
+                    rrdMap.put(Metrics.CPU, rrdModel);
                 }
-                node.setCpuUnit(rrdModel.getTotalUnit().toString());
-                node.setCpuTotal(rrdModel.getTotal());
-                rrdMap.put(Metrics.CPU, rrdModel);
-
                 rrdModel = visitor.clusterNodeMemoryInfo(cluster.getName(), node.getHost(), timePeriod);
-                djm = rrdModel.getList().stream().filter(drm -> {
-                    return drm.getName() != null && drm.getName().equals(Metrics.Memory.name()+RRDVisitorProxy.DETAIL_NAME_USED);
-                }).findFirst().get();
-                if(djm!=null){
-                    node.setMemUsedPercent(djm.getNewestData());
-                    if(node.getMemUsedPercent()!=null){
-                        node.setStatus(1);
+                if(rrdModel!=null) {
+                    djm = rrdModel.getList().stream().filter(drm -> {
+                        return drm.getName() != null && drm.getName().equals(Metrics.Memory.name() + RRDVisitorProxy.DETAIL_NAME_USED);
+                    }).findFirst().get();
+                    if (djm != null) {
+                        node.setMemUsedPercent(djm.getNewestData());
+                        if (node.getMemUsedPercent() != null) {
+                            node.setStatus(1);
+                        }
                     }
+                    node.setMemTotal(rrdModel.getTotal());
+                    node.setMemUnit(rrdModel.getTotalUnit()==null?null:rrdModel.getTotalUnit().toString());
+                    rrdMap.put(Metrics.Memory, rrdModel);
                 }
-                node.setMemTotal(rrdModel.getTotal());
-                node.setMemUnit(rrdModel.getTotalUnit().toString());
-                rrdMap.put(Metrics.Memory, rrdModel);
-
                 rrdModel = visitor.clusterNodeDiskInfo(cluster.getName(), node.getHost(), timePeriod);
-                djm = rrdModel.getList().stream().filter(drm -> {
-                    return drm.getName() != null && drm.getName().equals(Metrics.Disk.name()+RRDVisitorProxy.DETAIL_NAME_USED);
-                }).findFirst().get();
-                if(djm!=null){
-                    node.setDiskUsedPercent(djm.getNewestData());
-                    if(node.getDiskUsedPercent()!=null){
-                        node.setStatus(1);
+                if(rrdModel!=null) {
+                    djm = rrdModel.getList().stream().filter(drm -> {
+                        return drm.getName() != null && drm.getName().equals(Metrics.Disk.name() + RRDVisitorProxy.DETAIL_NAME_USED);
+                    }).findFirst().get();
+                    if (djm != null) {
+                        node.setDiskUsedPercent(djm.getNewestData());
+                        if (node.getDiskUsedPercent() != null) {
+                            node.setStatus(1);
+                        }
                     }
+                    node.setDiskTotal(rrdModel.getTotal());
+                    node.setDiskUnit(rrdModel.getTotalUnit()==null?null:rrdModel.getTotalUnit().toString());
+                    rrdMap.put(Metrics.Disk, rrdModel);
                 }
-                node.setDiskTotal(rrdModel.getTotal());
-                node.setDiskUnit(rrdModel.getTotalUnit().toString());
-                rrdMap.put(Metrics.Disk, rrdModel);
-
                 rrdModel = visitor.clusterNodeNetworkInfo(cluster.getName(), node.getHost(), timePeriod);
-                djm = rrdModel.getList().stream().filter(drm -> {
-                    return drm.getName() != null && drm.getName().equals(Metrics.Network.In.fullName());
-                }).findFirst().get();
-                if(djm!=null){
-                    node.setNetIn(djm.getNewestData());
-                    if(node.getNetIn()!=null){
-                        node.setStatus(1);
+                if(rrdModel!=null) {
+                    djm = rrdModel.getList().stream().filter(drm -> {
+                        return drm.getName() != null && drm.getName().equals(Metrics.Network.In.fullName());
+                    }).findFirst().get();
+                    if (djm != null) {
+                        node.setNetIn(djm.getNewestData());
+                        if (node.getNetIn() != null) {
+                            node.setStatus(1);
+                        }
                     }
-                }
-                djm = rrdModel.getList().stream().filter(drm -> {
-                    return drm.getName() != null && drm.getName().equals(Metrics.Network.Out.fullName());
-                }).findFirst().get();
-                if(djm!=null){
-                    node.setNetOut(djm.getNewestData());
-                    if(node.getNetOut()!=null){
-                        node.setStatus(1);
+                    djm = rrdModel.getList().stream().filter(drm -> {
+                        return drm.getName() != null && drm.getName().equals(Metrics.Network.Out.fullName());
+                    }).findFirst().get();
+                    if (djm != null) {
+                        node.setNetOut(djm.getNewestData());
+                        if (node.getNetOut() != null) {
+                            node.setStatus(1);
+                        }
                     }
+                    node.setNetUnit(rrdModel.getYunit().toString());
+                    rrdMap.put(Metrics.Network, rrdModel);
                 }
-                node.setNetUnit(rrdModel.getYunit().toString());
-                rrdMap.put(Metrics.Network, rrdModel);
-
             } catch (ParseException e) {
                 e.printStackTrace();
             } catch (BussException e) {
@@ -371,5 +377,24 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.clusterNodeDiskInfo(cluster.getName(), clusterNode.getHost(),timePeriod);
+    }
+
+    /*************************    hdfs     *************************/
+
+    /**
+     * HDFS容量数据
+     * @param nodeId
+     * @param timePeriod 查询时间段，为空则用默认时长
+     * @return
+     * @throws ParseException
+     * @throws BussException
+     */
+    public RRDModel hdfsCapacityInfo(int nodeId, Integer timePeriod) throws ParseException, BussException {
+        ClusterNode clusterNode = this.getClusterNode(nodeId);
+        if (clusterNode==null) return null;
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterNode.getClusterId());
+        if (cluster==null) return null;
+        RRDVisitorProxy visitor = new RRDVisitorProxy();
+        return visitor.hdfsCapacityData(cluster.getName(), clusterNode.getHost(),timePeriod);
     }
 }

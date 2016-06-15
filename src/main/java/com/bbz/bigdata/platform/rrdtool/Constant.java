@@ -41,5 +41,5 @@ public class Constant {
 	/**
 	 * 用于寻找最新数据点的时间阈值 单位:秒
 	 */
-	public static int thresholdTimeForNewestData=60;
+	public static int thresholdTimeForNewestData=30;
 }

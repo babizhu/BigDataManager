@@ -76,31 +76,33 @@ public class XMLResultParser {
 					}
 				}
 			}
-			Node cNode = gprintsNode.getFirstChild();
-			cNode=nextElement(cNode);
-			while (cNode!=null&&!cNode.getNodeName().equals("gprint")) {
-				DataXMLModel dataModel=dataModelMap.get(cNode.getTextContent().trim().replace("\\g", ""));
-				cNode = cNode.getNextSibling();
+			if(gprintsNode!=null) {
+				Node cNode = gprintsNode.getFirstChild();
 				cNode = nextElement(cNode);
-				while (cNode!=null&&cNode.getNodeName().equals("gprint")) {
-					String text=cNode.getTextContent().trim().replace("\\l", "");
-					String[] kv=text.split(":");
-					if(dataModel!=null) {
-						if (kv[0].equals("Now")) {
-							dataModel.setNow(kv[1].trim());
-						} else if (kv[0].equals("Min")) {
-							dataModel.setMin(kv[1].trim());
-						} else if (kv[0].equals("Avg")) {
-							dataModel.setAvg(kv[1].trim());
-						} else if (kv[0].equals("Max")) {
-							dataModel.setMax(kv[1].trim());
-						}
-					}
+				while (cNode != null && !cNode.getNodeName().equals("gprint")) {
+					DataXMLModel dataModel = dataModelMap.get(cNode.getTextContent().trim().replace("\\g", ""));
 					cNode = cNode.getNextSibling();
 					cNode = nextElement(cNode);
-				}
+					while (cNode != null && cNode.getNodeName().equals("gprint")) {
+						String text = cNode.getTextContent().trim().replace("\\l", "");
+						String[] kv = text.split(":");
+						if (dataModel != null) {
+							if (kv[0].equals("Now")) {
+								dataModel.setNow(kv[1].trim());
+							} else if (kv[0].equals("Min")) {
+								dataModel.setMin(kv[1].trim());
+							} else if (kv[0].equals("Avg")) {
+								dataModel.setAvg(kv[1].trim());
+							} else if (kv[0].equals("Max")) {
+								dataModel.setMax(kv[1].trim());
+							}
+						}
+						cNode = cNode.getNextSibling();
+						cNode = nextElement(cNode);
+					}
 //				resultModel.getDatas().add(dataModel);
 //				dataModelMap.put(dataModel.getName(), dataModel);
+				}
 			}
 			int rowIndex=0;
 			for (int i = 0; i < dataNode.getChildNodes().getLength(); i++) {
@@ -136,74 +138,27 @@ public class XMLResultParser {
 		String xml="<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"+
 
 
-"<xport>"+
-  "<meta>"+
-    "<start>1463361240</start>"+
-    "<end>1463361420</end>"+
-    "<step>15</step>"+
-    "<rows>12</rows>"+
-    "<columns>7</columns>"+
-    "<legend>"+
-      "<entry>Share\\g</entry>"+
-      "<entry>Cache\\g</entry>"+
-      "<entry>Buffer\\g</entry>"+
-      "<entry>Free\\g</entry>"+
-      "<entry>Swap\\g</entry>"+
-      "<entry>Total\\g</entry>"+
-    "</legend>"+
-    "<gprints>"+
-        "<area>  Use\\g</area>"+
-        "<gprint> Now:1467211776.0</gprint>"+
-        "<gprint> Min:1466593280.0</gprint>"+
-        "<gprint>Avg:1467081733.3</gprint>"+
-        "<gprint> Max:1467211776.0\\l</gprint>"+
-        "<area>  Share\\g</area>"+
-        "<gprint> Now:   0.0</gprint>"+
-        "<gprint> Min:   0.0</gprint>"+
-        "<gprint>Avg:   0.0</gprint>"+
-        "<gprint> Max:   0.0\\l</gprint>"+
-        "<area>  Cache\\g</area>"+
-        "<gprint> Now:576946176.0</gprint>"+
-        "<gprint> Min:576942080.0</gprint>"+
-        "<gprint>Avg:576945314.8</gprint>"+
-        "<gprint> Max:576946176.0\\l</gprint>"+
-        "<area>  Buffer\\g</area>"+
-        "<gprint> Now:1409024.0</gprint>"+
-        "<gprint> Min:1409024.0</gprint>"+
-        "<gprint>Avg:1409024.0</gprint>"+
-        "<gprint> Max:1409024.0\\l</gprint>"+
-        "<area>  Free\\g</area>"+
-        "<gprint> Now:5529026560.0</gprint>"+
-        "<gprint> Min:5529026560.0</gprint>"+
-        "<gprint>Avg:5529157464.0</gprint>"+
-        "<gprint> Max:5529649152.0\\l</gprint>"+
-        "<area>  Swap\\g</area>"+
-        "<gprint> Now:   0.0</gprint>"+
-        "<gprint> Min:   0.0</gprint>"+
-        "<gprint>Avg:   0.0</gprint>"+
-        "<gprint> Max:   0.0\\l</gprint>"+
-        "<line>Total\\g</line>"+
-        "<gprint> Now:7574593536.0</gprint>"+
-        "<gprint> Min:7574593536.0</gprint>"+
-        "<gprint>Avg:7574593536.0</gprint>"+
-        "<gprint> Max:7574593536.0\\l</gprint>"+
-    "</gprints>"+
-  "</meta>"+
-  "<data>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694208000e+08</v><v>1.4090240000e+06</v><v>5.5296491520e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694208000e+08</v><v>1.4090240000e+06</v><v>5.5296491520e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694317227e+08</v><v>1.4090240000e+06</v><v>5.5294831275e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-    "<row><v>0.0000000000e+00</v><v>5.7694617600e+08</v><v>1.4090240000e+06</v><v>5.5290265600e+09</v><v>0.0000000000e+00</v><v>7.5745935360e+09</v></row>"+
-  "</data>"+
-"</xport>";
+"<xport>\n" +
+				"  <meta>\n" +
+				"    <start>1465977360</start>\n" +
+				"    <end>1465979160</end>\n" +
+				"    <step>10</step>\n" +
+				"    <rows>180</rows>\n" +
+				"    <columns>3</columns>\n" +
+				"    <legend>\n" +
+				"      <entry>Total</entry>\n" +
+				"      <entry>Remaining</entry>\n" +
+				"      <entry>Used</entry>\n" +
+				"    </legend>\n" +
+				"  </meta>\n" +
+				"  <data>\n" +
+				"    <row><v>5.0000000000e+01</v><v>3.2000000000e+01</v><v>5.0000000000e+00</v></row>\n" +
+				"    <row><v>5.0000000000e+01</v><v>3.2000000000e+01</v><v>5.0000000000e+00</v></row>\n" +
+				"    <row><v>5.0000000000e+01</v><v>3.2000000000e+01</v><v>5.0000000000e+00</v></row>\n" +
+				"    <row><v>5.0000000000e+01</v><v>3.2000000000e+01</v><v>5.0000000000e+00</v></row>\n" +
+				"    <row><v>5.0000000000e+01</v><v>3.2000000000e+01</v><v>5.0000000000e+00</v></row>\n" +
+				"  </data>\n" +
+				"</xport>";
 		
 		FullXMLModel resultModel = parse(xml);
 		System.out.println(JSON.toJSONString(resultModel,true));

@@ -143,7 +143,7 @@ public class RRDResultConvertor {
 		/**
 		 * 保留显示数据
 		 */
-		if(measurementDetailsForShow!=null){
+		if(measurementDetailsForShow!=null){ //...参数不会为null
 			rrdModel.setList(rrdModel.getList().stream().filter((drm)->{
 
 				for (Measurement.Detail md:

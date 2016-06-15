@@ -37,6 +37,10 @@ public abstract class Measurement {
 	 */
 	public abstract Map<String,Detail> allDetails();
 
+	public Detail[] All(){
+		return allDetails().values().toArray(new Detail[]{});
+	}
+
 	/**
 	 * 详细测量量 如CPU.User
 	 * @author weiran
