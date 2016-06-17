@@ -8,6 +8,8 @@ import com.bbz.bigdata.platform.rrdtool.measurement.impl.Network;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * 检测量 如CPU
@@ -39,6 +41,12 @@ public abstract class Measurement {
 
 	public Detail[] All(){
 		return allDetails().values().toArray(new Detail[]{});
+	}
+
+	public String[] AllFullNames(){
+		return allDetails().values().stream().map(detail->{
+			return detail.fullName();
+		}).collect(Collectors.toSet()).toArray(new String[]{});
 	}
 
 	/**

@@ -7,6 +7,7 @@ import com.bbz.bigdata.platform.rrdtool.rrdmodel.DataModel;
 import com.bbz.bigdata.platform.rrdtool.rrdmodel.RRDModel;
 import com.bbz.bigdata.platform.rrdtool.measurement.Measurement;
 import com.bbz.bigdata.platform.rrdtool.measurement.Metrics;
+import com.bbz.bigdata.platform.rrdtoolproxy.RRDDataCache;
 import com.bbz.bigdata.platform.rrdtoolproxy.RRDVisitorProxy;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.QueryResult;
@@ -396,5 +397,33 @@ public class ClusterService extends IdNameEntityService<Cluster>{
         if (cluster==null) return null;
         RRDVisitorProxy visitor = new RRDVisitorProxy();
         return visitor.hdfsCapacityData(cluster.getName(), clusterNode.getHost(),timePeriod);
+    }
+
+    /**
+     * 获取servic最新数据
+     * @param nodeId
+     * @return
+     * @throws ParseException
+     * @throws BussException
+     */
+    public Map<String,Object> newestHdfsCapacityData(int nodeId) throws ParseException, BussException {
+        ClusterNode clusterNode = this.getClusterNode(nodeId);
+        if (clusterNode==null) return null;
+        Cluster cluster=this.getClusterInfoWithoutNodes(clusterNode.getClusterId());
+        if (cluster==null) return null;
+        String[] fullNames=Metrics.HDFSCapacity.AllFullNames();
+        Map<String, Object> res = RRDDataCache.instance().newestData(cluster.getName(), clusterNode.getHost(), fullNames);
+        if (res==null||res.size()!=Metrics.HDFSCapacity.allDetails().size()){
+            RRDVisitorProxy visitor = new RRDVisitorProxy();
+            visitor.hdfsCapacityData(cluster.getName(), clusterNode.getHost(),RRDVisitorProxy.newestTimePeriod);
+            res = RRDDataCache.instance().newestData(cluster.getName(), clusterNode.getHost(), fullNames);
+        }
+        for (String name:fullNames
+             ) {
+            if(!res.containsKey(name)){
+                res.put(name,null);
+            }
+        }
+        return res;
     }
 }

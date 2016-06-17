@@ -36,8 +36,4 @@ public class HDFSCapacity extends Measurement{
 		this.name_detail_map.put(Remaining.selfName(),Remaining);
 	}
 
-	public static void main(String[] args) {
-		HDFSCapacity a=new HDFSCapacity();
-		System.out.println(a.All().length);
-	}
 }

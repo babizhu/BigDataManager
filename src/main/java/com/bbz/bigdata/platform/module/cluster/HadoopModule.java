@@ -12,6 +12,7 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 
 import java.text.ParseException;
+import java.util.Map;
 
 /**
  * Created by liu_k on 2.
@@ -31,4 +32,11 @@ public class HadoopModule {
         RRDModel rrdJM = clusterService.hdfsCapacityInfo(nodeId,timePeriod);
         return new RRDJsonModel(rrdJM);
     }
+
+    @At
+    public Map<String, Object> newestHdfsCapacityData(@Param("nodeId") int nodeId) throws ParseException, BussException {
+        Map<String, Object> stringObjectMap = clusterService.newestHdfsCapacityData(nodeId);
+        return stringObjectMap;
+    }
+
 }

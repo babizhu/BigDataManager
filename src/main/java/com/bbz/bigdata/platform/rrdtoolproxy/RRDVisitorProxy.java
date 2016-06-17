@@ -21,6 +21,7 @@ public class RRDVisitorProxy {
 
     public static final String DETAIL_NAME_USED=".Used";
 
+    public static final int newestTimePeriod=100;
     /**
      * 集群内存信息图数据
      * @param clusterName 集群名称
@@ -262,9 +263,10 @@ public class RRDVisitorProxy {
         if (timePeriod == null) {
             timePeriod = RRDVisitorProxy.timePeriod;
         }
-        RRDModel rrdModel = visitor.visit(clusterName, nodeName, timePeriod, new Measurement.Detail[]{Metrics.HDFSCapacity.Total,Metrics.HDFSCapacity.Used}, null
+        RRDModel rrdModel = visitor.visit(clusterName, nodeName, timePeriod, Metrics.HDFSCapacity.All(), null
                 , false, null, Metrics.HDFSCapacity.All()
         );
+        RRDDataCache.instance().recordData(clusterName,nodeName,rrdModel);
         return rrdModel;
     }
 
