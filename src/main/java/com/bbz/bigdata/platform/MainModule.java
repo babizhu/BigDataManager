@@ -17,5 +17,6 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
 //@Filters(#  CrossOrginFilter)
 @Filters({@By(type = CrossOriginFilter.class)})
 @Ok("json:full")
+//@Fail("jsp:jsp.500")
 public class MainModule{
 }

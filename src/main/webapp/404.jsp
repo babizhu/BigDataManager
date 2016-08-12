@@ -7,8 +7,10 @@
 <%
 response.addHeader( "Access-Control-Allow-Origin", "*" );
         response.addHeader( "Access-Control-Allow-Headers", "origin, content-type, accept" );
-//        request.getContextPath()
-//request.getServletPath()
+/*
+request.getContextPath()
+request.getServletPath()
+*/
 
     String url = request.getScheme() +"://"+ request.getServerName()+":" + request.getLocalPort() +request.getAttribute("javax.servlet.error.message").toString();
     String qs = request.getQueryString();

@@ -13,6 +13,6 @@ import org.quartz.JobExecutionException;
 public class CheckClusterNode  implements Job{
     @Override
     public void execute( JobExecutionContext jobExecutionContext ) throws JobExecutionException{
-        System.out.println( "job running!!!!!!!!!!!!!");
+//        System.out.println( "job running!!!!!!!!!!!!!");
     }
 }

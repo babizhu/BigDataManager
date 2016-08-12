@@ -1,6 +1,7 @@
 package com.bbz.bigdata.platform;
 
 import com.bbz.bigdata.platform.bean.Cluster;
+import com.bbz.bigdata.platform.bean.User;
 import org.nutz.dao.Dao;
 import org.nutz.dao.util.Daos;
 import org.nutz.integration.quartz.NutQuartzCronJobFactory;
@@ -12,7 +13,6 @@ import java.util.Date;
 
 /**
  * Created by liu_k on 2016/4/15.
- *
  */
 public class MainSetup implements Setup{
     public void init( NutConfig conf ){
@@ -29,7 +29,16 @@ public class MainSetup implements Setup{
 
             dao.insert( cluster );
         }
-        ioc.get(NutQuartzCronJobFactory.class);
+        if( dao.count( User.class ) == 0 ) {
+            User user = new User();
+            user.setName( "admin" );
+            user.setPassword( "123456" );
+            user.setCreateTime( new Date() );
+            user.setUpdateTime( new Date() );
+            dao.insert( user );
+        }
+
+        ioc.get( NutQuartzCronJobFactory.class );
     }
 
     public void destroy( NutConfig conf ){
