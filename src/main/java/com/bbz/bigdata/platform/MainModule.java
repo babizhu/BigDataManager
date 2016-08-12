@@ -6,6 +6,7 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
 
 /**
  * Created by liu_k on 2016/4/15.
+ * 很多配置都在这里
  */
 
 @Modules(scanPackage = true)

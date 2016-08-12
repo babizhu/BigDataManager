@@ -1,9 +1,6 @@
 package com.bbz.bigdata.platform.bean;
 
-import org.nutz.dao.entity.annotation.Column;
-import org.nutz.dao.entity.annotation.Id;
-import org.nutz.dao.entity.annotation.Name;
-import org.nutz.dao.entity.annotation.Table;
+import org.nutz.dao.entity.annotation.*;
 
 /**
  * Created by liulaoye on 16-7-28.
@@ -13,6 +10,18 @@ import org.nutz.dao.entity.annotation.Table;
 
 @Table("t_user")
 public class User extends BaseBean{
+
+
+
+    @One(target = UserProfile.class, field = "id", key = "userId")
+    private UserProfile profile;
+    public UserProfile getProfile(){
+        return profile;
+    }
+
+    public void setProfile( UserProfile profile ){
+        this.profile = profile;
+    }
 
     @Id
     private int id;
