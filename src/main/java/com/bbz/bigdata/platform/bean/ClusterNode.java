@@ -33,6 +33,9 @@ public class ClusterNode extends BaseBean{
     @Column
     private String service;
 
+    @Column
+    private int type;//1为服务器，2为收银机
+
     private BigDecimal cpuTotal;
     private BigDecimal cpuUsed;
     private String cpuUnit;

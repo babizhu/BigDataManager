@@ -18,6 +18,7 @@ public class ClusterNodeJM {
         this.host=node.getHost();
         this.clusterId=node.getClusterId();
         this.ip=node.getIp();
+        this.type = node.getType();
         this.description=node.getDescription();
         this.service=node.getService();
         this.status=node.getStatus();
@@ -37,6 +38,7 @@ public class ClusterNodeJM {
     }
 
     private int id;
+    private int type;
     private String host;
     private int clusterId;
     private String ip;

@@ -10,7 +10,7 @@ public class Constant {
 	/**
 	 * rrdtool程序位置
 	 */
-	public static String rrdToolLocation="/usr/local/rrdtool/bin/rrdtool";
+	public static String rrdToolLocation="/usr/bin/rrdtool";
 	/**
 	 * rrd数据存放位置
 	 */

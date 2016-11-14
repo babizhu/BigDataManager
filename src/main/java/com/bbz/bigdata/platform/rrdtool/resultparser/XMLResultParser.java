@@ -111,7 +111,7 @@ public class XMLResultParser {
 					int colIndex=0;
 					for (int j = 0; j < rowNode.getChildNodes().getLength(); j++) {
 						Node vNode=rowNode.getChildNodes().item(j);
-						if (vNode instanceof Element) {
+						if (vNode instanceof Element && !vNode.getNodeName().equals( "t" )) {
 							DataXMLModel dataModel=resultModel.getDatas().get(colIndex);
 							dataModel.getData()[rowIndex]=vNode.getTextContent().trim();
 							colIndex++;
@@ -134,7 +134,28 @@ public class XMLResultParser {
 	}
 	
 	public static void main(String[] args) throws BussException {
-		
+		String a = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" +
+				"\n" +
+				"<xport>\n" +
+				"  <meta>\n" +
+				"    <start>1474184170</start>\n" +
+				"    <step>10</step>\n" +
+				"    <end>1474185960</end>\n" +
+				"    <rows>180</rows>\n" +
+				"    <columns>2</columns>\n" +
+				"    <legend>\n" +
+				"      <entry>In </entry>\n" +
+				"      <entry>Out</entry>\n" +
+				"    </legend>\n" +
+				"  </meta>\n" +
+				"  <data>\n" +
+				"    <row><t>1474184170</t><v>7.9962400000e+02</v><v>2.0057500000e+02</v></row>\n" +
+				"    <row><t>1474184180</t><v>7.8832000000e+02</v><v>1.9113000000e+02</v></row>\n" +
+				"    <row><t>1474184190</t><v>2.1771900000e+03</v><v>6.3173000000e+02</v></row>\n" +
+				"    <row><t>1474184200</t><v>2.1771900000e+03</v><v>6.3173000000e+02</v></row>\n" +
+				"    <row><t>1474185960</t><v>1.0162400000e+03</v><v>2.5379000000e+02</v></row>\n" +
+				"  </data>\n" +
+				"</xport>\n";
 		String xml="<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"+
 
 
@@ -160,7 +181,7 @@ public class XMLResultParser {
 				"  </data>\n" +
 				"</xport>";
 		
-		FullXMLModel resultModel = parse(xml);
+		FullXMLModel resultModel = parse(a);
 		System.out.println(JSON.toJSONString(resultModel,true));
 
 	}

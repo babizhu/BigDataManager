@@ -1,6 +1,7 @@
 package com.bbz.bigdata.platform;
 
 import com.bbz.bigdata.platform.filter.CrossOriginFilter;
+import org.nutz.integration.shiro.ShiroSessionProvider;
 import org.nutz.mvc.annotation.*;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
 
@@ -8,7 +9,7 @@ import org.nutz.mvc.ioc.provider.ComboIocProvider;
  * Created by liu_k on 2016/4/15.
  * 很多配置都在这里
  */
-
+@SessionBy(ShiroSessionProvider.class)
 @Modules(scanPackage = true)
 @SetupBy(value = MainSetup.class)
 @IocBy(type = ComboIocProvider.class, args = {"*js", "ioc/",
